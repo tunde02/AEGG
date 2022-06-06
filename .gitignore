@@ -1,0 +1,5 @@
+*.pyc
+
+migrations
+app/static/images
+logs

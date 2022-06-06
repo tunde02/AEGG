@@ -1,0 +1,27 @@
+.comment-list {
+    padding: 0px 20px 0px 20px;
+}
+
+.comment-block {
+    padding: 0px 10px 0px 10px;
+}
+
+.card {
+    border: 2px solid #dddddd;
+}
+
+.font-weight-bold {
+    font-weight: bold;
+}
+
+.a-none-deco {
+    text-decoration: none;
+    color: black;
+}
+
+.text-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 0px;
+}
