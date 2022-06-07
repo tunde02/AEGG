@@ -27,6 +27,15 @@
     <title>AEON'S END GG</title>
 </head>
 <body>
+    <div class="d-flex justify-content-center">
+        <a class="a-none-deco mt-3" href="{{ url_for('main.index') }}" style="font-family: '빛의 계승자 Bold'; font-size: 2.2em;">AEON's END GG</a>
+    </div>
+    <div class="d-flex justify-content-end mb-1">
+        <a class="a-none-deco" href="#" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">회원가입</a>
+        <a class="a-none-deco mx-3" href="#" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">로그인</a>
+    </div>
+<!-- 내비게이션바 -->
+{% include 'navbar.html' %}
 
 {% block content %}
 {% endblock %}

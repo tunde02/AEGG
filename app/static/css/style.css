@@ -19,6 +19,10 @@
     color: black;
 }
 
+.a-none-deco:hover {
+    color: black;
+}
+
 .text-ellipsis {
     overflow: hidden;
     white-space: nowrap;
