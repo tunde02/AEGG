@@ -12,3 +12,8 @@ class SignUpForm(FlaskForm):
     email = EmailField('이메일', validators=[DataRequired('이메일은 필수입력 항목입니다.'), Email()])
     profile_image = FileField('프로필 사진', validators=[FileAllowed(['png', 'jpg', 'jpeg', 'gif'], '프로필 사진은 이미지 파일만 업로드할 수 있습니다.')])
     about_me = StringField('자기소개')
+
+
+class LoginForm(FlaskForm):
+    username = StringField('아이디', validators=[DataRequired('아이디는 필수입력 항목입니다.')])
+    password = PasswordField('비밀번호', validators=[DataRequired('비밀번호는 필수입력 항목입니다.')])
