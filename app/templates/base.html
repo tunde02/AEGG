@@ -31,20 +31,22 @@
         <a class="a-none-deco mt-3" href="{{ url_for('main.index') }}" style="font-family: '빛의 계승자 Bold'; font-size: 2.2em;">AEON's END GG</a>
     </div>
     <div class="d-flex justify-content-end mb-1">
-        <a class="a-none-deco" href="#" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">회원가입</a>
+        <a class="a-none-deco" href="{{ url_for('auth.signup') }}" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">회원가입</a>
         <a class="a-none-deco mx-3" href="#" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">로그인</a>
     </div>
-<!-- 내비게이션바 -->
-{% include 'navbar.html' %}
 
-{% block content %}
-{% endblock %}
-<!-- Bootstrap JS -->
-<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <!-- 내비게이션바 -->
+    {% include 'navbar.html' %}
 
-<!-- Javascript Start -->
-{% block script %}
-{% endblock %}
-<!-- Javascript End -->
+    {% block content %}
+    {% endblock %}
+
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <!-- Javascript Start -->
+    {% block script %}
+    {% endblock %}
+    <!-- Javascript End -->
 </body>
 </html>
