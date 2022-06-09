@@ -32,7 +32,7 @@
     </div>
     <div class="d-flex justify-content-end mb-1">
         {% if g.user %}
-        <a class="a-none-deco" href="#" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">{{ g.user.nickname }} ({{ g.user.username }})</a>
+        <a class="a-none-deco" href="{{ url_for('profile.info', username=g.user.username) }}" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">{{ g.user.nickname }} ({{ g.user.username }})</a>
         <a class="a-none-deco mx-3" href="{{ url_for('auth.logout') }}" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">로그아웃</a>
         {% else %}
         <a class="a-none-deco" href="{{ url_for('auth.signup') }}" style="font-family: '빛의 계승자 Bold'; font-size: 1.1em;">회원가입</a>

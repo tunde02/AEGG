@@ -1,8 +1,12 @@
-from flask import Blueprint, redirect, render_template, url_for
-from werkzeug.utils import redirect
+from flask import Blueprint, render_template, g
 
 
 bp = Blueprint('main', __name__, url_prefix='/')
+
+
+@bp.before_request
+def load_navbar_tab():
+    g.navbar_tab = 'home'
 
 
 @bp.route('/')

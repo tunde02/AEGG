@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container p-3">
+    <div class="row">
+        <div class="list-group col-lg-2 p-0 mb-3">
+            <div class="list-group-item d-flex justify-content-center">
+                <img src="{{ url_for('static', filename=user.profile_image) }}" alt="{{ url_for('static', filename='images/profile/default.png') }}" class="rounded img-thumbnail" width="300">
+            </div>
+            <div class="list-group-item d-flex justify-content-center">
+                <span class="font-weight-bold" style="font-size: 1.2em;">{{ user.nickname }} ({{ user.username }})</span>
+            </div>
+            <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#info">내정보</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#record">전적</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#stats">통계</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#recent">최근 알림</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#modify">내정보 수정</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#withdrawl">회원 탈퇴</a>
+        </div>
+
+        <div class="tab-content col-lg-10">
+            <div class="tab-pane active" id="info">{% include 'profile/profile_info.html' %}</div>
+            <div class="tab-pane" id="record">{% include 'profile/profile_record.html' %}</div>
+            <div class="tab-pane" id="stats">{% include 'profile/profile_stats.html' %}</div>
+            <div class="tab-pane" id="recent">{% include 'profile/profile_recent.html' %}</div>
+            <div class="tab-pane" id="modify">{% include 'profile/profile_modify.html' %}</div>
+            <div class="tab-pane" id="withdrawl">{% include 'profile/profile_withdrawl.html' %}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
