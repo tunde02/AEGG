@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, EmailField
+from wtforms import StringField, PasswordField, EmailField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, Regexp
 
 
@@ -17,3 +17,9 @@ class SignUpForm(FlaskForm):
 class LoginForm(FlaskForm):
     username = StringField('아이디', validators=[DataRequired('아이디는 필수입력 항목입니다.')])
     password = PasswordField('비밀번호', validators=[DataRequired('비밀번호는 필수입력 항목입니다.')])
+
+
+class PostForm(FlaskForm):
+    subject = StringField('제목', validators=[DataRequired('제목은 필수입력 항목입니다.')])
+    content = TextAreaField('내용')
+    category = StringField('카테고리', validators=[DataRequired('카테고리는 필수입력 항목입니다.')])
