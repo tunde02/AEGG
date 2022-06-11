@@ -1,12 +1,13 @@
 import os, uuid, shutil
-
 from datetime import datetime
+
 from flask import Blueprint, render_template, request, url_for, g, flash
 from werkzeug.utils import redirect, secure_filename
+from sqlalchemy.sql import text
 
 from app import db
-from app.forms import PostForm
-from app.models import Post, User
+from app.forms import CommentForm, PostForm
+from app.models import Post, Comment
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 
@@ -118,11 +119,16 @@ def image_upload():
 @bp.route('/<int:post_id>')
 def detail(post_id):
     post = Post.query.get_or_404(post_id)
-    post.num_views += 1
+    form = CommentForm()
+    comment_list = Comment.query.filter(Comment.post_id == post_id) \
+        .order_by(text('if(isnull(parent_id), id, parent_id)')) \
+        .paginate(page=1, per_page=20)
 
+    # 조회수 증가
+    post.num_views += 1
     db.session.commit()
 
-    return render_template('post/post_detail.html', post=post)
+    return render_template('post/post_detail.html', form=form, post=post, comment_list=comment_list)
 
 
 @bp.route('/modify/<int:post_id>', methods=['GET', 'POST'])
@@ -185,9 +191,24 @@ def vote(post_id):
     post = Post.query.get_or_404(post_id)
 
     if g.user in post.voter:
-        flash('이미 추천한 글입니다.')
+        flash('이미 추천한 게시글입니다.')
     else:
         post.voter.append(g.user)
+
+        db.session.commit()
+
+    return redirect(url_for('post.detail', post_id=post_id))
+
+
+@bp.route('/unvote/<int:post_id>')
+@login_required
+def unvote(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    if g.user not in post.voter:
+        flash('추천하지 않은 게시글입니다.')
+    else:
+        post.voter.remove(g.user)
 
         db.session.commit()
 

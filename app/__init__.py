@@ -21,11 +21,12 @@ def create_app():
     from app import models
 
     # Blueprints
-    from app.views import main_views, auth_views, profile_views, post_views
+    from app.views import main_views, auth_views, profile_views, post_views, comment_views
     app.register_blueprint(main_views.bp)
     app.register_blueprint(auth_views.bp)
     app.register_blueprint(profile_views.bp)
     app.register_blueprint(post_views.bp)
+    app.register_blueprint(comment_views.bp)
 
     # Filters
     from app.filter import datetime_format, datetime_detail_format

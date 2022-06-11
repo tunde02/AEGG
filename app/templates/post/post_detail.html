@@ -2,37 +2,33 @@
 {% block content %}
 <div class="container my-3">
     <!-- 게시글 Start -->
-    <div class="card my-3">
+    <div class="card my-3" style="box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);">
         <div class="card-body">
             <div class="d-flex flex-row border-bottom pb-1 mb-3">
                 <h3 class="rounded border border-3 border-dark px-1">{{ post.category }}</h3>
                 <h2 class="mx-2">{{ post.subject }}</h2>
             </div>
             <div class="card-text mb-3" id="post_content">{{ post.content|safe }}</div>
-            <div class="border-bottom pb-2 my-2">
-                {% if g.user %}
-                {% if not (g.user in post.voter) %}
-                <a href="{{ url_for('post.vote', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">
-                    추천
-                    <span class="badge rounded-pill bg-success">{{ post.voter|length }}</span>
+            <div class="border-bottom pb-3 my-3">
+                <a class="{{ 'disabled' if not g.user else '' }} btn btn-sm
+                   {{ 'btn-outline-primary' if not (g.user in post.voter) else 'btn-primary' }}"
+                   id="vote_btn"
+                   data-vote="{{ url_for('post.vote', post_id=post.id) }}"
+                   data-unvote="{{ url_for('post.unvote', post_id=post.id) }}"
+                   {% if not (g.user in post.voter) %} onclick="vote()" {% else %} onclick="unvote()" {% endif %}
+                   href="javascript:void(0)">
+                   추천
                 </a>
-                {% else %}
-                <a href="javascript:void(0)" class="already-recommended btn btn-sm btn-outline-primary">
-                    추천
-                    <span class="badge rounded-pill bg-success">{{ post.voter|length }}</span>
-                </a>
-                {% endif %}
-                {% else %}
-                <a href="javascript:void(0)" aria-disabled="true" class="btn btn-sm btn-outline-primary disabled">
-                    추천
-                    <span class="badge rounded-pill bg-success">{{ post.voter|length }}</span>
-                </a>
-                {% endif %}
                 {% if g.user == post.user %}
-                <a href="{{ url_for('post.modify', post_id=post.id) }}"
-                    class="btn btn-sm btn-outline-primary">수정</a>
-                <a href="javascript:void(0)" data-uri="{{ url_for('post.delete', post_id=post.id) }}"
-                    class="delete btn btn-sm btn-danger">삭제</a>
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{{ url_for('post.modify', post_id=post.id) }}">
+                   수정
+                </a>
+                <a class="delete btn btn-sm btn-danger"
+                   data-uri="{{ url_for('post.delete', post_id=post.id) }}"
+                   href="javascript:void(0)">
+                   삭제
+                </a>
                 {% endif %}
             </div>
             <div class="d-flex justify-content-between gap-3">
@@ -43,12 +39,13 @@
                         <a class="a-none-deco p-1" href="{{ url_for('profile.info', username=post.user.username) }}" style="font-size: 1.3em;">{{ post.user.nickname }}</a>
                     </div>
                 </div>
-                <span class="mx-2">댓글 {{ 0 }} | 조회수 {{ post.num_views }}</span>
-                </div>
+                <span class="mx-2">댓글 {{ 0 }} | 추천 {{ post.voter|length }} | 조회수 {{ post.num_views }}</span>
             </div>
         </div>
     </div>
     <!-- 게시글 End -->
+
+    {% include 'comment/comment_list.html' %}
 </div>
 {% endblock %}
 
@@ -63,11 +60,47 @@ Array.from(delete_elements).forEach(function(element) {
     });
 });
 
-const already_recommended_elements = document.getElementsByClassName("already-recommended");
-Array.from(already_recommended_elements).forEach(function(element) {
-    element.addEventListener('click', function() {
-        confirm("중복 추천은 불가능합니다.")
-    });
-});
+function vote() {
+    location.href = document.getElementById('vote_btn').dataset.vote;
+}
+
+function unvote() {
+    if (confirm("추천을 취소하시겠습니까?")) {
+        location.href = document.getElementById('vote_btn').dataset.unvote;
+    }
+}
+
+function replyComment(comment_id) {
+    const replyBlock = document.getElementById("reply_block_" + comment_id)
+    const modifyBlock = document.getElementById("modify_block_" + comment_id)
+
+    if (replyBlock.style.display == "none") {
+        replyBlock.style.display = "";
+        replyBlock.getElementsByTagName("textarea")[0].focus();
+    } else {
+        replyBlock.style.display = "none";
+    }
+
+    if (modifyBlock.style.display != "none") {
+        modifyBlock.style.display = "none";
+    }
+}
+
+function modifyComment(comment_id) {
+    const replyBlock = document.getElementById("reply_block_" + comment_id)
+    const modifyBlock = document.getElementById("modify_block_" + comment_id)
+
+    if (modifyBlock.style.display == "none") {
+        modifyBlock.style.display = "";
+        modifyBlock.getElementsByTagName("textarea")[0].setSelectionRange(modifyBlock.getElementsByTagName("textarea")[0].value.length, modifyBlock.getElementsByTagName("textarea")[0].value.length); // 커서 맨 뒤로
+        modifyBlock.getElementsByTagName("textarea")[0].focus();
+    } else {
+        modifyBlock.style.display = "none";
+    }
+
+    if (replyBlock.style.display != "none") {
+        replyBlock.style.display = "none";
+    }
+}
 </script>
 {% endblock %}

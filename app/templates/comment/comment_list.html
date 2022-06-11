@@ -1,0 +1,124 @@
+<div class="card" style="box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);">
+    <!-- 댓글 목록 Start -->
+    <div class="border-bottom border-primary py-2 mx-2 mb-3">
+        {% include 'form_errors.html' %}
+
+        {% if comment_list.items|length > 0 %}
+        {% for comment in comment_list.items %}
+        {% if not comment.parent_id %}
+        <a id="comment_{{ comment.id }}"></a>
+
+        <div class="card-body border-top d-flex flex-row px-0 py-2 mx-2">
+            <img src="{{ url_for('static', filename=comment.user.profile_image) }}"
+                 alt="{{ url_for('static', filename='images/profile/default.png') }}"
+                 class="d-none d-md-block rounded img-thumbnail align-self-start"
+                 width="100"
+                 height="100">
+            <div class="card-text d-flex flex-column mx-md-3" style="width: 100%;">
+                <div class="mb-2" style="height: 100%;">
+                    {{ comment.content|markdown }}
+                </div>
+                <div class="align-self-end align-self-md-start" style="font-size: 0.7em;">
+                    <a class="a-none-deco" href="{{ url_for('profile.info', username=comment.user.username) }}">{{ comment.user.nickname }}</a>
+                    <span class="d-none d-md-inline mx-1">{{ comment.create_date|datetime_detail }}</span>
+                    <span class="d-inline d-md-none mx-1">{{ comment.create_date|datetime }}</span>
+                    {% if comment.modify_date %}
+                    <span class="border rounded align-self-center px-1">수정됨</span>
+                    {% endif %}
+                    <a class="btn text-primary p-0"
+                       href="javascript:replyComment({{ comment.id }})"
+                       style="font-size: 1em;">
+                       <i class="bi bi-arrow-return-right mx-1"></i>댓글
+                    </a>
+                    {% if g.user == comment.user %}
+                    <a class="btn text-success p-0"
+                       href="javascript:modifyComment({{ comment.id }})"
+                       style="font-size: 1em;">
+                       <i class="bi bi-pencil mx-1"></i>수정
+                    </a>
+                    <a class="delete btn text-danger p-0"
+                       href="javascript:void(0)"
+                       data-uri="{{ url_for('comment.delete', comment_id=comment.id) }}"
+                       style="font-size: 1em;">
+                       <i class="bi bi-x-lg mx-1"></i>삭제
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row me-2">
+            <div class="col-10 offset-2 col-md-11 offset-md-1 d-flex flex-row border-top px-2 py-2">
+                <img src="{{ url_for('static', filename=comment.user.profile_image) }}"
+                     alt="{{ url_for('static', filename='images/profile/default.png') }}"
+                     class="d-none d-md-block rounded img-thumbnail align-self-start"
+                     width="100"
+                     height="100">
+                <div class="card-text d-flex flex-column mx-md-3" style="width: 100%;">
+                    <div class="mb-2" style="height: 100%;">
+                        {{ comment.content|markdown }}
+                    </div>
+                    <div class="align-self-end align-self-md-start" style="font-size: 0.7em;">
+                        <a class="a-none-deco"
+                           href="{{ url_for('profile.info', username=comment.user.username) }}">
+                           {{ comment.user.nickname }}
+                        </a>
+                        <span class="d-none d-md-inline mx-1">{{ comment.create_date|datetime_detail }}</span>
+                        <span class="d-inline d-md-none mx-1">{{ comment.create_date|datetime }}</span>
+                        {% if comment.modify_date %}
+                        <span class="border rounded align-self-center px-1">수정됨</span>
+                        {% endif %}
+                        {% if g.user == comment.user %}
+                        <a class="btn text-success p-0"
+                           href="javascript:modifyComment({{ comment.id }})"
+                           style="font-size: 1em;">
+                           <i class="bi bi-pencil mx-1"></i>수정
+                        </a>
+                        <a class="delete btn text-danger p-0"
+                           href="javascript:void(0)"
+                           data-uri="{{ url_for('comment.delete', comment_id=comment.id) }}"
+                           style="font-size: 1em;">
+                           <i class="bi bi-x-lg mx-1"></i>삭제
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="pt-2" id="reply_block_{{ comment.id }}" style="display: none;">
+            <form id="comment_form" action="{{ url_for('comment.reply', comment_id=comment.id) }}" method="post">
+                {{ form.csrf_token }}
+                <div class="d-flex justify-content-start mx-2 mb-2 gap-2">
+                    <h6 class="text-primary d-none d-md-block col-auto mb-0 ms-1">댓글 작성</h6>
+                    <div class="w-100">
+                        <textarea class="form-control" name="content" rows="3" style="resize: none;"></textarea>
+                    </div>
+                    <button class="btn btn-primary align-self-start col-auto" type="submit">등록</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="pt-2" id="modify_block_{{ comment.id }}" style="display: none;">
+            <form id="comment_form" action="{{ url_for('comment.modify', comment_id=comment.id) }}" method="post">
+                {{ form.csrf_token }}
+                <div class="d-flex justify-content-start mx-2 mb-2 gap-2">
+                    <h6 class="text-success d-none d-md-block col-auto mb-0 ms-1">댓글 수정</h6>
+                    <div class="w-100">
+                        <textarea class="form-control" name="content" rows="3" style="resize: none;">{{ comment.content }}</textarea>
+                    </div>
+                    <button class="btn btn-primary align-self-start col-auto" type="submit">등록</button>
+                </div>
+            </form>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h5 class="border-bottom p-2">댓글이 없습니다.</h5>
+        {% endif %}
+    </div>
+    <!-- 댓글 목록 End -->
+
+    <!-- 댓글 등록 -->
+    {% include 'comment/comment_form.html' %}
+</div>

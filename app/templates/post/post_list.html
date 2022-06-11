@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <!-- 게시글 리스트 Start -->
+    <!-- 게시글 목록 Start -->
     <table class="table">
         <thead>
         <tr class="text-center table-dark">
@@ -43,7 +43,17 @@
             <td class="d-none d-md-table-cell">{{ post_list.total - ((post_list.page - 1) * post_list.per_page) - loop.index0 }}</td>
             <td class="d-none d-md-table-cell">{{ post.category }}</td>
             <td class="text-start text-ellipsis">
-                <a class="a-none-deco" href="{{ url_for('post.detail', post_id=post.id) }}">{{ post.subject }}</a>
+                <a class="a-none-deco" href="{{ url_for('post.detail', post_id=post.id) }}">
+                    <div>
+                        <span>{{ post.subject }}</span>
+                        {% if post.comment_list|length > 0 %}
+                        <span class="text-primary">[{{ post.comment_list|length }}]</span>
+                        {% endif %}
+                        {% if '/static/images/posts/' in post.content %}
+                        <i class="bi bi-image"></i>
+                        {% endif %}
+                    </div>
+                </a>
             </td>
             <td class="col-sm-2">
                 <a href="{{ url_for('profile.info', username=post.user.username) }}" class="a-none-deco">{{ post.user.nickname }}</a>
@@ -60,7 +70,7 @@
         {% endif %}
         </tbody>
     </table>
-    <!-- 게시글 리스트 End -->
+    <!-- 게시글 목록 End -->
 
     <!-- 게시글 페이징 Start -->
     <div class="row">
@@ -139,7 +149,7 @@ Array.from(page_elements).forEach(function(element) {
 const per_page_elements = document.getElementsByClassName("per_page-btn");
 Array.from(per_page_elements).forEach(function(element) {
     element.addEventListener('click', function() {
-        document.getElementById('page').value = 1; // 카테고리 버튼을 클릭할 경우 1페이지부터 조회
+        document.getElementById('page').value = 1; // 카테고리를 선택할 경우 1페이지부터 조회
         document.getElementById('per_page').value = this.dataset.per_page;
         document.getElementById('boardForm').submit();
     });

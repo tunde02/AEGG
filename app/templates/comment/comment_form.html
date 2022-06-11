@@ -1,0 +1,10 @@
+<form action="{{ url_for('comment.create', post_id=post.id) }}" method="post">
+    {{ form.csrf_token }}
+    <div class="d-flex justify-content-start mx-2 mb-2 gap-2">
+        <h6 class="text-primary d-none d-md-block col-auto mb-0 ms-1">댓글 작성</h6>
+        <div class="w-100">
+            <textarea class="form-control" name="content" rows="3" style="resize: none;">{{ form.content.data or '' }}</textarea>
+        </div>
+        <button class="btn btn-primary align-self-start col-auto me-1" type="submit">등록</button>
+    </div>
+</form>
