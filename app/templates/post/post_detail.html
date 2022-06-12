@@ -9,7 +9,7 @@
                 <h2 class="mx-2">{{ post.subject }}</h2>
             </div>
             <div class="card-text mb-3" id="post_content">{{ post.content|safe }}</div>
-            <div class="border-bottom pb-3 my-3">
+            <div class="border-bottom pb-3 mb-1 my-md-3">
                 <a class="{{ 'disabled' if not g.user else '' }} btn btn-sm
                    {{ 'btn-outline-primary' if not (g.user in post.voter) else 'btn-primary' }}"
                    id="vote_btn"
@@ -35,11 +35,18 @@
                 <div class="d-flex flex-row mx-1">
                     <img src="{{ url_for('static', filename=post.user.profile_image) }}" alt="{{ url_for('static', filename='images/profile/default.png') }}" class="d-none d-md-block rounded img-thumbnail" width="150" height="150">
                     <div class="d-flex flex-column mx-md-3">
-                        <span class="text-primary">글쓴이</span>
-                        <a class="a-none-deco p-1" href="{{ url_for('profile.info', username=post.user.username) }}" style="font-size: 1.3em;">{{ post.user.nickname }}</a>
+                        <span class="d-none d-md-inline text-primary">글쓴이</span>
+                        <a class="a-none-deco p-md-1" href="{{ url_for('profile.info', username=post.user.username) }}" style="font-size: calc(0.5rem + 0.8vw);">{{ post.user.nickname }}</a>
+                        <div class="d-flex" style="height: 100%;">
+                            <span class="border border-white align-self-end col-auto" style="font-size: calc(0.5rem + 0.5vw);">{{ post.create_date }}</span>
+                            {% if post.modify_date %}
+                            <span class="border rounded align-self-end col-auto px-1 mx-2" style="font-size: calc(0.5rem + 0.5vw);">수정됨</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <span class="mx-2">댓글 {{ 0 }} | 추천 {{ post.voter|length }} | 조회수 {{ post.num_views }}</span>
+                <span class="d-none d-md-block col-auto mx-md-2" style="font-size: calc(0.6rem + 0.3vw);">댓글 {{ 0 }} | 추천 {{ post.voter|length }} | 조회수 {{ post.num_views }}</span>
+                <span class="d-block d-md-none col-auto mx-md-2" style="font-size: calc(0.6rem + 0.3vw);">댓글 {{ 0 }} | 추천 {{ post.voter|length }}</span>
             </div>
         </div>
     </div>
