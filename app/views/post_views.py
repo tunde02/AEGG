@@ -20,10 +20,14 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def save_uploaded_images(request, question_id):
+def get_post_images_path(post):
+    return os.path.join(UPLOAD_FOLDER, 'posts', post.create_date.strftime("%Y-%m-%d"), str(post.id))
+
+
+def save_uploaded_images(request, post):
     # 게시글에 쓰인 이미지 파일 저장
     uploaded_images_path = os.path.join(UPLOAD_FOLDER, 'temp')
-    post_images_path = os.path.join(UPLOAD_FOLDER, 'posts', question_id)
+    post_images_path = get_post_images_path(post)
 
     if not os.path.exists(post_images_path):
         os.makedirs(post_images_path)
@@ -37,9 +41,9 @@ def save_uploaded_images(request, question_id):
             shutil.move(before, destination)
 
 
-def remove_temp_uploaded_images(content, question_id):
+def remove_temp_uploaded_images(content, post):
     # 게시글 폴더의 이미지들 중 content에 없는 것 삭제
-    post_images_path = os.path.join(UPLOAD_FOLDER, 'posts', question_id)
+    post_images_path = get_post_images_path(post)
 
     for filename in os.listdir(post_images_path):
         if filename not in content:
@@ -80,11 +84,11 @@ def create():
         db.session.commit()
 
         # 이미지 경로 변경
-        post.content = post.content.replace('/temp/', f'/posts/{post.id}/')
+        post.content = post.content.replace('/temp/', f'/posts/{post.create_date.strftime("%Y-%m-%d")}/{post.id}/')
         db.session.commit()
 
-        save_uploaded_images(request, str(post.id))
-        remove_temp_uploaded_images(form.content.data, str(post.id))
+        save_uploaded_images(request, post)
+        remove_temp_uploaded_images(form.content.data, post)
 
         return redirect(url_for('post.post_list'))
 
@@ -146,15 +150,15 @@ def modify(post_id):
 
         if form.validate_on_submit():
             if form.content.data and form.content.data != "<p><br></p>":
-                form.content.data = form.content.data.replace('/temp/', f'/posts/{post.id}/')
+                form.content.data = form.content.data.replace('/temp/', f'/posts/{post.create_date.strftime("%Y-%m-%d")}/{post.id}/')
             else:
                 form.content.data = 'ㅈㄱㄴ'
 
             form.populate_obj(post)
             post.modify_date = datetime.now()
 
-            save_uploaded_images(request, str(post.id))
-            remove_temp_uploaded_images(form.content.data, str(post.id))
+            save_uploaded_images(request, post)
+            remove_temp_uploaded_images(form.content.data, post)
 
             db.session.commit()
 
@@ -176,7 +180,7 @@ def delete(post_id):
         return redirect(url_for('post.detail', post_id=post_id))
 
     # 게시글에 쓰인 이미지 폴더째로 삭제
-    post_images_path = os.path.join(UPLOAD_FOLDER, 'posts', str(post.id))
+    post_images_path = get_post_images_path(post)
     shutil.rmtree(post_images_path)
 
     db.session.delete(post)
