@@ -6,10 +6,6 @@
     padding: 0px 10px 0px 10px;
 }
 
-.card {
-    border: 2px solid #dddddd;
-}
-
 .font-weight-bold {
     font-weight: bold;
 }
@@ -54,4 +50,36 @@ p {
     right: 0;
     width: 100%;
     height: 100%;
+}
+
+.wiki-list-container::-webkit-scrollbar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .wiki-list-item {
+        width: 28%;
+    }
+}
+
+@media (min-width: 768px){
+    .wiki-list-item {
+        width: calc(100% / 7);
+    }
+}
+
+@media (max-width: 768px) {
+    .wiki-list-placeholder {
+        width: 28%;
+    }
+}
+
+@media (min-width: 768px){
+    .wiki-list-placeholder {
+        width: calc(100% / 7);
+    }
+}
+
+.border-gem {
+    border-left: 0.35rem solid #0d6efd;
 }

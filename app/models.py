@@ -42,3 +42,97 @@ class Comment(db.Model):
     create_date = db.Column(db.DateTime(), nullable=False)
     modify_date = db.Column(db.DateTime())
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
+
+
+related_mage = db.Table(
+    'related_mage',
+    db.Column('card_id', db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('mage_id', db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), primary_key=True)
+)
+
+related_nemesis = db.Table(
+    'related_nemesis',
+    db.Column('card_id', db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('nemesis_id', db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), primary_key=True)
+)
+
+
+class Card(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(100), nullable=False)
+    cost = db.Column(db.Integer, nullable=False, default=0)
+    effect = db.Column(db.Text(), nullable=False, default='')
+    avg_score = db.Column(db.Float(), nullable=False, default=0.0)
+    related_mage = db.relationship('Mage', secondary=related_mage, backref=db.backref('related_card_list', passive_deletes=True))
+    related_nemesis = db.relationship('Nemesis', secondary=related_nemesis, backref=db.backref('related_card_list', passive_deletes=True))
+    image = db.Column(db.String(200), nullable=False, default='images/card/default.png')
+
+
+class CardEN(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    card = db.relationship('Card', backref=db.backref('card_en', passive_deletes=True), uselist=False)
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    type_en = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    effect_en = db.Column(db.Text(), nullable=False, default='')
+
+
+class CardReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref=db.backref('card_review_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    card = db.relationship('Card', backref=db.backref('review_list', passive_deletes=True))
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    content = db.Column(db.Text(), nullable=False, default='')
+    score = db.Column(db.Integer, nullable=False, default=0)
+    create_date = db.Column(db.DateTime(), nullable=False)
+    modify_date = db.Column(db.DateTime())
+
+
+class Mage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    ability_name = db.Column(db.String(100), nullable=False, default='')
+    ability = db.Column(db.Text(), nullable=False, default='')
+    activation_time = db.Column(db.String(100), nullable=False, default='')
+    required_charges = db.Column(db.Integer, nullable=False, default=0)
+    avg_score = db.Column(db.Float(), nullable=False, default=0.0)
+    icon_image = db.Column(db.String(200), nullable=False, default='images/mage/icon/default.png')
+    board_image = db.Column(db.String(200), nullable=False, default='images/mage/board/default.png')
+
+
+class MageEN(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mage = db.relationship('Mage', backref=db.backref('mage_en', passive_deletes=True), uselist=False)
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    ability_name_en = db.Column(db.String(100), nullable=False, default='')
+    ability_en = db.Column(db.Text(), nullable=False, default='')
+    activation_time_en = db.Column(db.String(100), nullable=False, default='')
+
+
+class Nemesis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    tier = db.Column(db.Integer, nullable=False, default=0)
+    hp = db.Column(db.Integer, nullable=False, default=0)
+    setup = db.Column(db.Text(), nullable=False, default='')
+    additional_rules = db.Column(db.Text(), nullable=False, default='')
+    unleash = db.Column(db.Text(), nullable=False, default='')
+    increased_diff = db.Column(db.Text(), nullable=False, default='')
+    avg_score = db.Column(db.Float(), nullable=False, default=0.0)
+    icon_image = db.Column(db.String(200), nullable=False, default='images/nemesis/icon/default.png')
+    board_image = db.Column(db.String(200), nullable=False, default='images/nemesis/board/default.png')
+
+
+class NemesisEN(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nemesis = db.relationship('Nemesis', backref=db.backref('nemesis_en', passive_deletes=True), uselist=False)
+    nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    setup_en = db.Column(db.Text(), nullable=False, default='')
+    additional_rules_en = db.Column(db.Text(), nullable=False, default='')
+    unleash_en = db.Column(db.Text(), nullable=False, default='')
+    increased_diff_en = db.Column(db.Text(), nullable=False, default='')

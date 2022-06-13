@@ -181,7 +181,8 @@ def delete(post_id):
 
     # 게시글에 쓰인 이미지 폴더째로 삭제
     post_images_path = get_post_images_path(post)
-    shutil.rmtree(post_images_path)
+    if os.path.exists(post_images_path):
+        shutil.rmtree(post_images_path)
 
     db.session.delete(post)
     db.session.commit()

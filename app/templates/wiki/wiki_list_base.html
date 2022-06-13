@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container p-3">
+    <div class="row">
+        <div class="list-group col-lg-2 p-0 mb-3 h-100" style="box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);">
+            <a class="list-group-item list-group-item-action {{ 'active' if tab == 'mage' else '' }}" href="{{ url_for('wiki.mage_list') }}">균열 마법사</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if tab == 'card' else '' }}" href="{{ url_for('wiki.card_list') }}">카드</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if tab == 'nemesis' else '' }}" href="{{ url_for('wiki.nemesis_list') }}">네메시스</a>
+        </div>
+
+        <div class="tab-content col-lg-10 p-0 px-md-3">
+            {% block wiki_list %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
