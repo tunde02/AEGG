@@ -13,7 +13,7 @@
             {% for card in card_list %}
             <li class="wiki-list-item d-inline-block mx-1 mx-md-2 mb-2 mb-md-3">
                 <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
-                    <img src="{{ url_for('static', filename=card.image) }}" alt="{{ url_for('static', filename='images/card/default.png') }}" class="rounded img-thumbnail" width="150">
+                    <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail" width="150">
                 </a>
             </li>
             {% endfor %}

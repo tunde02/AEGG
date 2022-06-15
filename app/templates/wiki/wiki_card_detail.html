@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row rounded border border-2 shadow py-2 pb-3 p-md-0 my-md-3">
         <div class="col-12 col-md-4 p-md-3 m-md-0">
-            <img src="{{ url_for('static', filename=card.image) }}" alt="{{ url_for('static', filename='images/card/default.png') }}" class="rounded img-thumbnail p-0">
+            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail p-0">
         </div>
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
             <div class="d-flex flex-column h-100">
@@ -15,7 +15,7 @@
                                 <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                             </div>
                             <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ card.name }}</span>
-                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ card_en.name_en }}</span>
+                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ card_en.name }}</span>
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                         <div class="card border-gem shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">타입</span>
                             <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ card.type }}</span>
-                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ card_en.type_en }}</span>
+                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ card_en.type }}</span>
                         </div>
                     </div>
                     <div class="col-4">
@@ -46,8 +46,8 @@
                     <div class="col-12">
                         <div class="card border-gem shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">효과</span>
-                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ card.effect }}</p>
-                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ card_en.effect_en }}</p>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ card.effect|safe }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ card_en.effect|safe }}</p>
                         </div>
                     </div>
                 </div>
