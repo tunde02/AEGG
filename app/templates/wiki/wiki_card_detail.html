@@ -7,12 +7,17 @@
         </div>
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
             <div class="d-flex flex-column h-100">
+                <!-- 이름, 버튼들 -->
                 <div class="row mt-3 mt-md-0">
                     <div class="col-12">
                         <div class="card border-gem shadow p-2 h-100">
                             <div class="d-flex justify-content-between">
                                 <span class="card-title px-2 mb-0">이름</span>
-                                <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                <div>
+                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.card_list') }}"><i class="bi bi-arrow-left"></i></a>
+                                    <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                    <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_card', card_id=card.id) }}">수정</a>
+                                </div>
                             </div>
                             <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ card.name }}</span>
                             <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ card_en.name }}</span>
@@ -21,6 +26,7 @@
                 </div>
 
                 <div class="row mt-3 mt-md-3">
+                    <!-- 카드 타입 -->
                     <div class="col-4">
                         <div class="card border-gem shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">타입</span>
@@ -28,12 +34,16 @@
                             <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ card_en.type }}</span>
                         </div>
                     </div>
+
+                    <!-- 카드 비용 -->
                     <div class="col-4">
                         <div class="card border-gem shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">비용</span>
                             <span class="card-text fs-3 px-2 mt-1">{{ card.cost }}</span>
                         </div>
                     </div>
+
+                    <!-- 카드 평정 -->
                     <div class="col-4">
                         <div class="card border-gem shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">평점</span>
@@ -42,6 +52,7 @@
                     </div>
                 </div>
 
+                <!-- 카드 효과 -->
                 <div class="row flex-grow-1 mt-3 mt-md-3">
                     <div class="col-12">
                         <div class="card border-gem shadow p-2 h-100">
@@ -52,6 +63,7 @@
                     </div>
                 </div>
 
+                <!-- 카드와 관련된 링크 -->
                 {% if related_list|length > 0 %}
                 <div class="row mt-3 mt-md-4">
                     <div class="col-12">

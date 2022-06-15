@@ -1,14 +1,44 @@
-from datetime import datetime
+import os
 
 from flask import Blueprint, render_template, request, url_for, g, flash
-from werkzeug.utils import redirect
+from werkzeug.utils import redirect, secure_filename
 
 from app import db
+from app.forms import CardForm
 from app.models import Card, CardEN, CardReview, Mage, MageEN, Nemesis, NemesisEN, related_mage, related_nemesis
 from app.views.auth_views import login_required
+from config.default import UPLOAD_FOLDER
 
 
 bp = Blueprint('wiki', __name__, url_prefix='/wiki')
+
+
+def replace_keywords(content):
+    replaced = content
+    replace_rules = [
+        ('에테르 ', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
+        ('에테르', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
+        ('AETHER ', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
+        ('AETHER', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
+        ('Cast:', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Cast :</strong>'),
+        ('Recall:', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Recall :</strong>'),
+        ('OR', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">OR</strong>'),
+        ('Link', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Link</strong>'),
+        ('Echo', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Echo</strong>'),
+        ('Attach', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Attach</strong>'),
+        ('부착', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">부착</strong>'),
+        ('IMMEDIATELY', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">IMMEDIATELY</strong>'),
+        ('PERSISTENT', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">PERSISTENT</strong>'),
+        ('TO DISCARD', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">TO DISCARD</strong>'),
+        ('POWER', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">POWER</strong>'),
+        ('\r\n---\r\n', '<strong class="d-flex border-bottom border-3 border-dark my-3"></strong>'),
+        ('\r\n', '<br>'),
+    ]
+
+    for before, after in replace_rules:
+        replaced = replaced.replace(before, after)
+
+    return replaced
 
 
 @bp.before_request
@@ -52,3 +82,88 @@ def card_detail(card_id):
 @bp.route('/detail/nemesis/<int:nemesis_id>')
 def nemesis_detail(nemesis_id):
     return render_template('wiki/wiki_nemesis_detail.html')
+
+
+@bp.route('/append/card', methods=['GET', 'POST'])
+@login_required
+def append_card():
+    form = CardForm()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        card = Card(
+            name=form.name.data,
+            type=form.type.data,
+            cost=form.cost.data,
+            effect=replace_keywords(form.effect.data),
+        )
+        card_en = CardEN(
+            card=card,
+            name=form.name_en.data,
+            type=form.type_en.data,
+            effect=replace_keywords(form.effect_en.data)
+        )
+
+        if form.image.data is not None:
+            file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'card', file_name)
+
+            form.image.data.save(file_path)
+            card.image = f"images/card/{file_name}"
+
+        db.session.add(card)
+        db.session.add(card_en)
+        db.session.commit()
+
+        return redirect(url_for('wiki.card_list'))
+
+    return render_template('wiki/wiki_card_form.html', form=form)
+
+
+@bp.route('/modify/card/<int:card_id>', methods=['GET', 'POST'])
+@login_required
+def modify_card(card_id):
+    card = Card.query.get_or_404(card_id)
+    card_en = CardEN.query.filter(CardEN.card_id == card.id).first()
+
+    if request.method == 'POST':
+        form = CardForm()
+
+        if form.validate_on_submit():
+            # 카드의 영어 이름이 바뀌면 이전 이미지 파일 이름도 변경
+            if form.name_en.data != card_en.name:
+                prev_file_extension = os.path.basename(card.image).rsplit('.', 1)[1].lower()
+                prev_file_name = secure_filename(f"{form.name_en.data.lower()}.{prev_file_extension}")
+                os.rename(os.path.join('./app/static', card.image), os.path.join(UPLOAD_FOLDER, 'card', prev_file_name))
+
+                card.image = f"images/card/{prev_file_name}"
+
+            if form.image.data is not None:
+                file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
+                file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
+                file_path = os.path.join(UPLOAD_FOLDER, 'card', file_name)
+
+                form.image.data.save(file_path)
+                form.image.data = f"images/card/{file_name}"
+            else:
+                form.image.data = card.image
+
+            card.name = form.name.data
+            card.type = form.type.data
+            card.cost = form.cost.data
+            card.effect = replace_keywords(form.effect.data)
+            card.image = form.image.data
+
+            card_en.name = form.name_en.data
+            card_en.type = form.type_en.data
+            card_en.effect = replace_keywords(form.effect_en.data)
+
+            db.session.add(card)
+            db.session.add(card_en)
+            db.session.commit()
+
+            return redirect(url_for('wiki.card_detail', card_id=card_id))
+    else:
+        form = CardForm(obj=card, name_en=card_en.name, type_en=card_en.type, effect_en=card_en.effect)
+
+    return render_template('wiki/wiki_card_form.html', form=form)

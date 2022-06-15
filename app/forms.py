@@ -27,3 +27,14 @@ class PostForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     content = TextAreaField('내용', validators=[DataRequired('댓글 내용은 필수입력 항목입니다.')])
+
+
+class CardForm(FlaskForm):
+    name = StringField('카드 이름', validators=[DataRequired('카드 이름은 필수입력 항목입니다.')])
+    name_en = StringField('카드 영어 이름', validators=[DataRequired('카드 영어 이름은 필수입력 항목입니다.')])
+    type = StringField('카드 타입', validators=[DataRequired('카드 타입은 필수입력 항목입니다.')])
+    type_en = StringField('카드 영어 타입', validators=[DataRequired('카드 영어 타입은 필수입력 항목입니다.')])
+    cost = StringField('카드 비용', validators=[DataRequired('카드 비용는 필수입력 항목입니다.'), Regexp('^[0-9]*$', message='카드 비용은 숫자만 입력할 수 있습니다.')])
+    effect = TextAreaField('카드 효과', validators=[DataRequired('카드 효과는 필수입력 항목입니다.')])
+    effect_en = TextAreaField('카드 영어 효과', validators=[DataRequired('카드 영어 효과는 필수입력 항목입니다.')])
+    image = FileField('카드 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '카드 이미지는 이미지 파일만 업로드할 수 있습니다.')])

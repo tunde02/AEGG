@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-lg-center p-3">
+    <div class="card box-shadow col-lg-6">
+        <h4 class="my-3 border-bottom pb-2" style="font: 2em '빛의 계승자 Bold';">카드 추가</h4>
+        <form method="post" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            {% include 'form_errors.html' %}
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="name">이름</label>
+                    <input type="text" class="form-control" name="name" value="{{ form.name.data or '' }}">
+                </div>
+                <div class="col-6">
+                    <label for="name_en">이름 (English)</label>
+                    <input type="text" class="form-control" name="name_en" value="{{ form.name_en.data or '' }}">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="type">타입</label>
+                    <input type="text" class="form-control" name="type" value="{{ form.type.data or '' }}">
+                </div>
+                <div class="col-6">
+                    <label for="type_en">타입 (English)</label>
+                    <input type="text" class="form-control" name="type_en" value="{{ form.type_en.data or '' }}">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="cost">비용</label>
+                    <input type="text" class="form-control" name="cost" value="{{ form.cost.data if form.cost.data is not none else '' }}">
+                </div>
+                <div class="col-6">
+                    <label for="image">카드 이미지</label>
+                    <input type="file" class="form-control" name="image" value="image">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="effect">효과</label>
+                    <textarea class="form-control" name="effect" cols="30" rows="7" style="resize: none;">{{ form.effect.data or '' }}</textarea>
+                </div>
+                <div class="col-6">
+                    <label for="effect_en">효과 (English)</label>
+                    <textarea class="form-control" name="effect_en" cols="30" rows="7" style="resize: none;">{{ form.effect_en.data or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mb-4 gap-2">
+                <a class="btn btn-danger" href="{{ url_for('wiki.card_list') }}">취소</a>
+                <button type="submit" class="btn btn-success">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

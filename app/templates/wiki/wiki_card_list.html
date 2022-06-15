@@ -1,25 +1,30 @@
 {% extends 'wiki/wiki_list_base.html' %}
 {% block wiki_list %}
-<div class="card" style="box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);">
+<div class="card box-shadow">
     <!-- 검색창 -->
-    <div class="d-flex border-bottom border-3 p-2 mx-2 mb-3">
-        <input class="form-control align-self-center mt-2 mb-1" type="text" id="search_kw" placeholder="Search...">
+    <div class="d-flex border-bottom gap-2 px-2 py-3 mx-2 mb-3">
+        <input class="form-control align-self-center" type="text" id="search_kw" placeholder="Search...">
     </div>
 
     <!-- 카드 목록 -->
-    <div class="wiki-list-container d-flex justify-content-center" style="overflow: auto; height: 600px;">
+    <div class="wiki-list-container d-flex justify-content-center pt-3" style="overflow: auto; height: 600px;">
         <h4 id="no_result" style="display: none;">해당하는 카드가 없습니다.</h4>
         <ul class="text-center w-100 px-2">
             {% for card in card_list %}
-            <li class="wiki-list-item d-inline-block mx-1 mx-md-2 mb-2 mb-md-3">
+            <li class="wiki-list-item box-shadow d-inline-block mx-1 mx-md-2 mb-2 mb-md-3">
                 <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
                     <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail" width="150">
                 </a>
             </li>
             {% endfor %}
 
+            <!-- Append Button -->
+            <li class="wiki-list-item box-shadow d-inline-block mx-1 mx-md-2 mb-2 mb-md-3">
+                <a class="d-none d-md-block" href="{{ url_for('wiki.append_card') }}"><img src="/static/images/defaults/wiki_append.png" class="rounded img-thumbnail" width="150"></a>
+            </li>
+
             <!-- Placeholders -->
-            {% for i in range(6 - (card_list|length % 6)) %}
+            {% for i in range(6 - ((card_list|length % 6) + 1)) %}
             <li class="wiki-list-placeholder d-inline-block mx-1 mx-md-2 mb-2 mb-md-3"></li>
             {% endfor %}
         </ul>
