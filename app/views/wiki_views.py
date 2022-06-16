@@ -13,7 +13,7 @@ from config.default import UPLOAD_FOLDER
 bp = Blueprint('wiki', __name__, url_prefix='/wiki')
 
 
-def replace_keywords(content):
+def replace_keywords(content, revert=False):
     replaced = content
     replace_rules = [
         ('에테르 ', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
@@ -36,7 +36,10 @@ def replace_keywords(content):
     ]
 
     for before, after in replace_rules:
-        replaced = replaced.replace(before, after)
+        if revert:
+            replaced = replaced.replace(after, before)
+        else:
+            replaced = replaced.replace(before, after)
 
     return replaced
 
@@ -172,12 +175,52 @@ def modify_card(card_id):
             card_en.type = form.type_en.data
             card_en.effect = replace_keywords(form.effect_en.data)
 
+            # 관련된 균열 마법사 목록 수정
+            prev_related_mage_name_list = [mage.name for mage in card.related_mage]
+            modified_related_mage_name_list = request.form.get('mage_relations', type=str, default='').split('|')[:-1]
+            related_mage_name_union = prev_related_mage_name_list + modified_related_mage_name_list
+
+            for mage_name in related_mage_name_union:
+                mage = Mage.query.filter(Mage.name == mage_name).first()
+
+                if mage_name not in modified_related_mage_name_list:
+                    card.related_mage.remove(mage)
+                elif mage_name not in prev_related_mage_name_list:
+                    card.related_mage.append(mage)
+
+            # 관련된 네메시스 목록 수정
+            prev_related_nemesis_name_list = [nemesis.name for nemesis in card.related_nemesis]
+            modified_related_nemesis_name_list = request.form.get('nemesis_relations', type=str, default='').split('|')[:-1]
+            related_nemesis_name_union = prev_related_nemesis_name_list + modified_related_nemesis_name_list
+
+            for nemesis_name in related_nemesis_name_union:
+                nemesis = Nemesis.query.filter(Nemesis.name == nemesis_name).first()
+
+                if nemesis_name not in modified_related_nemesis_name_list:
+                    card.related_nemesis.remove(nemesis)
+                elif nemesis_name not in prev_related_nemesis_name_list:
+                    card.related_nemesis.append(nemesis)
+
             db.session.add(card)
             db.session.add(card_en)
             db.session.commit()
 
             return redirect(url_for('wiki.card_detail', card_id=card_id))
     else:
-        form = CardForm(obj=card, name_en=card_en.name, type_en=card_en.type, effect_en=card_en.effect)
+        form = CardForm(
+            name=card.name,
+            name_en=card_en.name,
+            type=card.type,
+            type_en=card_en.type,
+            cost=card.cost,
+            effect=replace_keywords(card.effect, revert=True),
+            effect_en=replace_keywords(card_en.effect, revert=True),
+            image=card.image
+        )
 
-    return render_template('wiki/wiki_card_form.html', form=form)
+    mage_list = Mage.query.all()
+    mage_list_str = '|'.join(mage.name for mage in card.related_mage) + '|' if len(card.related_mage) > 0 else ''
+    nemesis_list = Nemesis.query.all()
+    nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + '|' if len(card.related_nemesis) > 0 else ''
+
+    return render_template('wiki/wiki_card_form.html', form=form, mage_list=mage_list, nemesis_list=nemesis_list, mage_list_str=mage_list_str, nemesis_list_str=nemesis_list_str)
