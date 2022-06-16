@@ -75,8 +75,9 @@ def card_detail(card_id):
     card_review_list = CardReview.query.filter(CardReview.card_id == card.id)
 
     related_mage_list = Mage.query.join(related_mage, related_mage.c.mage_id == Mage.id).filter(related_mage.c.card_id == card.id).all()
+    related_nemesis_list = Nemesis.query.join(related_mage, related_mage.c.mage_id == Nemesis.id).filter(related_mage.c.card_id == card.id).all()
 
-    return render_template('wiki/wiki_card_detail.html', card=card, card_en=card_en, card_review_list=card_review_list, related_list=related_mage_list)
+    return render_template('wiki/wiki_card_detail.html', card=card, card_en=card_en, card_review_list=card_review_list, related_mage_list=related_mage_list, related_nemesis_list=related_nemesis_list)
 
 
 @bp.route('/detail/nemesis/<int:nemesis_id>')

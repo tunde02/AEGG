@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row rounded border border-2 shadow py-2 pb-3 p-md-0 my-md-3">
         <div class="col-12 col-md-4 p-md-3 m-md-0">
-            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail p-0">
+            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail p-0" width="410">
         </div>
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
             <div class="d-flex flex-column h-100">
@@ -64,22 +64,25 @@
                 </div>
 
                 <!-- 카드와 관련된 링크 -->
-                {% if related_list|length > 0 %}
-                <div class="row mt-3 mt-md-4">
+                <div class="row mt-3 mt-md-3">
                     <div class="col-12">
-                        <div class="card border-gem shadow p-2 h-100">
+                        <div class="card border-gem shadow p-2 pb-3 h-100">
                             <span class="card-title px-2 mb-0">관련</span>
-                            <div class=" d-flex flex-row">
-                                {% for relate in related_list %}
-                                <a class="text-decoration-none align-self-start fs-5 px-2 mt-1" href="#">
-                                    {{ relate.name }}
-                                </a>
+                            <div class=" d-flex flex-row flex-wrap mt-2 gap-2">
+                                {% for mage in related_mage_list %}
+                                <div class="badge d-flex align-items-center gap-1" style="background-color: #6f42c1;">
+                                    <a class="a-none-deco text-white" href="#"><span style="font-size: 1.2em;">{{ mage.name }}</span></a>
+                                </div>
+                                {% endfor %}
+                                {% for nemesis in related_nemesis_list %}
+                                <div class="badge d-flex align-items-center gap-1" style="background-color: #fd7e14;">
+                                    <a class="a-none-deco text-white" href="#"><span style="font-size: 1.2em;">{{ nemesis.name }}</span></a>
+                                </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
