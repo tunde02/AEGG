@@ -88,6 +88,8 @@ def nemesis_detail(nemesis_id):
 @login_required
 def append_card():
     form = CardForm()
+    mage_list = Mage.query.all()
+    nemesis_list = Nemesis.query.all()
 
     if request.method == 'POST' and form.validate_on_submit():
         card = Card(
@@ -111,13 +113,24 @@ def append_card():
             form.image.data.save(file_path)
             card.image = f"images/card/{file_name}"
 
+        related_mage_name_list = request.form.get('mage_relations', type=str, default='').split('|')[:-1]
+        related_nemesis_name_list = request.form.get('nemesis_relations', type=str, default='').split('|')[:-1]
+
+        for mage_name in related_mage_name_list:
+            mage = Mage.query.filter(Mage.name == mage_name).first()
+            card.related_mage.append(mage)
+
+        for nemesis_name in related_nemesis_name_list:
+            nemesis = Nemesis.query.filter(Nemesis.name == nemesis_name).first()
+            card.related_nemesis.append(nemesis)
+
         db.session.add(card)
         db.session.add(card_en)
         db.session.commit()
 
         return redirect(url_for('wiki.card_list'))
 
-    return render_template('wiki/wiki_card_form.html', form=form)
+    return render_template('wiki/wiki_card_form.html', form=form, mage_list=mage_list, nemesis_list=nemesis_list)
 
 
 @bp.route('/modify/card/<int:card_id>', methods=['GET', 'POST'])

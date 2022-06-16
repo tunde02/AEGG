@@ -51,6 +51,32 @@
                 </div>
             </div>
 
+            <div class="row border m-1 pt-1 pb-2 mb-4">
+                <label for="relations">관련</label>
+                <div class="col-6 mb-3">
+                    <select class="form-select" id="mage_relation_select" onchange="onRelationSelect(this)">
+                        <option value="NO_RELATION" selected>관련된 균열 마법사</option>
+                        {% for mage in mage_list %}
+                        <option value="{{ mage.name }}">{{ mage.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6 mb-3">
+                    <select class="form-select" id="nemesis_relation_select" onchange="onRelationSelect(this)">
+                        <option value="NO_RELATION" selected>관련된 네메시스</option>
+                        {% for nemesis in nemesis_list %}
+                        <option value="{{ nemesis.name }}">{{ nemesis.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto d-flex flex-wrap gap-2" id="relationListBlock">
+                    <!-- 관련 목록 -->
+                </div>
+                <input type="hidden" name="mage_relations" id="mage_relations">
+                <input type="hidden" name="nemesis_relations" id="nemesis_relations">
+            </div>
+
             <div class="d-flex justify-content-end mb-4 gap-2">
                 <a class="btn btn-danger" href="{{ url_for('wiki.card_list') }}">취소</a>
                 <button type="submit" class="btn btn-success">저장</button>
@@ -58,4 +84,76 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+const relationListBlock = document.getElementById('relationListBlock');
+const mageRelationsInput = document.getElementById('mage_relations');
+const nemesisRelationsInput = document.getElementById('nemesis_relations');
+var relationList = [];
+
+function onRelationSelect(relationSelect) {
+    if (relationList.includes(relationSelect.value))
+        return;
+
+    if (relationSelect.id == 'mage_relation_select') {
+        insertRelationBadge(relationSelect.value, '#6f42c1');
+        mageRelationsInput.value += relationSelect.value + '|';
+    } else {
+        insertRelationBadge(relationSelect.value, '#fd7e14');
+        nemesisRelationsInput.value += relationSelect.value + '|';
+    }
+
+
+    relationSelect.value = 'NO_RELATION';
+}
+
+function insertRelationBadge(relation, color) {
+    /*
+    <div class="badge bg-dark d-flex align-items-center gap-1">
+        <span style="font-size: 1.2em;">크리스탈</span>
+        <a class="btn btn-sm p-0" onclick="deleteBadge()"><i class="bi bi-x-lg" style="color: #ff0000;"></i></a>
+    </div>
+    */
+
+    var badge = document.createElement('div');
+    badge.id = 'relation_' + relation;
+    badge.classList.add('badge', 'd-flex', 'align-items-center', 'gap-1');
+    badge.style.backgroundColor = color;
+
+    var content = document.createElement('span');
+    content.style.fontSize = '1.2em';
+    content.appendChild(document.createTextNode(relation));
+
+    var deleteButton = document.createElement('a');
+    deleteButton.classList.add('btn', 'btn-sm', 'p-0');
+    deleteButton.addEventListener('click', function() {
+        if (relationList.includes(content.innerText)) {
+            relationList.splice(relationList.indexOf(content.innerText), 1);
+            removeRelationsInput(color == '#6f42c1' ? true : false, content.innerText);
+            document.getElementById('relation_' + content.innerText).remove();
+        }
+    });
+
+    var deleteIcon = document.createElement('i');
+    deleteIcon.classList.add('bi', 'bi-x-lg');
+    deleteIcon.style.color = '#ff0000';
+
+    deleteButton.appendChild(deleteIcon);
+    badge.appendChild(content);
+    badge.appendChild(deleteButton);
+
+    relationList.push(relation);
+    relationListBlock.appendChild(badge);
+}
+
+function removeRelationsInput(isMageRelation, relation) {
+    if (isMageRelation) {
+        mageRelationsInput.value = mageRelationsInput.value.replace(relation + '|', '');
+    } else {
+        nemesisRelationsInput.value = nemesisRelationsInput.value.replace(relation + '|', '');
+    }
+}
+</script>
 {% endblock %}
