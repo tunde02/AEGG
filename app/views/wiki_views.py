@@ -13,37 +13,6 @@ from config.default import UPLOAD_FOLDER
 bp = Blueprint('wiki', __name__, url_prefix='/wiki')
 
 
-def replace_keywords(content, revert=False):
-    replaced = content
-    replace_rules = [
-        ('에테르 ', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
-        ('에테르', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
-        ('AETHER ', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
-        ('AETHER', '<img class="mb-1 me-2" src="/static/images/defaults/aether.png" width="18" height="18">'),
-        ('Cast:', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Cast :</strong>'),
-        ('Recall:', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Recall :</strong>'),
-        ('OR', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">OR</strong>'),
-        ('Link', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Link</strong>'),
-        ('Echo', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Echo</strong>'),
-        ('Attach', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">Attach</strong>'),
-        ('부착', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">부착</strong>'),
-        ('IMMEDIATELY', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">IMMEDIATELY</strong>'),
-        ('PERSISTENT', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">PERSISTENT</strong>'),
-        ('TO DISCARD', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">TO DISCARD</strong>'),
-        ('POWER', '<strong style="font: 1.2em \'빛의 계승자 Bold\';">POWER</strong>'),
-        ('\r\n---\r\n', '<strong class="d-flex border-bottom border-3 border-dark my-3"></strong>'),
-        ('\r\n', '<br>'),
-    ]
-
-    for before, after in replace_rules:
-        if revert:
-            replaced = replaced.replace(after, before)
-        else:
-            replaced = replaced.replace(before, after)
-
-    return replaced
-
-
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'wiki'
@@ -56,7 +25,7 @@ def mage_list():
 
 @bp.route('/list/card')
 def card_list():
-    card_list = Card.query.all()
+    card_list = Card.query.join(CardEN, Card.id == CardEN.card_id).order_by(Card.cost, CardEN.name).all()
 
     return render_template('wiki/wiki_card_list.html', tab='card', card_list=card_list)
 
@@ -100,13 +69,13 @@ def append_card():
             name=form.name.data,
             type=form.type.data,
             cost=form.cost.data,
-            effect=replace_keywords(form.effect.data),
+            effect=form.effect.data
         )
         card_en = CardEN(
             card=card,
             name=form.name_en.data,
             type=form.type_en.data,
-            effect=replace_keywords(form.effect_en.data)
+            effect=form.effect_en.data
         )
 
         if form.image.data is not None:
@@ -168,12 +137,12 @@ def modify_card(card_id):
             card.name = form.name.data
             card.type = form.type.data
             card.cost = form.cost.data
-            card.effect = replace_keywords(form.effect.data)
+            card.effect = form.effect.data
             card.image = form.image.data
 
             card_en.name = form.name_en.data
             card_en.type = form.type_en.data
-            card_en.effect = replace_keywords(form.effect_en.data)
+            card_en.effect = form.effect_en.data
 
             # 관련된 균열 마법사 목록 수정
             prev_related_mage_name_list = [mage.name for mage in card.related_mage]
@@ -191,7 +160,7 @@ def modify_card(card_id):
             # 관련된 네메시스 목록 수정
             prev_related_nemesis_name_list = [nemesis.name for nemesis in card.related_nemesis]
             modified_related_nemesis_name_list = request.form.get('nemesis_relations', type=str, default='').split('|')[:-1]
-            related_nemesis_name_union = prev_related_nemesis_name_list + modified_related_nemesis_name_list
+            related_nemesis_name_union = list(set(prev_related_nemesis_name_list + modified_related_nemesis_name_list))
 
             for nemesis_name in related_nemesis_name_union:
                 nemesis = Nemesis.query.filter(Nemesis.name == nemesis_name).first()
@@ -213,8 +182,8 @@ def modify_card(card_id):
             type=card.type,
             type_en=card_en.type,
             cost=card.cost,
-            effect=replace_keywords(card.effect, revert=True),
-            effect_en=replace_keywords(card_en.effect, revert=True),
+            effect=card.effect,
+            effect_en=card_en.effect,
             image=card.image
         )
 

@@ -30,9 +30,10 @@ def create_app():
     app.register_blueprint(wiki_views.bp)
 
     # Filters
-    from app.filter import datetime_format, datetime_detail_format
+    from app.filter import datetime_format, datetime_detail_format, replace_keywords_format
     app.jinja_env.filters['datetime'] = datetime_format
     app.jinja_env.filters['datetime_detail'] = datetime_detail_format
+    app.jinja_env.filters['keywords_replaced'] = replace_keywords_format
 
     # Markdown
     Markdown(app, extensions=['nl2br', 'fenced_code'])
