@@ -26,8 +26,9 @@ def mage_list():
 @bp.route('/list/card')
 def card_list():
     card_list = Card.query.join(CardEN, Card.id == CardEN.card_id).order_by(Card.cost, CardEN.name).all()
+    card_en_list = CardEN.query.join(Card, CardEN.card_id == Card.id).order_by(Card.cost, CardEN.name).all()
 
-    return render_template('wiki/wiki_card_list.html', tab='card', card_list=card_list)
+    return render_template('wiki/wiki_card_list.html', tab='card', card_list=card_list, card_en_list=card_en_list)
 
 
 @bp.route('/list/nemesis')
