@@ -102,6 +102,7 @@
 const koreanContents = document.getElementsByClassName('ko');
 const englishContents = document.getElementsByClassName('en');
 var isKorean = true;
+
 function changeLanguageMode() {
     isKorean = !isKorean
     for (let content of koreanContents) {
@@ -111,5 +112,13 @@ function changeLanguageMode() {
         content.style.display = isKorean ? 'none' : 'block';
     }
 }
+
+Array.from(document.getElementsByClassName('delete')).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if (confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        }
+    });
+});
 </script>
 {% endblock %}

@@ -13,6 +13,10 @@ from app.views.auth_views import login_required
 bp = Blueprint('review', __name__, url_prefix='/review')
 
 
+def calc_avg_score(score_column, filter):
+    return float(db.session.query(func.avg(score_column).label('avg_score')).filter(filter).first().avg_score)
+
+
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'wiki'
@@ -33,7 +37,8 @@ def create_card_review(card_id):
             create_date=datetime.now()
         )
 
-        card.avg_score = float(db.session.query(func.avg(CardReview.score).label('avg_score')).filter(CardReview.card_id == card.id).first().avg_score)
+        card.avg_score = calc_avg_score(score_column=CardReview.score,
+                                        filter=(CardReview.card_id == card.id))
 
         db.session.add(review)
         db.session.commit()
@@ -41,15 +46,6 @@ def create_card_review(card_id):
         return redirect(url_for('wiki.card_detail', card_id=card.id))
 
     return render_template('review/review_form.html', form=form, wiki_info=card)
-
-
-@bp.route('/delete/card/<int:review_id>', methods=['GET', 'POST'])
-@login_required
-def delete_card_review(review_id):
-    # TODO
-    print('Delete Card Review')
-
-    return redirect(url_for('wiki.card_list'))
 
 
 @bp.route('/modify/card/<int:review_id>', methods=['GET', 'POST'])
@@ -68,7 +64,8 @@ def modify_card_review(review_id):
             form.populate_obj(card_review)
             card_review.modify_date = datetime.now()
 
-            card_review.card.avg_score = float(db.session.query(func.avg(CardReview.score).label('avg_score')).filter(CardReview.card_id == card_review.card.id).first().avg_score)
+            card_review.card.avg_score = calc_avg_score(score_column=CardReview.score,
+                                                        filter=(CardReview.card_id == card_review.card.id))
 
             db.session.commit()
 
@@ -77,3 +74,19 @@ def modify_card_review(review_id):
         form = ReviewForm(obj=card_review)
 
     return render_template('review/review_form.html', form=form, wiki_info=card_review.card)
+
+
+@bp.route('/delete/card/<int:review_id>')
+@login_required
+def delete_card_review(review_id):
+    card_review = CardReview.query.get_or_404(review_id)
+
+    if g.user != card_review.user:
+        flash('삭제 권한이 없습니다.')
+    else:
+        db.session.delete(card_review)
+        card_review.card.avg_score = calc_avg_score(score_column=CardReview.score,
+                                                    filter=(CardReview.card_id == card_review.card.id))
+        db.session.commit()
+
+    return redirect(url_for('wiki.card_detail', card_id=card_review.card_id))

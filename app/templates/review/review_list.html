@@ -42,7 +42,8 @@
                        <i class="bi bi-pencil mx-1"></i>수정
                     </a>
                     <a class="delete btn text-danger p-0"
-                       href="#"
+                       data-uri="{{ url_for('review.delete_card_review', review_id=review.id) }}"
+                       href="javascript:void(0)"
                        style="font-size: 1em;">
                        <i class="bi bi-x-lg mx-1"></i>삭제
                     </a>
