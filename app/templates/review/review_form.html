@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- 리뷰 작성 -->
+<div class="container">
+    <form method="post" class="p-0">
+    <div class="row rounded border border-2 box-shadow py-2 pb-3 p-md-0 my-md-3">
+        {{ form.csrf_token }}
+        <div class="px-2 px-md-3 pt-md-3">
+            {% include 'form_errors.html' %}
+        </div>
+
+        <div class="col-12 col-md-4 p-md-3 m-md-0">
+            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail box-shadow p-0" width="410">
+        </div>
+
+        <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
+            <div class="d-flex flex-column h-100">
+                <!-- 평점 -->
+                <div class="row mt-3 mt-md-0">
+                    <div class="col-12">
+                        <div class="card border-gem shadow p-2 h-100" id="rating_block">
+                            <div class="d-flex justify-content-between">
+                                <span class="card-title px-2 mb-0">평점</span>
+                                <a class="btn btn-danger px-1 py-0" onclick="resetScore()"><i class="bi bi-arrow-clockwise"></i></a>
+                            </div>
+                            <div class="d-flex ms-2 gap-1">
+                                <i class="bi bi-star" id="star_1" name="ratingStar" style="font-size: 2em; cursor: pointer;" onclick="setScore(1)"></i>
+                                <i class="bi bi-star" id="star_2" name="ratingStar" style="font-size: 2em; cursor: pointer;" onclick="setScore(2)"></i>
+                                <i class="bi bi-star" id="star_3" name="ratingStar" style="font-size: 2em; cursor: pointer;" onclick="setScore(3)"></i>
+                                <i class="bi bi-star" id="star_4" name="ratingStar" style="font-size: 2em; cursor: pointer;" onclick="setScore(4)"></i>
+                                <i class="bi bi-star" id="star_5" name="ratingStar" style="font-size: 2em; cursor: pointer;" onclick="setScore(5)"></i>
+                                <input type="hidden" name="score" id="scoreInput" value="{{ form.score.data or 0 }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 리뷰 내용 -->
+                <div class="row flex-grow-1 mt-3 mt-md-3">
+                    <div class="col-12">
+                        <div class="card border-gem shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">리뷰</span>
+                            <div class="p-2 h-100">
+                                <textarea class="form-control h-100" name= "content" style="resize: none;">{{ form.content.data or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3 gap-2">
+                    <a class="btn btn-danger" href="{{ url_for('wiki.card_detail', card_id=card.id) }}">취소</a>
+                    <button class="btn btn-primary" type="submit">작성</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+const ratingStarList = [...document.getElementsByName('ratingStar')];
+var isScored = false;
+var score = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('rating_block').onmouseleave = function() {
+        revertScore();
+    };
+
+    for (let i = 0; i < ratingStarList.length; i++) {
+        ratingStarList[i].onmouseover = function() {
+            fillRatingStar(i + 1);
+        }
+    }
+
+    isScored = document.getElementById('scoreInput').value != 0 ? true : false;
+    score = isScored ? document.getElementById('scoreInput').value : 0;
+    fillRatingStar(score);
+});
+
+
+function fillRatingStar(score) {
+    for (let i = 0; i < score; i++) {
+        ratingStarList[i].classList.replace('bi-star', 'bi-star-fill');
+    }
+    for (let i = score; i < ratingStarList.length; i++) {
+        ratingStarList[i].classList.replace('bi-star-fill', 'bi-star');
+    }
+}
+
+function setScore(score) {
+    this.isScored = true;
+    this.score = score;
+    document.getElementById('scoreInput').value = this.score;
+}
+
+function revertScore() {
+    if (!this.isScored) {
+        for (let star of ratingStarList) {
+            star.classList.replace('bi-star-fill', 'bi-star');
+        }
+    } else {
+        fillRatingStar(this.score);
+    }
+}
+
+function resetScore() {
+    this.isScored = false;
+    this.score = 0;
+    document.getElementById('scoreInput').value = 0;
+    fillRatingStar(0);
+}
+</script>
+{% endblock %}

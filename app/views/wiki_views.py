@@ -45,12 +45,18 @@ def mage_detail(mage_id):
 def card_detail(card_id):
     card = Card.query.get_or_404(card_id)
     card_en = CardEN.query.filter(CardEN.card_id == card.id).first()
-    card_review_list = CardReview.query.filter(CardReview.card_id == card.id)
+    card_review_list = CardReview.query.filter(CardReview.card_id == card.id).order_by(CardReview.create_date.asc()).all()
 
     related_mage_list = Mage.query.join(related_mage, related_mage.c.mage_id == Mage.id).filter(related_mage.c.card_id == card.id).all()
     related_nemesis_list = Nemesis.query.join(related_mage, related_mage.c.mage_id == Nemesis.id).filter(related_mage.c.card_id == card.id).all()
 
-    return render_template('wiki/wiki_card_detail.html', card=card, card_en=card_en, card_review_list=card_review_list, related_mage_list=related_mage_list, related_nemesis_list=related_nemesis_list)
+    # 각 카드에 대한 리뷰는 계정당 한 번씩만 가능하도록 제한
+    already_reviewed = True if g.user and CardReview.query.filter(CardReview.card_id == card.id, CardReview.user == g.user).first() else False
+
+    return render_template('wiki/wiki_card_detail.html',
+                           card=card, card_en=card_en,
+                           review_list=card_review_list, already_reviewed=already_reviewed,
+                           related_mage_list=related_mage_list, related_nemesis_list=related_nemesis_list)
 
 
 @bp.route('/detail/nemesis/<int:nemesis_id>')

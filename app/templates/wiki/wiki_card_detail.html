@@ -3,8 +3,9 @@
 <div class="container">
     <div class="row rounded border border-2 shadow py-2 pb-3 p-md-0 my-md-3">
         <div class="col-12 col-md-4 p-md-3 m-md-0">
-            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail p-0" width="410">
+            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail box-shadow p-0" width="410">
         </div>
+
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
             <div class="d-flex flex-column h-100">
                 <!-- 이름, 버튼들 -->
@@ -16,7 +17,12 @@
                                 <div>
                                     <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.card_list') }}"><i class="bi bi-arrow-left"></i></a>
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                    {% if g.user %}
                                     <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_card', card_id=card.id) }}">수정</a>
+                                    {% if not already_reviewed %}
+                                    <a class="btn btn-primary py-0" href="{{ url_for('review.create_card_review', card_id=card.id) }}">리뷰</a>
+                                    {% endif %}
+                                    {% endif %}
                                 </div>
                             </div>
                             <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ card.name }}</span>
@@ -86,6 +92,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'review/review_list.html' %}
 </div>
 {% endblock %}
 

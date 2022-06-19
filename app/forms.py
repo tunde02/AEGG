@@ -38,3 +38,8 @@ class CardForm(FlaskForm):
     effect = TextAreaField('카드 효과', validators=[DataRequired('카드 효과는 필수입력 항목입니다.')])
     effect_en = TextAreaField('카드 영어 효과', validators=[DataRequired('카드 영어 효과는 필수입력 항목입니다.')])
     image = FileField('카드 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '카드 이미지는 이미지 파일만 업로드할 수 있습니다.')])
+
+
+class ReviewForm(FlaskForm):
+    content = TextAreaField('내용', validators=[DataRequired('리뷰 내용은 필수입력 항목입니다.')])
+    score = StringField('리뷰 점수', validators=[DataRequired('리뷰 점수는 필수입력 항목입니다.')])
