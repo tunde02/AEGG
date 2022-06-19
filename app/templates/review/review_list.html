@@ -12,10 +12,22 @@
                  width="100"
                  height="100">
             <div class="card-text d-flex flex-column mx-md-3" style="width: 100%;">
+                <div class="d-flex gap-1">
+                    <i class="bi {{ 'bi-star-fill' if review.score > 0 else 'bi-star' }}"
+                        style="cursor: default;"></i>
+                    <i class="bi {{ 'bi-star-fill' if review.score > 1 else 'bi-star' }}"
+                        style="cursor: default;"></i>
+                    <i class="bi {{ 'bi-star-fill' if review.score > 2 else 'bi-star' }}"
+                        style="cursor: default;"></i>
+                    <i class="bi {{ 'bi-star-fill' if review.score > 3 else 'bi-star' }}"
+                        style="cursor: default;"></i>
+                    <i class="bi {{ 'bi-star-fill' if review.score > 4 else 'bi-star' }}"
+                        style="cursor: default;"></i>
+                </div>
                 <div class="mb-2" style="height: 100%;">
                     {{ review.content|markdown }}
                 </div>
-                <div class="align-self-end align-self-md-start" style="font-size: 0.7em;">
+                <div class="d-flex align-items-center align-self-start gap-1" style="font-size: 0.7em;">
                     <a class="a-none-deco" href="{{ url_for('profile.info', username=review.user.username) }}">{{ review.user.nickname }}</a>
                     <span class="d-none d-md-inline mx-1">{{ review.create_date|datetime_detail }}</span>
                     <span class="d-inline d-md-none mx-1">{{ review.create_date|datetime }}</span>
@@ -25,7 +37,7 @@
 
                     {% if g.user == review.user %}
                     <a class="btn text-success p-0"
-                       href="#"
+                       href="{{ url_for('review.modify_card_review', review_id=review.id) }}"
                        style="font-size: 1em;">
                        <i class="bi bi-pencil mx-1"></i>수정
                     </a>
