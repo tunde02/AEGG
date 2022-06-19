@@ -18,7 +18,7 @@
                 <div class="mb-2" style="height: 100%;">
                     {{ comment.content|markdown }}
                 </div>
-                <div class="align-self-end align-self-md-start" style="font-size: 0.7em;">
+                <div class="align-self-start" style="font-size: 0.7em;">
                     <a class="a-none-deco" href="{{ url_for('profile.info', username=comment.user.username) }}">{{ comment.user.nickname }}</a>
                     <span class="d-none d-md-inline mx-1">{{ comment.create_date|datetime_detail }}</span>
                     <span class="d-inline d-md-none mx-1">{{ comment.create_date|datetime }}</span>
@@ -58,7 +58,7 @@
                     <div class="mb-2" style="height: 100%;">
                         {{ comment.content|markdown }}
                     </div>
-                    <div class="align-self-end align-self-md-start" style="font-size: 0.7em;">
+                    <div class="align-self-start" style="font-size: 0.7em;">
                         <a class="a-none-deco"
                            href="{{ url_for('profile.info', username=comment.user.username) }}">
                            {{ comment.user.nickname }}
