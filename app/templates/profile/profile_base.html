@@ -4,7 +4,7 @@
     <div class="row">
         <div class="list-group col-lg-2 p-0 mb-3" style="box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);">
             <div class="list-group-item d-flex justify-content-center">
-                <img src="{{ url_for('static', filename=user.profile_image) }}" alt="/static/images/defaults/profile_image.png" class="rounded img-thumbnail" width="300">
+                <img src="{{ url_for('static', filename=user.profile_image) }}" alt="프로필 이미지" class="rounded img-thumbnail" width="300">
             </div>
             <div class="list-group-item d-flex justify-content-center">
                 <span class="font-weight-bold" style="font-size: 1.2em;">{{ user.nickname }} ({{ user.username }})</span>

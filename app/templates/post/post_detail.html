@@ -33,7 +33,7 @@
             </div>
             <div class="d-flex justify-content-between gap-3">
                 <div class="d-flex flex-row mx-1">
-                    <img src="{{ url_for('static', filename=post.user.profile_image) }}" alt="/static/images/defaults/profile_image.png" class="d-none d-md-block rounded img-thumbnail" width="150" height="150">
+                    <img src="{{ url_for('static', filename=post.user.profile_image) }}" alt="프로필 이미지" class="d-none d-md-block rounded img-thumbnail" width="150" height="150">
                     <div class="d-flex flex-column mx-md-3">
                         <span class="d-none d-md-inline text-primary">글쓴이</span>
                         <a class="a-none-deco p-md-1" href="{{ url_for('profile.info', username=post.user.username) }}" style="font-size: calc(0.5rem + 0.8vw);">{{ post.user.nickname }}</a>
