@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<img src="{{ url_for('static', filename=mage.image) }}" alt="균열 마법사 이미지" class="rounded img-thumbnail box-shadow p-0" width="410">
+<img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0">
+
+<div>{{ mage.name }}</div>
+<div>{{ mage.ability_name }}</div>
+<div>{{ mage.ability }}</div>
+<div>{{ mage.activation_time }}</div>
+<div>{{ mage.required_charges }}</div>
+<div>{{ mage.avg_score }}</div>
+<hr>
+<div>{{ mage_en.name }}</div>
+<div>{{ mage_en.ability_name }}</div>
+<div>{{ mage_en.ability }}</div>
+<div>{{ mage_en.activation_time }}</div>
+
+{% endblock %}

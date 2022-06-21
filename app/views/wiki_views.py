@@ -5,7 +5,7 @@ from werkzeug.utils import redirect, secure_filename
 
 from app import db
 from app.forms import CardForm
-from app.models import Card, CardEN, CardReview, Mage, MageEN, Nemesis, NemesisEN, related_mage, related_nemesis
+from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, Nemesis, NemesisEN, related_mage, related_nemesis
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER
 
@@ -18,9 +18,33 @@ def load_navbar_tab():
     g.navbar_tab = 'wiki'
 
 
-@bp.route('/list/mage')
-def mage_list():
-    return render_template('wiki/wiki_mage_list.html', tab='mage')
+@bp.route('/list')
+def wiki_list():
+    wiki_type = request.args.get('wiki_type', type=str, default='mage')
+    wiki, wiki_en, join_condition, order_condition = None, None, None, None
+
+    if wiki_type == 'mage':
+        wiki = Mage
+        wiki_en = MageEN
+        join_condition = Mage.id == MageEN.mage_id
+        order_condition = (MageEN.name, MageEN.name)
+    elif wiki_type == 'card':
+        wiki = Card
+        wiki_en = CardEN
+        join_condition = Card.id == CardEN.card_id
+        order_condition = (Card.cost, CardEN.name)
+    else:
+        wiki = Nemesis
+        wiki_en = NemesisEN
+        join_condition = Nemesis.id == NemesisEN.nemesis_id
+        order_condition = (Nemesis.tier, NemesisEN.name)
+
+    wiki_info_list = wiki.query.join(wiki_en, join_condition).order_by(order_condition[0], order_condition[1]).all()
+    wiki_info_en_list = wiki_en.query.join(wiki, join_condition).order_by(order_condition[0], order_condition[1]).all()
+
+    return render_template('wiki/wiki_list.html',
+                           wiki_type=wiki_type,
+                           wiki_list=wiki_info_list, wiki_en_list=wiki_info_en_list)
 
 
 @bp.route('/list/card')
@@ -31,14 +55,18 @@ def card_list():
     return render_template('wiki/wiki_card_list.html', tab='card', card_list=card_list, card_en_list=card_en_list)
 
 
-@bp.route('/list/nemesis')
-def nemesis_list():
-    return render_template('wiki/wiki_nemesis_list.html', tab='nemesis')
-
-
 @bp.route('/detail/mage/<int:mage_id>')
 def mage_detail(mage_id):
-    return render_template('wiki/wiki_mage_detail.html')
+    mage = Mage.query.get_or_404(mage_id)
+    mage_en = MageEN.query.filter(MageEN.mage_id == mage.id).first()
+    mage_review_list = MageReview.query.filter(MageReview.mage_id == mage.id).order_by(MageReview.create_date.asc()).all()
+
+    # 각 균열 마법사에 대한 리뷰는 계정당 한 번씩만 가능하도록 제한
+    already_reviewed = True if g.user and MageReview.query.filter(MageReview.mage_id == mage.id, MageReview.user == g.user).first() else False
+
+    return render_template('wiki/wiki_mage_detail.html',
+                           mage=mage, mage_en=mage_en,
+                           review_list=mage_review_list, already_reviewed=already_reviewed)
 
 
 @bp.route('/detail/card/<int:card_id>')
@@ -61,7 +89,16 @@ def card_detail(card_id):
 
 @bp.route('/detail/nemesis/<int:nemesis_id>')
 def nemesis_detail(nemesis_id):
+    # TODO
+    print('NEMESIS DETAIL')
     return render_template('wiki/wiki_nemesis_detail.html')
+
+
+@bp.route('/append/mage', methods=['GET', 'POST'])
+def append_mage():
+    # TODO
+    print('APPEND MAGE')
+    return redirect(url_for('wiki.wiki_list', wiki_type='mage'))
 
 
 @bp.route('/append/card', methods=['GET', 'POST'])
@@ -108,9 +145,16 @@ def append_card():
         db.session.add(card_en)
         db.session.commit()
 
-        return redirect(url_for('wiki.card_list'))
+        return redirect(url_for('wiki.wiki_list', wiki_type='card'))
 
     return render_template('wiki/wiki_card_form.html', form=form, mage_list=mage_list, nemesis_list=nemesis_list)
+
+
+@bp.route('/append/nemesis', methods=['GET', 'POST'])
+def append_nemesis():
+    # TODO
+    print('APPEND NEMESIS')
+    return redirect(url_for('wiki.wiki_list', wiki_type='nemesis'))
 
 
 @bp.route('/modify/card/<int:card_id>', methods=['GET', 'POST'])
@@ -199,4 +243,7 @@ def modify_card(card_id):
     nemesis_list = Nemesis.query.all()
     nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + '|' if len(card.related_nemesis) > 0 else ''
 
-    return render_template('wiki/wiki_card_form.html', form=form, mage_list=mage_list, nemesis_list=nemesis_list, mage_list_str=mage_list_str, nemesis_list_str=nemesis_list_str)
+    return render_template('wiki/wiki_card_form.html',
+                           form=form,
+                           mage_list=mage_list, mage_list_str=mage_list_str,
+                           nemesis_list=nemesis_list, nemesis_list_str=nemesis_list_str)

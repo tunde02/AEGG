@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row rounded border border-2 shadow py-2 pb-3 p-md-0 my-md-3">
         <div class="col-12 col-md-4 p-md-3 m-md-0">
-            <img src="{{ url_for('static', filename=card.image) }}" alt="/static/images/defaults/card.png" class="rounded img-thumbnail box-shadow p-0" width="410">
+            <img src="{{ url_for('static', filename=card.image) }}" alt="카드 이미지" class="rounded img-thumbnail box-shadow p-0" width="410">
         </div>
 
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
@@ -15,7 +15,7 @@
                             <div class="d-flex justify-content-between">
                                 <span class="card-title px-2 mb-0">이름</span>
                                 <div>
-                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.card_list') }}"><i class="bi bi-arrow-left"></i></a>
+                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='card') }}"><i class="bi bi-arrow-left"></i></a>
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
                                     <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_card', card_id=card.id) }}">수정</a>

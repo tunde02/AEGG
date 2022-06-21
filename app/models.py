@@ -98,7 +98,7 @@ class Mage(db.Model):
     activation_time = db.Column(db.String(100), nullable=False, default='')
     required_charges = db.Column(db.Integer, nullable=False, default=0)
     avg_score = db.Column(db.Float(), nullable=False, default=0.0)
-    icon_image = db.Column(db.String(200), nullable=False, default='images/defaults/mage_icon.png')
+    image = db.Column(db.String(200), nullable=False, default='images/defaults/mage.png')
     board_image = db.Column(db.String(200), nullable=False, default='images/defaults/mage_board.png')
 
 
@@ -112,6 +112,18 @@ class MageEN(db.Model):
     activation_time = db.Column(db.String(100), nullable=False, default='')
 
 
+class MageReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref=db.backref('mage_review_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    mage = db.relationship('Mage', backref=db.backref('review_list', passive_deletes=True))
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+    content = db.Column(db.Text(), nullable=False, default='')
+    score = db.Column(db.Integer, nullable=False, default=0)
+    create_date = db.Column(db.DateTime(), nullable=False)
+    modify_date = db.Column(db.DateTime())
+
+
 class Nemesis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -122,7 +134,7 @@ class Nemesis(db.Model):
     unleash = db.Column(db.Text(), nullable=False, default='')
     increased_diff = db.Column(db.Text(), nullable=False, default='')
     avg_score = db.Column(db.Float(), nullable=False, default=0.0)
-    icon_image = db.Column(db.String(200), nullable=False, default='images/defaults/nemesis_icon.png')
+    image = db.Column(db.String(200), nullable=False, default='images/defaults/nemesis.png')
     board_image = db.Column(db.String(200), nullable=False, default='images/defaults/nemesis_board.png')
 
 
