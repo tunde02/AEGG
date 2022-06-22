@@ -5,7 +5,7 @@ from werkzeug.utils import redirect, secure_filename
 
 from app import db
 from app.forms import CardForm
-from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, Nemesis, NemesisEN, related_mage, related_nemesis
+from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, MageSpecificCard, MageSpecificObject, MageStartingDeck, MageStartingHand, Nemesis, NemesisEN, related_mage, related_nemesis
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER
 
@@ -64,8 +64,16 @@ def mage_detail(mage_id):
     # 각 균열 마법사에 대한 리뷰는 계정당 한 번씩만 가능하도록 제한
     already_reviewed = True if g.user and MageReview.query.filter(MageReview.mage_id == mage.id, MageReview.user == g.user).first() else False
 
+    starting_hand = MageStartingHand.query.filter(MageStartingHand.mage_id == mage.id).order_by(MageStartingHand.order.asc()).all()
+    starting_deck = MageStartingDeck.query.filter(MageStartingDeck.mage_id == mage.id).order_by(MageStartingDeck.order.asc()).all()
+
+    specific_card_list = MageSpecificCard.query.filter(MageSpecificCard.mage_id == mage.id).order_by(MageSpecificCard.label.asc()).all()
+    specific_obj_list = MageSpecificObject.query.filter(MageSpecificObject.mage_id == mage.id).order_by(MageSpecificObject.label.asc()).all()
+
     return render_template('wiki/wiki_mage_detail.html',
                            mage=mage, mage_en=mage_en,
+                           starting_hand=starting_hand, starting_deck=starting_deck,
+                           specific_card_list=specific_card_list, specific_obj_list=specific_obj_list,
                            review_list=mage_review_list, already_reviewed=already_reviewed)
 
 
@@ -75,11 +83,11 @@ def card_detail(card_id):
     card_en = CardEN.query.filter(CardEN.card_id == card.id).first()
     card_review_list = CardReview.query.filter(CardReview.card_id == card.id).order_by(CardReview.create_date.asc()).all()
 
-    related_mage_list = Mage.query.join(related_mage, related_mage.c.mage_id == Mage.id).filter(related_mage.c.card_id == card.id).all()
-    related_nemesis_list = Nemesis.query.join(related_mage, related_mage.c.mage_id == Nemesis.id).filter(related_mage.c.card_id == card.id).all()
-
     # 각 카드에 대한 리뷰는 계정당 한 번씩만 가능하도록 제한
     already_reviewed = True if g.user and CardReview.query.filter(CardReview.card_id == card.id, CardReview.user == g.user).first() else False
+
+    related_mage_list = Mage.query.join(related_mage, related_mage.c.mage_id == Mage.id).filter(related_mage.c.card_id == card.id).all()
+    related_nemesis_list = Nemesis.query.join(related_nemesis, related_nemesis.c.nemesis_id == Nemesis.id).filter(related_nemesis.c.card_id == card.id).all()
 
     return render_template('wiki/wiki_card_detail.html',
                            card=card, card_en=card_en,

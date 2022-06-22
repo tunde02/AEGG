@@ -93,6 +93,7 @@ class CardReview(db.Model):
 class Mage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    series = db.Column(db.String(100), nullable=False, default='에이언즈 엔드')
     ability_name = db.Column(db.String(100), nullable=False, default='')
     ability = db.Column(db.Text(), nullable=False, default='')
     activation_time = db.Column(db.String(100), nullable=False, default='')
@@ -107,9 +108,44 @@ class MageEN(db.Model):
     mage = db.relationship('Mage', backref=db.backref('mage_en', passive_deletes=True), uselist=False)
     mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    series = db.Column(db.String(100), nullable=False, default="Aeon's End")
     ability_name = db.Column(db.String(100), nullable=False, default='')
     ability = db.Column(db.Text(), nullable=False, default='')
     activation_time = db.Column(db.String(100), nullable=False, default='')
+
+
+class MageStartingHand(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mage = db.mage = db.relationship('Mage', backref=db.backref('starting_hand', passive_deletes=True))
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+    card = db.relationship('Card')
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    order = db.Column(db.Integer, nullable=False, default=0)
+
+
+class MageStartingDeck(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mage = db.mage = db.relationship('Mage', backref=db.backref('starting_deck', passive_deletes=True))
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+    card = db.relationship('Card')
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    order = db.Column(db.Integer, nullable=False, default=0)
+
+
+class MageSpecificCard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mage = db.mage = db.relationship('Mage', backref=db.backref('specific_card_list', passive_deletes=True))
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+    card = db.relationship('Card')
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    label = db.Column(db.String(100), nullable=False, default='')
+
+class MageSpecificObject(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mage = db.mage = db.relationship('Mage', backref=db.backref('specific_obj_list', passive_deletes=True))
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+    label = db.Column(db.String(100), nullable=False, default='')
+    image = db.Column(db.String(200), nullable=False, default='images/defaults/mage_specific.png')
 
 
 class MageReview(db.Model):
@@ -127,6 +163,7 @@ class MageReview(db.Model):
 class Nemesis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    series = db.Column(db.String(100), nullable=False, default='에이언즈 엔드')
     tier = db.Column(db.Integer, nullable=False, default=0)
     hp = db.Column(db.Integer, nullable=False, default=0)
     setup = db.Column(db.Text(), nullable=False, default='')
@@ -143,6 +180,7 @@ class NemesisEN(db.Model):
     nemesis = db.relationship('Nemesis', backref=db.backref('nemesis_en', passive_deletes=True), uselist=False)
     nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    series = db.Column(db.String(100), nullable=False, default="Aeon's End")
     setup = db.Column(db.Text(), nullable=False, default='')
     additional_rules = db.Column(db.Text(), nullable=False, default='')
     unleash = db.Column(db.Text(), nullable=False, default='')

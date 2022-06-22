@@ -1,18 +1,168 @@
 {% extends 'base.html' %}
 {% block content %}
-<img src="{{ url_for('static', filename=mage.image) }}" alt="균열 마법사 이미지" class="rounded img-thumbnail box-shadow p-0" width="410">
-<img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0">
+<div class="container">
+    <div class="row rounded border border-2 shadow pt-3 my-3">
+        <div class="d-flex justify-content-center col-10 w-100">
+            <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0">
+        </div>
 
-<div>{{ mage.name }}</div>
-<div>{{ mage.ability_name }}</div>
-<div>{{ mage.ability }}</div>
-<div>{{ mage.activation_time }}</div>
-<div>{{ mage.required_charges }}</div>
-<div>{{ mage.avg_score }}</div>
-<hr>
-<div>{{ mage_en.name }}</div>
-<div>{{ mage_en.ability_name }}</div>
-<div>{{ mage_en.ability }}</div>
-<div>{{ mage_en.activation_time }}</div>
+        <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
+            <div class="d-flex flex-column h-100">
+                <div class="row ms-md-2 mt-3">
+                    <!-- 이름 -->
+                    <div class="col-12 col-md-6">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <div class="d-flex justify-content-between">
+                                <span class="card-title px-2 mb-0">이름</span>
+                                <div class="d-block d-md-none">
+                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='mage') }}"><i class="bi bi-arrow-left"></i></a>
+                                    <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                    {% if g.user %}
+                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ mage.name }}</span>
+                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ mage_en.name }}</span>
+                        </div>
+                    </div>
 
+                    <!-- 확장 -->
+                    <div class="col-12 col-md-6 mt-3 mt-md-0">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <div class="d-flex justify-content-between">
+                                <span class="card-title px-2 mb-0">확장</span>
+                                <div class="d-none d-md-block">
+                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='mage') }}"><i class="bi bi-arrow-left"></i></a>
+                                    <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                    {% if g.user %}
+                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ mage.series }}</span>
+                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ mage_en.series }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 능력 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12 col-md-6">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">능력</span>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.ability|keywords_replaced|safe }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.ability|keywords_replaced|safe }}</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 mt-3 mt-md-0">
+                        <div class="card border-mage shadow p-2 mb-3">
+                            <span class="card-title px-2 mb-0">능력 발동 시기</span>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.activation_time }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.activation_time }}</p>
+                        </div>
+                        <div class="card border-mage shadow p-2">
+                            <span class="card-title px-2 mb-0">충전 요구량</span>
+                            <p class="card-text fs-4 px-2 mt-1">{{ mage.required_charges }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 시작 패 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2 mb-3">시작 패</span>
+                            <div class="starting-card-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-4">
+                                {% for hand in starting_hand %}
+                                <a href="{{ url_for('wiki.card_detail', card_id=hand.card_id) }}">
+                                    <img src="{{ url_for('static', filename=hand.card.image) }}" alt="{{ hand.card.name }}" class="rounded p-0" width="230">
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 시작 덱 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2 mb-3">시작 덱</span>
+                            <div class="starting-card-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-4">
+                                {% for deck in starting_deck %}
+                                <a href="{{ url_for('wiki.card_detail', card_id=deck.card_id) }}">
+                                    <img src="{{ url_for('static', filename=deck.card.image) }}" alt="{{ deck.card.name }}" class="rounded p-0" width="230">
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 특수 -->
+                {% if specific_card_list|length > 0 or specific_obj_list|length > 0 %}
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2 mb-3">특수</span>
+
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 균열 마법사와 관련된 링크 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2">관련</span>
+                            <div class=" d-flex flex-row flex-wrap gap-2">
+
+                                <div class="badge d-flex align-items-center gap-1" style="background-color: #6f42c1;">
+                                    <a class="a-none-deco text-white" href="{{ url_for('wiki.mage_detail', mage_id=mage.id) }}">
+                                        <span style="font-size: 1.2em;">클라우디아</span>
+                                    </a>
+                                </div>
+                                <div class="badge d-flex align-items-center gap-1" style="background-color: #fd7e14;">
+                                    <a class="a-none-deco text-white" href="#"><span style="font-size: 1.2em;">레이지본</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 리뷰 목록 -->
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+const koreanContents = document.getElementsByClassName('ko');
+const englishContents = document.getElementsByClassName('en');
+var isKorean = true;
+
+function changeLanguageMode() {
+    isKorean = !isKorean
+    for (let content of koreanContents) {
+        content.style.display = isKorean ? 'block' : 'none';
+    }
+    for (let content of englishContents) {
+        content.style.display = isKorean ? 'none' : 'block';
+    }
+}
+
+Array.from(document.getElementsByClassName('delete')).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if (confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        }
+    });
+});
+</script>
 {% endblock %}

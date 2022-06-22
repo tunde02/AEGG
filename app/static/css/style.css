@@ -80,10 +80,18 @@ p {
     }
 }
 
-.border-gem {
+.border-card {
     border-left: 0.35rem solid #0d6efd;
+}
+
+.border-mage {
+    border-left: 0.35rem solid #6f42c1;
 }
 
 .box-shadow {
     box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);
+}
+
+.starting-card-container {
+    overflow-x: auto;
 }
