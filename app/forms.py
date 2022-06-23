@@ -29,6 +29,22 @@ class CommentForm(FlaskForm):
     content = TextAreaField('내용', validators=[DataRequired('댓글 내용은 필수입력 항목입니다.')])
 
 
+class MageForm(FlaskForm):
+    name = StringField('균열 마법사 이름', validators=[DataRequired('균열 마법사 이름은 필수입력 항목입니다.')])
+    name_en = StringField('균열 마법사 영어 이름', validators=[DataRequired('균열 마법사 영어 이름은 필수입력 항목입니다.')])
+    series = StringField('균열 마법사 소속 시리즈', validators=[DataRequired('균열 마법사 소속 시리즈는 필수입력 항목입니다.')])
+    series_en = StringField('균열 마법사 소속 시리즈 영어', validators=[DataRequired('균열 마법사 소속 시리즈 영어는 필수입력 항목입니다.')])
+    ability_name = StringField('균열 마법사 능력 이름', validators=[DataRequired('균열 마법사 능력 이름은 필수입력 항목입니다.')])
+    ability_name_en = StringField('균열 마법사 능력 영어 이름', validators=[DataRequired('균열 마법사 능력 영어 이름은 필수입력 항목입니다.')])
+    ability = TextAreaField('균열 마법사 능력', validators=[DataRequired('균열 마법사 능력은 필수입력 항목입니다.')])
+    ability_en = TextAreaField('균열 마법사 능력 영어', validators=[DataRequired('균열 마법사 능력 영어는 필수입력 항목입니다.')])
+    activation_time = StringField('균열 마법사 능력 발동 시기', validators=[DataRequired('균열 마법사 능력 발동 시기는 필수입력 항목입니다.')])
+    activation_time_en = StringField('균열 마법사 능력 발동 시기 영어', validators=[DataRequired('균열 마법사 능력 발동 시기 영어는 필수입력 항목입니다.')])
+    required_charges = StringField('균열 마법사 능력 요구 충전수', validators=[DataRequired('균열 마법사 능력 요구 충전수는 필수입력 항목입니다.'), Regexp('^[0-9]*$', message='카드 비용은 숫자만 입력할 수 있습니다.')])
+    image = FileField('균열 마법사 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '균열 마법사 이미지는 이미지 파일만 업로드할 수 있습니다.')])
+    board_image = FileField('균열 마법사 보드 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '균열 마법사 보드 이미지는 이미지 파일만 업로드할 수 있습니다.')])
+
+
 class CardForm(FlaskForm):
     name = StringField('카드 이름', validators=[DataRequired('카드 이름은 필수입력 항목입니다.')])
     name_en = StringField('카드 영어 이름', validators=[DataRequired('카드 영어 이름은 필수입력 항목입니다.')])

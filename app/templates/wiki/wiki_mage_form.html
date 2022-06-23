@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-lg-center p-3">
+    <div class="card box-shadow col-lg-6">
+        <h4 class="my-3 border-bottom pb-2" style="font: 2em '빛의 계승자 Bold';">균열 마법사 추가</h4>
+        <form method="post" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            {% include 'form_errors.html' %}
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="name">이름</label>
+                    <input type="text" class="form-control" name="name" value="{{ form.name.data or '' }}">
+                </div>
+                <div class="col-6">
+                    <label for="name_en">이름 (English)</label>
+                    <input type="text" class="form-control" name="name_en" value="{{ form.name_en.data or '' }}">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="series">시리즈</label>
+                    <input type="text" class="form-control" name="series" value="{{ form.series.data or '에이언즈 엔드' }}">
+                </div>
+                <div class="col-6">
+                    <label for="series_en">시리즈 (English)</label>
+                    <input type="text" class="form-control" name="series_en" value="{{ form.series_en.data or 'Aeon\'s End' }}">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="ability_name">능력 이름</label>
+                    <input type="text" class="form-control" name="ability_name" value="{{ form.ability_name.data or '' }}">
+                </div>
+                <div class="col-6">
+                    <label for="ability_name_en">능력 이름 (English)</label>
+                    <input type="text" class="form-control" name="ability_name_en" value="{{ form.ability_name_en.data or '' }}">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="activation_time">능력 발동 시기</label>
+                    <input type="text" class="form-control" name="activation_time" value="{{ form.activation_time.data or '' }}">
+                </div>
+                <div class="col-6">
+                    <label for="activation_time_en">능력 발동 시기 (English)</label>
+                    <input type="text" class="form-control" name="activation_time_en" value="{{ form.activation_time_en.data or '' }}">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-3">
+                    <label for="required_charges">요구 충전수</label>
+                    <input type="text" class="form-control" name="required_charges" value="{{ form.required_charges.data or '' }}">
+                </div>
+                <div class="col-4">
+                    <label for="image">균열 마법사 이미지</label>
+                    <input type="file" class="form-control" name="image" value="image">
+                </div>
+                <div class="col-5">
+                    <label for="board_image">균열 마법사 보드 이미지</label>
+                    <input type="file" class="form-control" name="board_image" value="board_image">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="ability">능력</label>
+                    <textarea class="form-control" name="ability" cols="30" rows="7" style="resize: none;">{{ form.ability.data or '' }}</textarea>
+                </div>
+                <div class="col-6">
+                    <label for="ability_en">능력 (English)</label>
+                    <textarea class="form-control" name="ability_en" cols="30" rows="7" style="resize: none;">{{ form.ability_en.data or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="row border m-1 pt-1 pb-2 mb-4">
+                <label>시작 카드</label>
+                <div class="col-6 mb-3">
+                    {% for i in range(5) %}
+                    <div class="d-flex mt-2">
+                        <h4 class="me-2">{{ i + 1 }}</h4>
+                        <select class="form-select" name="starting_hand_{{ i }}">
+                            <option value="" selected>시작 패</option>
+                            {% for card in card_list %}
+                            <option value="{{ card.name }}">{{ card.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="col-6 mb-3">
+                    {% for i in range(5) %}
+                    <div class="d-flex mt-2">
+                        <h4 class="me-2">{{ i + 1 }}</h4>
+                        <select class="form-select" name="starting_deck_{{ i }}">
+                            <option value="" selected>시작 덱</option>
+                            {% for card in card_list %}
+                            <option value="{{ card.name }}">{{ card.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row border m-1 pt-1 pb-2 mb-4">
+                <label>특수 카드</label>
+                <div class="col-12 mb-3">
+                    <select class="form-select" id="specific_card_select" onchange="onCardSelect(this)">
+                        <option value="NO_CARD" selected>특수 카드</option>
+                        {% for card in card_list %}
+                        <option value="{{ card.name }}">{{ card.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-6">
+                    <div class="d-flex flex-wrap gap-2" id="specificCardContainer">
+                        <!-- 특수 카드 목록 -->
+                    </div>
+                </div>
+
+                <input type="hidden" name="specific_card_str" id="specific_card_str" value="{{ specific_card_str or '' }}">
+            </div>
+
+            <div class="d-flex justify-content-end mb-4 gap-2">
+                <a class="btn btn-danger" href="javascript:history.go(-1)">취소</a>
+                <button type="submit" class="btn btn-success">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+const specificCardContainer = document.getElementById('specificCardContainer');
+const specificCardInput = document.getElementById('specific_card_str');
+var specificCardList = [];
+
+function initCardListContainer() {
+    var _specificCardList = specificCardInput.value ? specificCardInput.value.split('|').slice(0, -1) : [];
+
+    for (var card of _specificCardList) {
+        insertCardBadge(card, 'specific');
+    }
+}
+
+initCardListContainer();
+
+function onCardSelect(cardSelect) {
+    insertCardBadge(cardSelect.value);
+    specificCardInput.value += cardSelect.value + '|';
+
+    cardSelect.value = 'NO_CARD';
+}
+
+function insertCardBadge(card) {
+    /*
+    <div class="badge bg-dark d-flex align-items-center gap-1">
+        <span style="font-size: 1.2em;">크리스탈</span>
+        <a class="btn btn-sm p-0" onclick="deleteBadge()"><i class="bi bi-x-lg" style="color: #ff0000;"></i></a>
+    </div>
+    */
+
+    var badge = document.createElement('div');
+    badge.id = 'specific_' + card;
+    badge.classList.add('badge', 'd-flex', 'align-items-center', 'gap-1');
+    badge.style.backgroundColor = '#0d6efd';
+
+    var content = document.createElement('span');
+    content.style.fontSize = '1.2em';
+    content.appendChild(document.createTextNode(card));
+
+    var deleteButton = document.createElement('a');
+    deleteButton.classList.add('btn', 'btn-sm', 'p-0');
+    deleteButton.addEventListener('click', function() {
+        specificCardList.splice(specificCardList.indexOf(content.innerText), 1);
+        removeCardInput(content.innerText);
+        document.getElementById('specific_' + content.innerText).remove();
+    });
+
+    var deleteIcon = document.createElement('i');
+    deleteIcon.classList.add('bi', 'bi-x-lg');
+    deleteIcon.style.color = '#ff0000';
+
+    deleteButton.appendChild(deleteIcon);
+    badge.appendChild(content);
+    badge.appendChild(deleteButton);
+
+    specificCardList.push(card);
+    specificCardContainer.appendChild(badge);
+}
+
+function removeCardInput(card) {
+    specificCardInput.value = specificCardInput.value.replace(card + '|', '');
+}
+</script>
+{% endblock %}

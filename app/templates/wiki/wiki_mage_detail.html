@@ -75,7 +75,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">시작 패</span>
-                            <div class="starting-card-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-4">
+                            <div class="card-list-container d-flex flex-row justify-content-start mb-2 gap-2 gap-md-4">
                                 {% for hand in starting_hand %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=hand.card_id) }}">
                                     <img src="{{ url_for('static', filename=hand.card.image) }}" alt="{{ hand.card.name }}" class="rounded p-0" width="230">
@@ -91,7 +91,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">시작 덱</span>
-                            <div class="starting-card-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-4">
+                            <div class="card-list-container d-flex flex-row justify-content-start mb-2 gap-2 gap-md-4">
                                 {% for deck in starting_deck %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=deck.card_id) }}">
                                     <img src="{{ url_for('static', filename=deck.card.image) }}" alt="{{ deck.card.name }}" class="rounded p-0" width="230">
@@ -102,37 +102,23 @@
                     </div>
                 </div>
 
-                <!-- 특수 -->
-                {% if specific_card_list|length > 0 or specific_obj_list|length > 0 %}
+                <!-- 특수 카드 -->
+                {% if specific_card_list|length > 0 %}
                 <div class="row ms-md-2 mt-3">
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">특수</span>
-
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- 균열 마법사와 관련된 링크 -->
-                <div class="row ms-md-2 mt-3">
-                    <div class="col-12">
-                        <div class="card border-mage shadow p-2 h-100">
-                            <span class="card-title px-2">관련</span>
-                            <div class=" d-flex flex-row flex-wrap gap-2">
-
-                                <div class="badge d-flex align-items-center gap-1" style="background-color: #6f42c1;">
-                                    <a class="a-none-deco text-white" href="{{ url_for('wiki.mage_detail', mage_id=mage.id) }}">
-                                        <span style="font-size: 1.2em;">클라우디아</span>
-                                    </a>
-                                </div>
-                                <div class="badge d-flex align-items-center gap-1" style="background-color: #fd7e14;">
-                                    <a class="a-none-deco text-white" href="#"><span style="font-size: 1.2em;">레이지본</span></a>
-                                </div>
+                            <div class="card-list-container d-flex flex-row justify-content-start mb-2 gap-2 gap-md-4">
+                                {% for specific in specific_card_list %}
+                                <a href="{{ url_for('wiki.card_detail', card_id=specific.card_id) }}">
+                                    <img src="{{ url_for('static', filename=specific.card.image) }}" alt="{{ specific.card.name }}" class="rounded p-0" width="230">
+                                </a>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

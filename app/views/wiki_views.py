@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, url_for, g, flash
 from werkzeug.utils import redirect, secure_filename
 
 from app import db
-from app.forms import CardForm
+from app.forms import CardForm, MageForm
 from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, MageSpecificCard, MageSpecificObject, MageStartingDeck, MageStartingHand, Nemesis, NemesisEN, related_mage, related_nemesis
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER
@@ -104,9 +104,79 @@ def nemesis_detail(nemesis_id):
 
 @bp.route('/append/mage', methods=['GET', 'POST'])
 def append_mage():
-    # TODO
-    print('APPEND MAGE')
-    return redirect(url_for('wiki.wiki_list', wiki_type='mage'))
+    form = MageForm()
+    card_list = Card.query.order_by(Card.cost, Card.name)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        mage = Mage(
+            name=form.name.data,
+            series=form.series.data,
+            ability_name=form.ability_name.data,
+            ability=form.ability.data,
+            activation_time=form.activation_time.data,
+            required_charges=form.required_charges.data
+        )
+        mage_en = MageEN(
+            mage=mage,
+            name=form.name_en.data,
+            series=form.series_en.data,
+            ability_name=form.ability_name_en.data,
+            ability=form.ability_en.data,
+            activation_time=form.activation_time_en.data
+        )
+
+        # 아이콘 이미지 저장
+        if form.image.data is not None:
+            file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}_{form.series_en.data.lower()}.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'mage/icon', file_name)
+
+            form.image.data.save(file_path)
+            mage.image = f"images/mage/icon/{file_name}"
+
+        # 보드 이미지 저장
+        if form.board_image.data is not None:
+            file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}_{form.series_en.data.lower()}.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', file_name)
+
+            form.board_image.data.save(file_path)
+            mage.board_image = f"images/mage/board/{file_name}"
+
+        # 시작 패
+        for i in range(5):
+            card_name = request.form.get(f'starting_hand_{i}', type=str, default='')
+            if card_name == '':
+                continue
+
+            card = Card.query.filter(Card.name == card_name).first()
+            hand = MageStartingHand(mage=mage, card=card, order=i)
+            db.session.add(hand)
+
+        # 시작 덱
+        for i in range(5):
+            card_name = request.form.get(f'starting_deck_{i}', type=str, default='')
+            if card_name == '':
+                continue
+
+            card = Card.query.filter(Card.name == card_name).first()
+            deck = MageStartingDeck(mage=mage, card=card, order=i)
+            db.session.add(deck)
+
+        # 특수 카드
+        specific_card_name_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
+        for card_name in specific_card_name_list:
+            card = Card.query.filter(Card.name == card_name).first()
+            specific_card = MageSpecificCard(mage=mage, card=card)
+            db.session.add(specific_card)
+
+        db.session.add(mage)
+        db.session.add(mage_en)
+        db.session.commit()
+
+        return redirect(url_for('wiki.wiki_list', wiki_type='mage'))
+
+    return render_template('wiki/wiki_mage_form.html', form=form, card_list=card_list)
 
 
 @bp.route('/append/card', methods=['GET', 'POST'])

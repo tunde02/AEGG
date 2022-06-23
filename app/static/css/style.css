@@ -92,6 +92,6 @@ p {
     box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);
 }
 
-.starting-card-container {
+.card-list-container {
     overflow-x: auto;
 }
