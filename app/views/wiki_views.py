@@ -235,6 +235,143 @@ def append_nemesis():
     return redirect(url_for('wiki.wiki_list', wiki_type='nemesis'))
 
 
+@bp.route('/modify/mage/<int:mage_id>', methods=['GET', 'POST'])
+@login_required
+def modify_mage(mage_id):
+    mage = Mage.query.get_or_404(mage_id)
+    mage_en = MageEN.query.filter(MageEN.mage_id == mage.id).first()
+
+    if request.method == 'POST':
+        form = MageForm()
+
+        if form.validate_on_submit():
+            file_name = f"{form.name_en.data.lower()}_{form.series_en.data.lower()}"
+
+            # 아이콘 이미지 이름 변경
+            if 'defaults' not in mage.image and (form.name_en.data != mage_en.name or form.series_en.data != mage_en.series):
+                prev_file_extension = os.path.basename(mage.image).rsplit('.', 1)[1].lower()
+                new_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
+                os.rename(os.path.join('./app/static', mage.image), os.path.join(UPLOAD_FOLDER, 'mage/icon', new_file_name))
+
+                mage.image = f"images/mage/icon/{new_file_name}"
+
+            # 보드 이미지 이름 변경
+            if 'defaults' not in mage.board_image and (form.name_en.data != mage_en.name or form.series_en.data != mage_en.series):
+                prev_file_extension = os.path.basename(mage.board_image).rsplit('.', 1)[1].lower()
+                new_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
+                os.rename(os.path.join('./app/static', mage.board_image), os.path.join(UPLOAD_FOLDER, 'mage/board', new_file_name))
+
+                mage.board_image = f"images/mage/board/{new_file_name}"
+
+            if form.image.data is not None:
+                file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
+                _file_name = secure_filename(f"{file_name}.{file_extension}")
+                file_path = os.path.join(UPLOAD_FOLDER, 'mage/icon', _file_name)
+
+                form.image.data.save(file_path)
+                mage.image = f"images/mage/icon/{_file_name}"
+
+            if form.board_image.data is not None:
+                file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
+                _file_name = secure_filename(f"{file_name}.{file_extension}")
+                file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', _file_name)
+
+                form.board_image.data.save(file_path)
+                mage.board_image = f"images/mage/board/{_file_name}"
+
+            mage.name = form.name.data
+            mage.series = form.series.data
+            mage.ability_name = form.ability_name.data
+            mage.ability = form.ability.data
+            mage.activation_time = form.activation_time.data
+            mage.required_charges = form.required_charges.data
+
+            mage_en.name = form.name_en.data
+            mage_en.series = form.series_en.data
+            mage_en.ability_name = form.ability_name_en.data
+            mage_en.ability = form.ability_en.data
+            mage_en.activation_time = form.activation_time_en.data
+
+            # 시작 패 수정
+            for i in range(5):
+                card_name = request.form.get(f'starting_hand_{i}', type=str, default='')
+                prev_hand = MageStartingHand.query.filter(MageStartingHand.mage_id == mage.id, MageStartingHand.order == i).first()
+
+                if prev_hand is not None:
+                    if card_name == '': # delete hand
+                        db.session.delete(prev_hand)
+                    elif card_name != prev_hand.card.name: # modify hand
+                        card = Card.query.filter(Card.name == card_name).first()
+                        prev_hand.card = card
+                elif card_name != '': # append hand
+                    card = Card.query.filter(Card.name == card_name).first()
+                    hand = MageStartingHand(mage=mage, card=card, order=i)
+                    db.session.add(hand)
+
+            # 시작 덱 수정
+            for i in range(5):
+                card_name = request.form.get(f'starting_deck_{i}', type=str, default='')
+                prev_deck = MageStartingDeck.query.filter(MageStartingDeck.mage_id == mage.id, MageStartingDeck.order == i).first()
+
+                if prev_deck is not None:
+                    if card_name == '': # delete deck
+                        db.session.delete(prev_deck)
+                    elif card_name != prev_deck.card.name: # modify deck
+                        card = Card.query.filter(Card.name == card_name).first()
+                        prev_deck.card = card
+                elif card_name != '': # append deck
+                    card = Card.query.filter(Card.name == card_name).first()
+                    deck = MageStartingDeck(mage=mage, card=card, order=i)
+                    db.session.add(deck)
+
+            # 특수 카드 수정
+            prev_specific_card_list = [specific.card.name for specific in mage.specific_card_list]
+            modified_specific_card_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
+            specific_card_union = list(set(prev_specific_card_list + modified_specific_card_list))
+
+            for card_name in specific_card_union:
+                card = Card.query.filter(Card.name == card_name).first()
+
+                if card_name not in prev_specific_card_list:
+                    specific = MageSpecificCard(mage=mage, card=card)
+                    db.session.add(specific)
+                elif card_name not in modified_specific_card_list:
+                    specific = MageSpecificCard.query.filter(MageSpecificCard.mage == mage, MageSpecificCard.card == card).first()
+                    db.session.delete(specific)
+
+            db.session.commit()
+
+            return redirect(url_for('wiki.mage_detail', mage_id=mage.id))
+    else:
+        form = MageForm(
+            name=mage.name,
+            name_en=mage_en.name,
+            series=mage.series,
+            series_en=mage_en.series,
+            ability_name=mage.ability_name,
+            ability_name_en=mage_en.ability_name,
+            ability=mage.ability,
+            ability_en=mage_en.ability,
+            activation_time=mage.activation_time,
+            activation_time_en=mage_en.activation_time,
+            required_charges=mage.required_charges
+        )
+
+    card_list = Card.query.order_by(Card.cost, Card.name)
+    specific_card_str = '|'.join([specific.card.name for specific in mage.specific_card_list]) + '|' if len(mage.specific_card_list) > 0 else ''
+    starting_hand_dict, starting_deck_dict = {}, {}
+
+    for hand in mage.starting_hand:
+        starting_hand_dict[hand.order] = hand.card
+    for deck in mage.starting_deck:
+        starting_deck_dict[deck.order] = deck.card
+
+    return render_template('wiki/wiki_mage_form.html',
+                           form=form,
+                           starting_hand_dict=starting_hand_dict, starting_deck_dict=starting_deck_dict,
+                           card_list=card_list, specific_card_str=specific_card_str)
+
+
 @bp.route('/modify/card/<int:card_id>', methods=['GET', 'POST'])
 @login_required
 def modify_card(card_id):
@@ -246,12 +383,12 @@ def modify_card(card_id):
 
         if form.validate_on_submit():
             # 카드의 영어 이름이 바뀌면 이전 이미지 파일 이름도 변경
-            if form.name_en.data != card_en.name:
+            if 'defaults' not in card.image and form.name_en.data != card_en.name:
                 prev_file_extension = os.path.basename(card.image).rsplit('.', 1)[1].lower()
-                prev_file_name = secure_filename(f"{form.name_en.data.lower()}.{prev_file_extension}")
-                os.rename(os.path.join('./app/static', card.image), os.path.join(UPLOAD_FOLDER, 'card', prev_file_name))
+                new_file_name = secure_filename(f"{form.name_en.data.lower()}.{prev_file_extension}")
+                os.rename(os.path.join('./app/static', card.image), os.path.join(UPLOAD_FOLDER, 'card', new_file_name))
 
-                card.image = f"images/card/{prev_file_name}"
+                card.image = f"images/card/{new_file_name}"
 
             if form.image.data is not None:
                 file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
@@ -259,15 +396,12 @@ def modify_card(card_id):
                 file_path = os.path.join(UPLOAD_FOLDER, 'card', file_name)
 
                 form.image.data.save(file_path)
-                form.image.data = f"images/card/{file_name}"
-            else:
-                form.image.data = card.image
+                card.image = f"images/card/{file_name}"
 
             card.name = form.name.data
             card.type = form.type.data
             card.cost = form.cost.data
             card.effect = form.effect.data
-            card.image = form.image.data
 
             card_en.name = form.name_en.data
             card_en.type = form.type_en.data
@@ -299,8 +433,6 @@ def modify_card(card_id):
                 elif nemesis_name not in prev_related_nemesis_name_list:
                     card.related_nemesis.append(nemesis)
 
-            db.session.add(card)
-            db.session.add(card_en)
             db.session.commit()
 
             return redirect(url_for('wiki.card_detail', card_id=card_id))

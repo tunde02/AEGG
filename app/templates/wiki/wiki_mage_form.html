@@ -84,9 +84,13 @@
                     <div class="d-flex mt-2">
                         <h4 class="me-2">{{ i + 1 }}</h4>
                         <select class="form-select" name="starting_hand_{{ i }}">
-                            <option value="" selected>시작 패</option>
+                            <option value="">시작 패</option>
                             {% for card in card_list %}
+                            {% if i in starting_hand_dict.keys() and starting_hand_dict[i].name == card.name %}
+                            <option value="{{ card.name }}" selected>{{ card.name }}</option>
+                            {% else %}
                             <option value="{{ card.name }}">{{ card.name }}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
                     </div>
@@ -97,9 +101,13 @@
                     <div class="d-flex mt-2">
                         <h4 class="me-2">{{ i + 1 }}</h4>
                         <select class="form-select" name="starting_deck_{{ i }}">
-                            <option value="" selected>시작 덱</option>
+                            <option value="">시작 덱</option>
                             {% for card in card_list %}
+                            {% if i in starting_deck_dict.keys() and starting_deck_dict[i].name == card.name %}
+                            <option value="{{ card.name }}" selected>{{ card.name }}</option>
+                            {% else %}
                             <option value="{{ card.name }}">{{ card.name }}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
                     </div>

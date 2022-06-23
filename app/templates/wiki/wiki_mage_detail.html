@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <div class="row rounded border border-2 shadow pt-3 my-3">
+    <div class="row rounded border border-2 shadow pt-3 pb-3 pb-md-0 mb-3 mt-md-3">
         <div class="d-flex justify-content-center col-10 w-100">
             <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0">
         </div>
@@ -37,7 +37,7 @@
                                     <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='mage') }}"><i class="bi bi-arrow-left"></i></a>
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
-                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_mage', mage_id=mage.id) }}">수정</a>
                                     <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
                                     {% endif %}
                                 </div>
@@ -57,15 +57,28 @@
                             <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.ability|keywords_replaced|safe }}</p>
                         </div>
                     </div>
+
                     <div class="col-12 col-md-6 mt-3 mt-md-0">
                         <div class="card border-mage shadow p-2 mb-3">
                             <span class="card-title px-2 mb-0">능력 발동 시기</span>
-                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.activation_time }}</p>
-                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.activation_time }}</p>
+                            <span class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.activation_time }}</span>
+                            <span class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.activation_time }}</span>
                         </div>
-                        <div class="card border-mage shadow p-2">
-                            <span class="card-title px-2 mb-0">충전 요구량</span>
-                            <p class="card-text fs-4 px-2 mt-1">{{ mage.required_charges }}</p>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card border-mage shadow p-2">
+                                    <span class="card-title px-2 mb-0">충전 요구량</span>
+                                    <span class="card-text fs-4 px-2 mt-1">{{ mage.required_charges }}</span>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="card border-mage shadow p-2">
+                                    <span class="card-title px-2 mb-0">평점</span>
+                                    <span class="card-text fs-4 px-2 mt-1">{{ "%.1f"|format(mage.avg_score) }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
