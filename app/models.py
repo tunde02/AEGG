@@ -101,6 +101,7 @@ class Mage(db.Model):
     avg_score = db.Column(db.Float(), nullable=False, default=0.0)
     image = db.Column(db.String(200), nullable=False, default='images/defaults/mage.png')
     board_image = db.Column(db.String(200), nullable=False, default='images/defaults/mage_board.png')
+    back_board_image = db.Column(db.String(200), nullable=False, server_default='images/defaults/mage_board.png')
 
 
 class MageEN(db.Model):

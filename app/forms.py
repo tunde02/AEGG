@@ -43,6 +43,7 @@ class MageForm(FlaskForm):
     required_charges = StringField('균열 마법사 능력 요구 충전수', validators=[DataRequired('균열 마법사 능력 요구 충전수는 필수입력 항목입니다.'), Regexp('^[0-9]*$', message='카드 비용은 숫자만 입력할 수 있습니다.')])
     image = FileField('균열 마법사 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '균열 마법사 이미지는 이미지 파일만 업로드할 수 있습니다.')])
     board_image = FileField('균열 마법사 보드 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '균열 마법사 보드 이미지는 이미지 파일만 업로드할 수 있습니다.')])
+    back_board_image = FileField('균열 마법사 보드 뒷면 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '균열 마법사 보드 뒷면 이미지는 이미지 파일만 업로드할 수 있습니다.')])
 
 
 class CardForm(FlaskForm):

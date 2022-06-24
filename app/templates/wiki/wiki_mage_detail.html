@@ -2,8 +2,9 @@
 {% block content %}
 <div class="container">
     <div class="row rounded border border-2 shadow pt-3 pb-3 pb-md-0 mb-3 mt-md-3">
-        <div class="d-flex justify-content-center col-10 w-100">
-            <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0">
+        <div class="col-10 w-100 d-flex justify-content-center">
+            <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0" id="front_board" onclick="flipBoardImage()" style="display: block;">
+            <img src="{{ url_for('static', filename=mage.back_board_image) }}" alt="균열 마법사 보드 뒷면 이미지" class="rounded img-thumbnail box-shadow p-0" id="back_board" onclick="flipBoardImage()" style="display: none;">
         </div>
 
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
@@ -18,7 +19,7 @@
                                     <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='mage') }}"><i class="bi bi-arrow-left"></i></a>
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
-                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_mage', mage_id=mage.id) }}">수정</a>
                                     <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
                                     {% endif %}
                                 </div>
@@ -145,15 +146,22 @@
 const koreanContents = document.getElementsByClassName('ko');
 const englishContents = document.getElementsByClassName('en');
 var isKorean = true;
+var isBackBoard = false;
 
 function changeLanguageMode() {
-    isKorean = !isKorean
+    isKorean = !isKorean;
     for (let content of koreanContents) {
         content.style.display = isKorean ? 'block' : 'none';
     }
     for (let content of englishContents) {
         content.style.display = isKorean ? 'none' : 'block';
     }
+}
+
+function flipBoardImage() {
+    isBackBoard = !isBackBoard;
+    document.getElementById('front_board').style.display = isBackBoard ? 'none' : 'block';
+    document.getElementById('back_board').style.display = isBackBoard ? 'block' : 'none';
 }
 
 Array.from(document.getElementsByClassName('delete')).forEach(function(element) {

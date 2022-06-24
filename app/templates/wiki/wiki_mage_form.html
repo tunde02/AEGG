@@ -52,17 +52,21 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-3">
-                    <label for="required_charges">요구 충전수</label>
+                <div class="col-2">
+                    <label for="required_charges">충전 요구량</label>
                     <input type="text" class="form-control" name="required_charges" value="{{ form.required_charges.data or '' }}">
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <label for="image">균열 마법사 이미지</label>
                     <input type="file" class="form-control" name="image" value="image">
                 </div>
-                <div class="col-5">
-                    <label for="board_image">균열 마법사 보드 이미지</label>
+                <div class="col-3">
+                    <label for="board_image">균열 마법사 보드</label>
                     <input type="file" class="form-control" name="board_image" value="board_image">
+                </div>
+                <div class="col-4">
+                    <label for="back_board_image">균열 마법사 보드 뒷면</label>
+                    <input type="file" class="form-control" name="back_board_image" value="back_board_image">
                 </div>
             </div>
 
@@ -86,7 +90,7 @@
                         <select class="form-select" name="starting_hand_{{ i }}">
                             <option value="">시작 패</option>
                             {% for card in card_list %}
-                            {% if i in starting_hand_dict.keys() and starting_hand_dict[i].name == card.name %}
+                            {% if starting_hand_dict and i in starting_hand_dict.keys() and starting_hand_dict[i].name == card.name %}
                             <option value="{{ card.name }}" selected>{{ card.name }}</option>
                             {% else %}
                             <option value="{{ card.name }}">{{ card.name }}</option>
@@ -103,7 +107,7 @@
                         <select class="form-select" name="starting_deck_{{ i }}">
                             <option value="">시작 덱</option>
                             {% for card in card_list %}
-                            {% if i in starting_deck_dict.keys() and starting_deck_dict[i].name == card.name %}
+                            {% if starting_deck_dict and i in starting_deck_dict.keys() and starting_deck_dict[i].name == card.name %}
                             <option value="{{ card.name }}" selected>{{ card.name }}</option>
                             {% else %}
                             <option value="{{ card.name }}">{{ card.name }}</option>

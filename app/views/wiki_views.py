@@ -143,6 +143,15 @@ def append_mage():
             form.board_image.data.save(file_path)
             mage.board_image = f"images/mage/board/{file_name}"
 
+        # 보드 뒷면 이미지 저장
+        if form.back_board_image.data is not None:
+            file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}_{form.series_en.data.lower()}_back.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', file_name)
+
+            form.back_board_image.data.save(file_path)
+            mage.back_board_image = f"images/mage/board/{file_name}"
+
         # 시작 패
         for i in range(5):
             card_name = request.form.get(f'starting_hand_{i}', type=str, default='')
@@ -263,6 +272,14 @@ def modify_mage(mage_id):
 
                 mage.board_image = f"images/mage/board/{new_file_name}"
 
+            # 보드 뒷면 이미지 이름 변경
+            if 'defaults' not in mage.back_board_image and (form.name_en.data != mage_en.name or form.series_en.data != mage_en.series):
+                prev_file_extension = os.path.basename(mage.back_board_image).rsplit('.', 1)[1].lower()
+                new_file_name = secure_filename(f"{file_name}_back.{prev_file_extension}")
+                os.rename(os.path.join('./app/static', mage.back_board_image), os.path.join(UPLOAD_FOLDER, 'mage/board', new_file_name))
+
+                mage.back_board_image = f"images/mage/board/{new_file_name}"
+
             if form.image.data is not None:
                 file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
                 _file_name = secure_filename(f"{file_name}.{file_extension}")
@@ -278,6 +295,14 @@ def modify_mage(mage_id):
 
                 form.board_image.data.save(file_path)
                 mage.board_image = f"images/mage/board/{_file_name}"
+
+            if form.back_board_image.data is not None:
+                file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
+                _file_name = secure_filename(f"{file_name}_back.{file_extension}")
+                file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', _file_name)
+
+                form.back_board_image.data.save(file_path)
+                mage.back_board_image = f"images/mage/board/{_file_name}"
 
             mage.name = form.name.data
             mage.series = form.series.data
