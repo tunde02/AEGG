@@ -71,7 +71,7 @@ def mage_detail(mage_id):
     specific_obj_list = MageSpecificObject.query.filter(MageSpecificObject.mage_id == mage.id).order_by(MageSpecificObject.label.asc()).all()
 
     return render_template('wiki/wiki_mage_detail.html',
-                           mage=mage, mage_en=mage_en,
+                           wiki_type='mage', mage=mage, mage_en=mage_en,
                            starting_hand=starting_hand, starting_deck=starting_deck,
                            specific_card_list=specific_card_list, specific_obj_list=specific_obj_list,
                            review_list=mage_review_list, already_reviewed=already_reviewed)
@@ -90,7 +90,7 @@ def card_detail(card_id):
     related_nemesis_list = Nemesis.query.join(related_nemesis, related_nemesis.c.nemesis_id == Nemesis.id).filter(related_nemesis.c.card_id == card.id).all()
 
     return render_template('wiki/wiki_card_detail.html',
-                           card=card, card_en=card_en,
+                           wiki_type='card', card=card, card_en=card_en,
                            review_list=card_review_list, already_reviewed=already_reviewed,
                            related_mage_list=related_mage_list, related_nemesis_list=related_nemesis_list)
 

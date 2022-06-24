@@ -2,6 +2,12 @@
 {% block content %}
 <div class="container">
     <div class="row rounded border border-2 shadow pt-3 pb-3 pb-md-0 mb-3 mt-md-3">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+
         <div class="col-10 w-100 d-flex justify-content-center">
             <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0" id="front_board" onclick="flipBoardImage()" style="display: block;">
             <img src="{{ url_for('static', filename=mage.back_board_image) }}" alt="균열 마법사 보드 뒷면 이미지" class="rounded img-thumbnail box-shadow p-0" id="back_board" onclick="flipBoardImage()" style="display: none;">
@@ -20,7 +26,7 @@
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
                                     <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_mage', mage_id=mage.id) }}">수정</a>
-                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="{{ url_for('review.create_mage_review', mage_id=mage.id) }}">리뷰</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -39,7 +45,7 @@
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
                                     <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_mage', mage_id=mage.id) }}">수정</a>
-                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="{{ url_for('review.create_mage_review', mage_id=mage.id) }}">리뷰</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -137,7 +143,7 @@
         </div>
     </div>
 
-    <!-- 리뷰 목록 -->
+    {% include 'review/review_list.html' %}
 </div>
 {% endblock %}
 

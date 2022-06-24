@@ -3,8 +3,6 @@
     <div class="py-2 mb-2">
         {% if review_list|length > 0 %}
         {% for review in review_list %}
-        <a id="review_{{ review.id }}"></a>
-
         <div class="card-body border-bottom d-flex flex-row px-0 py-2 mx-2">
             <img src="{{ url_for('static', filename=review.user.profile_image) }}"
                  alt="프로필 이미지"
@@ -37,12 +35,12 @@
 
                     {% if g.user == review.user %}
                     <a class="btn text-success p-0"
-                       href="{{ url_for('review.modify_card_review', review_id=review.id) }}"
+                       href="{{ url_for('review.modify_review', review_id=review.id, wiki_type=wiki_type) }}"
                        style="font-size: 1em;">
                        <i class="bi bi-pencil mx-1"></i>수정
                     </a>
                     <a class="delete btn text-danger p-0"
-                       data-uri="{{ url_for('review.delete_card_review', review_id=review.id) }}"
+                       data-uri="{{ url_for('review.delete_review', review_id=review.id, wiki_type=wiki_type) }}"
                        href="javascript:void(0)"
                        style="font-size: 1em;">
                        <i class="bi bi-x-lg mx-1"></i>삭제
