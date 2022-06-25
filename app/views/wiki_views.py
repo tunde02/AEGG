@@ -192,8 +192,8 @@ def append_mage():
 @login_required
 def append_card():
     form = CardForm()
-    mage_list = Mage.query.all()
-    nemesis_list = Nemesis.query.all()
+    mage_list = Mage.query.order_by(Mage.name)
+    nemesis_list = Nemesis.query.order_by(Nemesis.name)
 
     if request.method == 'POST' and form.validate_on_submit():
         card = Card(
@@ -473,9 +473,9 @@ def modify_card(card_id):
             image=card.image
         )
 
-    mage_list = Mage.query.all()
+    mage_list = Mage.query.order_by(Mage.name)
     mage_list_str = '|'.join(mage.name for mage in card.related_mage) + '|' if len(card.related_mage) > 0 else ''
-    nemesis_list = Nemesis.query.all()
+    nemesis_list = Nemesis.query.order_by(Nemesis.name)
     nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + '|' if len(card.related_nemesis) > 0 else ''
 
     return render_template('wiki/wiki_card_form.html',
