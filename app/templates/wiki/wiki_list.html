@@ -20,7 +20,7 @@
                 </div>
 
                 <!-- 위키 목록 -->
-                <div class="wiki-list-container d-flex justify-content-center pt-3" style="overflow: auto; height: 600px;">
+                <div class="wiki-list-container d-flex justify-content-center pt-3" style="overflow: auto; height: 1000px;">
                     <h4 id="no_result" style="display: none;">검색 결과가 없습니다.</h4>
                     <ul class="text-center w-100 px-2">
                         {% for i in range(wiki_list|length) %}
@@ -43,6 +43,8 @@
                                 <input type="hidden" value="{{ wiki_list[i].name }}">
                                 <input type="hidden" value="{{ wiki_en_list[i].name }}">
                                 {% if wiki_type == 'mage' %}
+                                <input type="hidden" value="{{ wiki_list[i].series }}">
+                                <input type="hidden" value="{{ wiki_en_list[i].series }}">
                                 <input type="hidden" value="{{ wiki_list[i].ability_name }}">
                                 <input type="hidden" value="{{ wiki_en_list[i].ability_name }}">
                                 <input type="hidden" value="{{ wiki_list[i].ability }}">
@@ -57,6 +59,8 @@
                                 <input type="hidden" value="{{ wiki_list[i].effect }}">
                                 <input type="hidden" value="{{ wiki_en_list[i].effect }}">
                                 {% else %}
+                                <input type="hidden" value="{{ wiki_list[i].series }}">
+                                <input type="hidden" value="{{ wiki_en_list[i].series }}">
                                 <input type="hidden" value="{{ wiki_list[i].tier }}">
                                 <input type="hidden" value="{{ wiki_list[i].setup }}">
                                 <input type="hidden" value="{{ wiki_en_list[i].setup }}">
