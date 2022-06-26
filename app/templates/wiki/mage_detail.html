@@ -14,10 +14,10 @@
         </div>
 
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
-            <div class="d-flex flex-column h-100">
+            <div class="d-flex flex-column">
                 <div class="row ms-md-2 mt-3">
                     <!-- 이름 -->
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-5">
                         <div class="card border-mage shadow p-2 h-100">
                             <div class="d-flex justify-content-between">
                                 <span class="card-title px-2 mb-0">이름</span>
@@ -36,7 +36,7 @@
                     </div>
 
                     <!-- 확장 -->
-                    <div class="col-12 col-md-6 mt-3 mt-md-0">
+                    <div class="col-12 col-md-5 mt-3 mt-md-0">
                         <div class="card border-mage shadow p-2 h-100">
                             <div class="d-flex justify-content-between">
                                 <span class="card-title px-2 mb-0">확장</span>
@@ -53,39 +53,54 @@
                             <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ mage_en.series }}</span>
                         </div>
                     </div>
+
+                    <!-- 평점 -->
+                    <div class="col-12 col-md-2 mt-3 mt-md-0">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">평점</span>
+                            <span class="card-text fs-4 px-2 mt-1">{{ "%.1f"|format(mage.avg_score) }}</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 능력 -->
                 <div class="row ms-md-2 mt-3">
-                    <div class="col-12 col-md-6">
-                        <div class="card border-mage shadow p-2 h-100">
-                            <span class="card-title px-2 mb-0">능력</span>
+                    <div class="col-12 col-md-5">
+                        <div class="card border-mage shadow p-2">
+                            <span class="card-title px-2 mb-0">능력 이름</span>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.ability_name }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.ability_name }}</p>
+                        </div>
+
+                        <div class="d-block d-md-none card border-mage shadow p-2 mt-3 text-center">
+                            <span class="card-title px-2 mb-0 text-start">능력</span>
                             <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.ability|keywords_replaced|safe }}</p>
                             <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.ability|keywords_replaced|safe }}</p>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 mt-3 mt-md-0">
-                        <div class="card border-mage shadow p-2 mb-3">
+                    <div class="col-12 col-md-5 mt-3 mt-md-0">
+                        <div class="card border-mage shadow p-2">
                             <span class="card-title px-2 mb-0">능력 발동 시기</span>
                             <span class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.activation_time }}</span>
                             <span class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.activation_time }}</span>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="card border-mage shadow p-2">
-                                    <span class="card-title px-2 mb-0">충전 요구량</span>
-                                    <span class="card-text fs-4 px-2 mt-1">{{ mage.required_charges }}</span>
-                                </div>
-                            </div>
+                    <div class="col-12 col-md-2 mt-3 mt-md-0">
+                        <div class="card border-mage shadow p-2">
+                            <span class="card-title px-2 mb-0">충전 요구량</span>
+                            <span class="card-text fs-4 px-2 mt-1">{{ mage.required_charges }}</span>
+                        </div>
+                    </div>
+                </div>
 
-                            <div class="col-6">
-                                <div class="card border-mage shadow p-2">
-                                    <span class="card-title px-2 mb-0">평점</span>
-                                    <span class="card-text fs-4 px-2 mt-1">{{ "%.1f"|format(mage.avg_score) }}</span>
-                                </div>
-                            </div>
+                <div class="d-none d-md-block row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-mage shadow p-2 text-center">
+                            <span class="card-title px-2 mb-0 text-start">능력</span>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ mage.ability|keywords_replaced|safe }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ mage_en.ability|keywords_replaced|safe }}</p>
                         </div>
                     </div>
                 </div>
@@ -95,7 +110,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">시작 패</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start mb-2 gap-2 gap-md-4">
+                            <div class="card-list-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-3">
                                 {% for hand in starting_hand %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=hand.card_id) }}">
                                     <img src="{{ url_for('static', filename=hand.card.image) }}" alt="{{ hand.card.name }}" class="rounded p-0" width="230">
@@ -111,7 +126,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">시작 덱</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start mb-2 gap-2 gap-md-4">
+                            <div class="card-list-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-3">
                                 {% for deck in starting_deck %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=deck.card_id) }}">
                                     <img src="{{ url_for('static', filename=deck.card.image) }}" alt="{{ deck.card.name }}" class="rounded p-0" width="230">
