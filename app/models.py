@@ -166,6 +166,7 @@ class Nemesis(db.Model):
     name = db.Column(db.String(100), nullable=False)
     series = db.Column(db.String(100), nullable=False, default='에이언즈 엔드')
     tier = db.Column(db.Integer, nullable=False, default=0)
+    difficulty = db.Column(db.Integer, nullable=False, default=0)
     hp = db.Column(db.Integer, nullable=False, default=0)
     setup = db.Column(db.Text(), nullable=False, default='')
     additional_rules = db.Column(db.Text(), nullable=False, default='')
@@ -174,6 +175,7 @@ class Nemesis(db.Model):
     avg_score = db.Column(db.Float(), nullable=False, default=0.0)
     image = db.Column(db.String(200), nullable=False, default='images/defaults/nemesis.png')
     board_image = db.Column(db.String(200), nullable=False, default='images/defaults/nemesis_board.png')
+    back_board_image = db.Column(db.String(200), nullable=False, default='images/defaults/nemesis_board.png')
 
 
 class NemesisEN(db.Model):
@@ -186,3 +188,28 @@ class NemesisEN(db.Model):
     additional_rules = db.Column(db.Text(), nullable=False, default='')
     unleash = db.Column(db.Text(), nullable=False, default='')
     increased_diff = db.Column(db.Text(), nullable=False, default='')
+
+
+class NemesisCardInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    card = db.relationship('Card', backref=db.backref('nemesis_card_info', passive_deletes=True), uselist=False)
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    tier = db.Column(db.Integer, nullable=False, default=0)
+    hp = db.Column(db.Integer, nullable=False, default=0)
+
+
+class NemesisSpecificCard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nemesis = db.relationship('Nemesis', backref=db.backref('nemesis_specific_card_list', passive_deletes=True))
+    nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
+    card = db.relationship('Card')
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
+    label = db.Column(db.String(100), nullable=False, default='')
+
+
+class NemesisSpecificObject(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nemesis = db.relationship('Nemesis', backref=db.backref('nemesis_specific_obj_list', passive_deletes=True))
+    nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
+    label = db.Column(db.String(100), nullable=False, default='')
+    image = db.Column(db.String(200), nullable=False, default='images/defaults/specific.png')

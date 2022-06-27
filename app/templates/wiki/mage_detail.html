@@ -9,8 +9,8 @@
         {% endfor %}
 
         <div class="col-10 w-100 d-flex justify-content-center">
-            <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0" id="front_board" onclick="flipBoardImage()" style="display: block;">
-            <img src="{{ url_for('static', filename=mage.back_board_image) }}" alt="균열 마법사 보드 뒷면 이미지" class="rounded img-thumbnail box-shadow p-0" id="back_board" onclick="flipBoardImage()" style="display: none;">
+            <img src="{{ url_for('static', filename=mage.board_image) }}" alt="균열 마법사 보드 이미지" class="rounded img-thumbnail box-shadow p-0" id="front_board" onclick="flipBoardImage()" style="display: block;" width="900">
+            <img src="{{ url_for('static', filename=mage.back_board_image) }}" alt="균열 마법사 보드 뒷면 이미지" class="rounded img-thumbnail box-shadow p-0" id="back_board" onclick="flipBoardImage()" style="display: none;" width="900">
         </div>
 
         <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">

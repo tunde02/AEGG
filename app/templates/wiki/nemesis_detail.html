@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row rounded border border-2 shadow pt-3 pb-3 pb-md-0 mb-3 mt-md-3">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+
+        <div class="col-10 w-100 d-flex justify-content-center">
+            <img src="{{ url_for('static', filename=nemesis.board_image) }}" alt="{{ nemesis.name }} 보드 이미지" class="rounded img-thumbnail box-shadow p-0" id="front_board" onclick="flipBoardImage()" style="display: block;" width="700">
+            <img src="{{ url_for('static', filename=nemesis.back_board_image) }}" alt="{{ nemesis.name }} 보드 뒷면 이미지" class="rounded img-thumbnail box-shadow p-0" id="back_board" onclick="flipBoardImage()" style="display: none;" width="700">
+        </div>
+
+        <div class="col-12 col-md-8 flex-fill ps-md-0 pe-3 my-md-3">
+            <div class="d-flex flex-column h-100">
+                <div class="row ms-md-2 mt-3">
+                    <!-- 이름 -->
+                    <div class="col-12 col-md-6">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <div class="d-flex justify-content-between">
+                                <span class="card-title px-2 mb-0">이름</span>
+                                <div class="d-block d-md-none">
+                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='nemesis') }}"><i class="bi bi-arrow-left"></i></a>
+                                    <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                    {% if g.user %}
+                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.name }}</span>
+                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ nemesis_en.name }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 확장 -->
+                    <div class="col-12 col-md-6 mt-3 mt-md-0">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <div class="d-flex justify-content-between">
+                                <span class="card-title px-2 mb-0">확장</span>
+                                <div class="d-none d-md-block">
+                                    <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='nemesis') }}"><i class="bi bi-arrow-left"></i></a>
+                                    <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
+                                    {% if g.user %}
+                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.series }}</span>
+                            <span class="en card-text fs-3 px-2 mt-1" style="display: none;">{{ nemesis_en.series }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row ms-md-2 mt-3">
+                    <!-- 티어 -->
+                    <div class="col-6 col-md-4">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">티어</span>
+                            <span class="card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.tier }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 난이도 -->
+                    <div class="col-6 col-md-4">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">난이도</span>
+                            <span class="card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.difficulty }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 체력 -->
+                    <div class="col-12 col-md-4 mt-3 mt-md-0">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">체력</span>
+                            <span class="card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.hp }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row ms-md-2 mt-3">
+                    <!-- Unleash -->
+                    <div class="col-12 col-md-6">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">Unleash</span>
+                            <span class="ko card-text fs-4 px-2 mt-1" style="display: block;">{{ nemesis.unleash|keywords_replaced|safe }}</span>
+                            <span class="en card-text fs-4 px-2 mt-1" style="display: none;">{{ nemesis_en.unleash|keywords_replaced|safe }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 어려운 난이도 규칙 -->
+                    <div class="col-12 col-md-6 mt-3 mt-md-0">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">어려운 난이도 규칙</span>
+                            <span class="ko card-text fs-4 px-2 mt-1" style="display: block;">{{ nemesis.increased_diff|keywords_replaced|safe }}</span>
+                            <span class="en card-text fs-4 px-2 mt-1" style="display: none;">{{ nemesis_en.increased_diff|keywords_replaced|safe }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 추가 규칙 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">추가 규칙</span>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ nemesis.additional_rules|keywords_replaced|safe }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ nemesis_en.additional_rules|keywords_replaced|safe }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 세팅 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">세팅</span>
+                            <p class="ko card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: block;">{{ nemesis.setup|keywords_replaced|safe }}</p>
+                            <p class="en card-text fs-4 px-2 mt-1" style="word-break: keep-all; display: none;">{{ nemesis_en.setup|keywords_replaced|safe }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 네메시스 카드 목록 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-3">네메시스 카드</span>
+                            <div class="card-list-container d-flex flex-row justify-content-start px-2 mb-2 gap-2 gap-md-3">
+                                {% for card in nemesis_private_card_list %}
+                                <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
+                                    <img src="{{ url_for('static', filename=card.image) }}" alt="{{ card.name }}" class="rounded p-0" width="230">
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 네메시스 특수 카드 목록 -->
+                <div class="row ms-md-2 mt-3">
+                    <div class="col-12">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-3">네메시스 특수 카드</span>
+                            <div class="card-list-container d-flex flex-row justify-content-start px-2 mb-2 gap-2 gap-md-3">
+                                {% for card in nemesis_specific_card_list %}
+                                <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
+                                    <img src="{{ url_for('static', filename=card.image) }}" alt="{{ card.name }}" class="rounded p-0" width="230">
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 네메시스 특수 오브젝트 -->
+            </div>
+        </div>
+    </div>
+
+    {% include 'review/review_list.html' %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+const koreanContents = document.getElementsByClassName('ko');
+const englishContents = document.getElementsByClassName('en');
+var isKorean = true;
+var isBackBoard = false;
+
+function changeLanguageMode() {
+    isKorean = !isKorean;
+    for (let content of koreanContents) {
+        content.style.display = isKorean ? 'block' : 'none';
+    }
+    for (let content of englishContents) {
+        content.style.display = isKorean ? 'none' : 'block';
+    }
+}
+
+function flipBoardImage() {
+    isBackBoard = !isBackBoard;
+    document.getElementById('front_board').style.display = isBackBoard ? 'none' : 'block';
+    document.getElementById('back_board').style.display = isBackBoard ? 'block' : 'none';
+}
+
+Array.from(document.getElementsByClassName('delete')).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if (confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        }
+    });
+});
+</script>
+{% endblock %}
