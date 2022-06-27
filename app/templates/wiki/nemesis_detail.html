@@ -56,8 +56,16 @@
                 </div>
 
                 <div class="row ms-md-2 mt-3">
+                    <!-- 평점 -->
+                    <div class="col-6 col-md-3">
+                        <div class="card border-score shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">평점</span>
+                            <span class="card-text fs-3 px-2 mt-1">{{ "%.1f"|format(nemesis.avg_score) }}</span>
+                        </div>
+                    </div>
+
                     <!-- 티어 -->
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="card border-nemesis shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">티어</span>
                             <span class="card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.tier }}</span>
@@ -65,7 +73,7 @@
                     </div>
 
                     <!-- 난이도 -->
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3 mt-3 mt-md-0">
                         <div class="card border-nemesis shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">난이도</span>
                             <span class="card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.difficulty }}</span>
@@ -73,7 +81,7 @@
                     </div>
 
                     <!-- 체력 -->
-                    <div class="col-12 col-md-4 mt-3 mt-md-0">
+                    <div class="col-6 col-md-3 mt-3 mt-md-0">
                         <div class="card border-nemesis shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">체력</span>
                             <span class="card-text fs-3 px-2 mt-1" style="display: block;">{{ nemesis.hp }}</span>

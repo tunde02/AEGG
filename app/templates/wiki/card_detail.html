@@ -49,7 +49,7 @@
 
                     <!-- 카드 평점 -->
                     <div class="{{ 'col-6 col-md-3' if is_nemesis_card and '미니언' in card.type else 'col-4' }}">
-                        <div class="card border-card shadow p-2 h-100">
+                        <div class="card border-score shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">평점</span>
                             <span class="card-text fs-3 px-2 mt-1">{{ "%.1f"|format(card.avg_score) }}</span>
                         </div>
@@ -58,7 +58,7 @@
                     {% if is_nemesis_card %}
                     <!-- 카드 티어 -->
                     <div class="{{ 'col-6 col-md-3' if is_nemesis_card and '미니언' in card.type else 'col-4' }} mt-3 mt-md-0">
-                        <div class="card border-mage shadow p-2 h-100">
+                        <div class="card border-card shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">티어</span>
                             <span class="card-text fs-3 px-2 mt-1">{{ card.nemesis_card_info[0].tier }}</span>
                         </div>

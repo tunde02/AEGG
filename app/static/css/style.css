@@ -92,6 +92,10 @@ p {
     border-left: 0.35rem solid #dc3545;
 }
 
+.border-score {
+    border-left: 0.35rem solid #ffc107;
+}
+
 .box-shadow {
     box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);
 }
