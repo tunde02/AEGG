@@ -54,6 +54,8 @@ class CardForm(FlaskForm):
     cost = StringField('카드 비용', validators=[DataRequired('카드 비용는 필수입력 항목입니다.'), Regexp('^[0-9]*$', message='카드 비용은 숫자만 입력할 수 있습니다.')])
     effect = TextAreaField('카드 효과', validators=[DataRequired('카드 효과는 필수입력 항목입니다.')])
     effect_en = TextAreaField('카드 영어 효과', validators=[DataRequired('카드 영어 효과는 필수입력 항목입니다.')])
+    tier = StringField('카드 티어', validators=[DataRequired('카드 티어는 필수입력 항목입니다.'), Regexp('^[0-9]*$', message='카드 티어는 숫자만 입력할 수 있습니다.')])
+    hp = StringField('카드 체력', validators=[DataRequired('카드 체력은 필수입력 항목입니다.'), Regexp('^[0-9]*$', message='카드 체력은 숫자만 입력할 수 있습니다.')])
     image = FileField('카드 이미지', validators=[FileAllowed(['png', 'jpg', 'jpeg'], '카드 이미지는 이미지 파일만 업로드할 수 있습니다.')])
 
 

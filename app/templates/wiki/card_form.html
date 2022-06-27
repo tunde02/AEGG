@@ -30,9 +30,17 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-6">
+                <div class="not-nemesis col-6" style="display: block;">
                     <label for="cost">비용</label>
-                    <input type="text" class="form-control" name="cost" value="{{ form.cost.data if form.cost.data is not none else '' }}">
+                    <input type="number" class="form-control" name="cost" id="cost" value="{{ form.cost.data if is_nemesis_card == 'false' else 0 }}">
+                </div>
+                <div class="nemesis col-3" style="display: none;">
+                    <label for="tier">티어</label>
+                    <input type="number" class="form-control" name="tier" id="tier" value="{{ form.tier.data if is_nemesis_card == 'true' else 0 }}">
+                </div>
+                <div class="nemesis col-3" style="display: none;">
+                    <label for="hp">체력</label>
+                    <input type="number" class="form-control" name="hp" id="hp" value="{{ form.hp.data if is_nemesis_card == 'true' else 0 }}">
                 </div>
                 <div class="col-6">
                     <label for="image">카드 이미지</label>
@@ -77,10 +85,15 @@
                 <input type="hidden" name="nemesis_relations" id="nemesis_relations" value="{{ nemesis_list_str or '' }}">
             </div>
 
-            <div class="d-flex justify-content-end mb-4 gap-2">
-                <a class="btn btn-danger" href="javascript:history.go(-1)">취소</a>
-                <button type="submit" class="btn btn-success">저장</button>
+            <div class="d-flex justify-content-between mb-4 gap-2">
+                <a class="btn btn-primary" href="javascript:changeFormType()">네메시스 카드</a>
+                <div>
+                    <a class="btn btn-danger" href="javascript:history.go(-1)">취소</a>
+                    <button type="submit" class="btn btn-success">저장</button>
+                </div>
             </div>
+
+            <input type="text" name="is_nemesis_card" id="is_nemesis_card" value="{{ is_nemesis_card or 'false' }}">
         </form>
     </div>
 </div>
@@ -88,10 +101,28 @@
 
 {% block script %}
 <script>
+const notNemesisBlock = document.getElementsByClassName('not-nemesis');
+const nemesisBlock = document.getElementsByClassName('nemesis')
+var isNemesisCard = document.getElementById('is_nemesis_card').value == 'false' ? !false : !true;
+
 const relationListBlock = document.getElementById('relationListBlock');
 const mageRelationsInput = document.getElementById('mage_relations');
 const nemesisRelationsInput = document.getElementById('nemesis_relations');
 var relationList = [];
+
+function changeFormType() {
+    isNemesisCard = !isNemesisCard
+    document.getElementById('is_nemesis_card').value = isNemesisCard ? 'true' : 'false';
+
+    for (let content of notNemesisBlock) {
+        content.style.display = isNemesisCard ? 'none' : 'block';
+    }
+    for (let content of nemesisBlock) {
+        content.style.display = isNemesisCard ? 'block' : 'none';
+    }
+}
+
+changeFormType();
 
 function initRelationListBlock() {
     var mage_list = mageRelationsInput.value ? mageRelationsInput.value.split('|').slice(0, -1) : [];

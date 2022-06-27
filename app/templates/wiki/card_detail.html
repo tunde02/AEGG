@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <div class="row rounded border border-2 shadow py-2 pb-3 p-md-0 my-md-3">
+    <div class="row rounded border border-2 shadow pt-3 pb-3 pb-md-0 mb-3 mt-md-3">
         <div class="col-12 col-md-4 p-md-3 m-md-0">
             <img src="{{ url_for('static', filename=card.image) }}" alt="카드 이미지" class="rounded img-thumbnail box-shadow p-0" width="410">
         </div>
@@ -31,7 +31,7 @@
 
                 <div class="row mt-3 mt-md-3">
                     <!-- 카드 타입 -->
-                    <div class="col-4">
+                    <div class="{{ 'col-6 col-md-3' if is_nemesis_card and '미니언' in card.type else 'col-4' }}">
                         <div class="card border-card shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">타입</span>
                             <span class="ko card-text fs-3 px-2 mt-1" style="display: block;">{{ card.type }}</span>
@@ -40,20 +40,40 @@
                     </div>
 
                     <!-- 카드 비용 -->
-                    <div class="col-4">
+                    <div class="{{ 'd-none' if is_nemesis_card else 'col-4' }}">
                         <div class="card border-card shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">비용</span>
                             <span class="card-text fs-3 px-2 mt-1">{{ card.cost }}</span>
                         </div>
                     </div>
 
-                    <!-- 카드 평정 -->
-                    <div class="col-4">
+                    <!-- 카드 평점 -->
+                    <div class="{{ 'col-6 col-md-3' if is_nemesis_card and '미니언' in card.type else 'col-4' }}">
                         <div class="card border-card shadow p-2 h-100">
                             <span class="card-title px-2 mb-0">평점</span>
                             <span class="card-text fs-3 px-2 mt-1">{{ "%.1f"|format(card.avg_score) }}</span>
                         </div>
                     </div>
+
+                    {% if is_nemesis_card %}
+                    <!-- 카드 티어 -->
+                    <div class="{{ 'col-6 col-md-3' if is_nemesis_card and '미니언' in card.type else 'col-4' }} mt-3 mt-md-0">
+                        <div class="card border-mage shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">티어</span>
+                            <span class="card-text fs-3 px-2 mt-1">{{ card.nemesis_card_info[0].tier }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 카드 체력 -->
+                    {% if '미니언' in card.type %}
+                    <div class="col-6 col-md-3 mt-3 mt-md-0">
+                        <div class="card border-nemesis shadow p-2 h-100">
+                            <span class="card-title px-2 mb-0">체력</span>
+                            <span class="card-text fs-3 px-2 mt-1">{{ card.nemesis_card_info[0].hp }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
                 </div>
 
                 <!-- 카드 효과 -->
@@ -80,7 +100,7 @@
                                 {% endfor %}
                                 {% for nemesis in related_nemesis_list %}
                                 <div class="badge d-flex align-items-center gap-1" style="background-color: #fd7e14;">
-                                    <a class="a-none-deco text-white" href="#"><span style="font-size: 1.2em;">{{ nemesis.name }}</span></a>
+                                    <a class="a-none-deco text-white" href="{{ url_for('wiki.nemesis_detail', nemesis_id=nemesis.id) }}"><span style="font-size: 1.2em;">{{ nemesis.name }}</span></a>
                                 </div>
                                 {% endfor %}
                             </div>

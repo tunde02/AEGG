@@ -78,11 +78,14 @@ def card_detail(card_id):
     # 각 카드에 대한 리뷰는 계정당 한 번씩만 가능하도록 제한
     already_reviewed = True if g.user and CardReview.query.filter(CardReview.card_id == card.id, CardReview.user == g.user).first() else False
 
+    # 네메시스 카드 여부
+    is_nemesis_card = True if NemesisCardInfo.query.filter(NemesisCardInfo.card_id == card.id).first() else False
+
     related_mage_list = Mage.query.join(related_mage, related_mage.c.mage_id == Mage.id).filter(related_mage.c.card_id == card.id).all()
     related_nemesis_list = Nemesis.query.join(related_nemesis, related_nemesis.c.nemesis_id == Nemesis.id).filter(related_nemesis.c.card_id == card.id).all()
 
     return render_template('wiki/card_detail.html',
-                           card=card, card_en=card_en,
+                           card=card, card_en=card_en, is_nemesis_card=is_nemesis_card,
                            review_list=card_review_list, already_reviewed=already_reviewed,
                            related_mage_list=related_mage_list, related_nemesis_list=related_nemesis_list)
 
@@ -223,6 +226,11 @@ def append_card():
             type=form.type_en.data,
             effect=form.effect_en.data
         )
+
+        # 네메시스 카드 정보
+        if request.form.get('is_nemesis_card', type=str, default='false') == 'true':
+            nemesis_card_info = NemesisCardInfo(card=card, tier=form.tier.data, hp=form.hp.data)
+            db.session.add(nemesis_card_info)
 
         if form.image.data is not None:
             file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
@@ -447,6 +455,19 @@ def modify_card(card_id):
             card_en.type = form.type_en.data
             card_en.effect = form.effect_en.data
 
+            # 네메시스 카드 정보
+            prev_nemesis_card_info = NemesisCardInfo.query.filter(NemesisCardInfo.card_id == card.id).first()
+            _is_nemesis_card = request.form.get('is_nemesis_card', type=str, default='false') == 'true'
+
+            if prev_nemesis_card_info and _is_nemesis_card: # modify NemesisCardInfo
+                prev_nemesis_card_info.tier = form.tier.data
+                prev_nemesis_card_info.hp = form.hp.data
+            elif prev_nemesis_card_info and not _is_nemesis_card: # delete NemesisCardInfo
+                db.session.delete(prev_nemesis_card_info)
+            elif not prev_nemesis_card_info and _is_nemesis_card: # create NemesisCardInfo
+                nemesis_card_info = NemesisCardInfo(card=card, tier=form.tier.data, hp=form.hp.data)
+                db.session.add(nemesis_card_info)
+
             # 관련된 균열 마법사 목록 수정
             prev_related_mage_name_list = [mage.name for mage in card.related_mage]
             modified_related_mage_name_list = request.form.get('mage_relations', type=str, default='').split('|')[:-1]
@@ -488,12 +509,19 @@ def modify_card(card_id):
             image=card.image
         )
 
+    # 네메시스 카드 여부
+    is_nemesis_card = 'true' if NemesisCardInfo.query.filter(NemesisCardInfo.card_id == card.id).first() else 'false'
+
+    if is_nemesis_card == 'true':
+        form.tier.data = card.nemesis_card_info[0].tier
+        form.hp.data = card.nemesis_card_info[0].hp
+
     mage_list = Mage.query.order_by(Mage.name)
     mage_list_str = '|'.join(mage.name for mage in card.related_mage) + '|' if len(card.related_mage) > 0 else ''
     nemesis_list = Nemesis.query.order_by(Nemesis.name)
     nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + '|' if len(card.related_nemesis) > 0 else ''
 
     return render_template('wiki/card_form.html',
-                           form=form,
+                           form=form, is_nemesis_card=is_nemesis_card,
                            mage_list=mage_list, mage_list_str=mage_list_str,
                            nemesis_list=nemesis_list, nemesis_list_str=nemesis_list_str)
