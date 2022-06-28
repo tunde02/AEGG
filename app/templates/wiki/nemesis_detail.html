@@ -25,7 +25,7 @@
                                     <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='nemesis') }}"><i class="bi bi-arrow-left"></i></a>
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
-                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_nemesis', nemesis_id=nemesis.id) }}">수정</a>
                                     <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
                                     {% endif %}
                                 </div>
@@ -44,7 +44,7 @@
                                     <a class="btn btn-outline-danger py-0" href="{{ url_for('wiki.wiki_list', wiki_type='nemesis') }}"><i class="bi bi-arrow-left"></i></a>
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
-                                    <a class="btn btn-outline-success py-0" href="#">수정</a>
+                                    <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_nemesis', nemesis_id=nemesis.id) }}">수정</a>
                                     <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
                                     {% endif %}
                                 </div>
@@ -131,7 +131,7 @@
                     </div>
                 </div>
 
-                <!-- 네메시스 카드 목록 -->
+                <!-- 네메시스 전용 카드 목록 -->
                 <div class="row ms-md-2 mt-3">
                     <div class="col-12">
                         <div class="card border-nemesis shadow p-2 h-100">
@@ -148,6 +148,7 @@
                 </div>
 
                 <!-- 네메시스 특수 카드 목록 -->
+                {% if nemesis_specific_card_list|length > 0 %}
                 <div class="row ms-md-2 mt-3">
                     <div class="col-12">
                         <div class="card border-nemesis shadow p-2 h-100">
@@ -162,6 +163,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- 네메시스 특수 오브젝트 -->
             </div>

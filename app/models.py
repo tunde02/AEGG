@@ -200,7 +200,7 @@ class NemesisCardInfo(db.Model):
 
 class NemesisSpecificCard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nemesis = db.relationship('Nemesis', backref=db.backref('nemesis_specific_card_list', passive_deletes=True))
+    nemesis = db.relationship('Nemesis', backref=db.backref('specific_card_list', passive_deletes=True))
     nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
     card = db.relationship('Card')
     card_id = db.Column(db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), nullable=False)
