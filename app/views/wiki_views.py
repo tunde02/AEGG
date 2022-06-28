@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, url_for, g, flash
 from werkzeug.utils import redirect, secure_filename
 
 from app import db
-from app.forms import CardForm, MageForm
+from app.forms import CardForm, MageForm, NemesisForm
 from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, MageSpecificCard, MageSpecificObject, MageStartingDeck, MageStartingHand, Nemesis, NemesisCardInfo, NemesisEN, NemesisSpecificCard, related_mage, related_nemesis
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER
@@ -262,9 +262,75 @@ def append_card():
 
 @bp.route('/append/nemesis', methods=['GET', 'POST'])
 def append_nemesis():
-    # TODO
-    print('APPEND NEMESIS')
-    return redirect(url_for('wiki.wiki_list', wiki_type='nemesis'))
+    form = NemesisForm()
+    card_list = Card.query.join(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
+                          .outerjoin(related_nemesis, related_nemesis.c.card_id == Card.id) \
+                          .filter(related_nemesis.c.nemesis_id == None) \
+                          .order_by(NemesisCardInfo.tier.asc(), Card.name.asc()).all()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        nemesis = Nemesis(
+            name=form.name.data,
+            series=form.series.data,
+            tier=form.tier.data,
+            difficulty=form.difficulty.data,
+            hp=form.hp.data,
+            setup=form.setup.data,
+            additional_rules=form.additional_rules.data,
+            unleash=form.unleash.data,
+            increased_diff=form.increased_diff.data
+        )
+        nemesis_en = NemesisEN(
+            nemesis=nemesis,
+            name=form.name_en.data,
+            series=form.series_en.data,
+            setup=form.setup_en.data,
+            additional_rules=form.additional_rules_en.data,
+            unleash=form.unleash_en.data,
+            increased_diff=form.increased_diff_en.data
+        )
+
+        # 아이콘 이미지 저장
+        if form.image.data is not None:
+            file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/icon', file_name)
+
+            form.image.data.save(file_path)
+            nemesis.image = f"images/nemesis/icon/{file_name}"
+
+        # 보드 이미지 저장
+        if form.board_image.data is not None:
+            file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/board', file_name)
+
+            form.board_image.data.save(file_path)
+            nemesis.board_image = f"images/nemesis/board/{file_name}"
+
+        # 보드 뒷면 이미지 저장
+        if form.back_board_image.data is not None:
+            file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
+            file_name = secure_filename(f"{form.name_en.data.lower()}_back.{file_extension}")
+            file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/board', file_name)
+
+            form.back_board_image.data.save(file_path)
+            nemesis.back_board_image = f"images/nemesis/board/{file_name}"
+
+        # 특수 카드
+        specific_card_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
+        for card_name in specific_card_list:
+            card = Card.query.filter(Card.name == card_name).first()
+            specific_card = NemesisSpecificCard(nemesis=nemesis, card=card)
+            db.session.add(specific_card)
+
+        db.session.add(nemesis)
+        db.session.add(nemesis_en)
+        db.session.commit()
+
+        return redirect(url_for('wiki.wiki_list', wiki_type='nemesis'))
+
+    return render_template('wiki/nemesis_form.html', form=form, card_list=card_list)
 
 
 @bp.route('/modify/mage/<int:mage_id>', methods=['GET', 'POST'])
