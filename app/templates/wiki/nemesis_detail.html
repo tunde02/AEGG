@@ -136,7 +136,7 @@
                     <div class="col-12">
                         <div class="card border-nemesis shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">네메시스 카드</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start px-2 mb-2 gap-2 gap-md-3">
+                            <div class="card-list-container d-flex justify-content-start px-md-2 mb-2 gap-2 gap-md-3">
                                 {% for card in nemesis_private_card_list %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
                                     <img src="{{ url_for('static', filename=card.image) }}" alt="{{ card.name }}" class="rounded p-0" width="230">
@@ -153,7 +153,7 @@
                     <div class="col-12">
                         <div class="card border-nemesis shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">네메시스 특수 카드</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start px-2 mb-2 gap-2 gap-md-3">
+                            <div class="card-list-container d-flex justify-content-start px-md-2 mb-2 gap-2 gap-md-3">
                                 {% for card in nemesis_specific_card_list %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
                                     <img src="{{ url_for('static', filename=card.image) }}" alt="{{ card.name }}" class="rounded p-0" width="230">

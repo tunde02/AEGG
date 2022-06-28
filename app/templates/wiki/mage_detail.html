@@ -110,7 +110,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">시작 패</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-3">
+                            <div class="card-list-container d-flex justify-content-start justify-content-md-evenly mb-2 gap-2">
                                 {% for hand in starting_hand %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=hand.card_id) }}">
                                     <img src="{{ url_for('static', filename=hand.card.image) }}" alt="{{ hand.card.name }}" class="rounded p-0" width="230">
@@ -126,7 +126,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">시작 덱</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start justify-content-md-center mb-2 gap-2 gap-md-3">
+                            <div class="card-list-container d-flex justify-content-start justify-content-md-evenly mb-2 gap-2">
                                 {% for deck in starting_deck %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=deck.card_id) }}">
                                     <img src="{{ url_for('static', filename=deck.card.image) }}" alt="{{ deck.card.name }}" class="rounded p-0" width="230">
@@ -143,7 +143,7 @@
                     <div class="col-12">
                         <div class="card border-mage shadow p-2 h-100">
                             <span class="card-title px-2 mb-3">특수</span>
-                            <div class="card-list-container d-flex flex-row justify-content-start mb-2 gap-2 gap-md-4">
+                            <div class="card-list-container d-flex px-md-2 mb-2 gap-2 gap-md-3">
                                 {% for specific in specific_card_list %}
                                 <a href="{{ url_for('wiki.card_detail', card_id=specific.card_id) }}">
                                     <img src="{{ url_for('static', filename=specific.card.image) }}" alt="{{ specific.card.name }}" class="rounded p-0" width="230">
