@@ -13,6 +13,28 @@ from config.default import UPLOAD_FOLDER
 bp = Blueprint('wiki', __name__, url_prefix='/wiki')
 
 
+def update_related_mage(mage):
+    prev_related_cards = mage.related_card_list
+    actual_related_cards = Card.query.outerjoin(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
+                                     .filter(NemesisCardInfo.card_id == None) \
+                                     .outerjoin(MageStartingHand, MageStartingHand.card_id == Card.id) \
+                                     .outerjoin(MageStartingDeck, MageStartingDeck.card_id == Card.id) \
+                                     .outerjoin(MageSpecificCard, MageSpecificCard.card_id == Card.id) \
+                                     .filter((MageStartingHand.mage_id == mage.id) |
+                                             (MageStartingDeck.mage_id == mage.id) |
+                                             (MageSpecificCard.mage_id == mage.id)).all()
+    related_card_union = list(set(prev_related_cards + actual_related_cards))
+
+    for card in related_card_union:
+        if card.name in ['크리스탈', '스파크']:
+            continue
+
+        if card not in prev_related_cards:
+            card.related_mage.append(mage)
+        elif card not in actual_related_cards:
+            card.related_mage.remove(mage)
+
+
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'wiki'
@@ -177,6 +199,7 @@ def append_mage():
                 continue
 
             card = Card.query.filter(Card.name == card_name).first()
+            card.related_mage.append(mage)
             hand = MageStartingHand(mage=mage, card=card, order=i)
             db.session.add(hand)
 
@@ -187,6 +210,7 @@ def append_mage():
                 continue
 
             card = Card.query.filter(Card.name == card_name).first()
+            card.related_mage.append(mage)
             deck = MageStartingDeck(mage=mage, card=card, order=i)
             db.session.add(deck)
 
@@ -194,6 +218,7 @@ def append_mage():
         specific_card_name_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
         for card_name in specific_card_name_list:
             card = Card.query.filter(Card.name == card_name).first()
+            card.related_mage.append(mage)
             specific_card = MageSpecificCard(mage=mage, card=card)
             db.session.add(specific_card)
 
@@ -317,10 +342,13 @@ def append_nemesis():
             form.back_board_image.data.save(file_path)
             nemesis.back_board_image = f"images/nemesis/board/{file_name}"
 
+        # TODO: 전용 카드
+
         # 특수 카드
         specific_card_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
         for card_name in specific_card_list:
             card = Card.query.filter(Card.name == card_name).first()
+            card.related_nemesis.append(nemesis)
             specific_card = NemesisSpecificCard(nemesis=nemesis, card=card)
             db.session.add(specific_card)
 
@@ -411,32 +439,30 @@ def modify_mage(mage_id):
             # 시작 패 수정
             for i in range(5):
                 card_name = request.form.get(f'starting_hand_{i}', type=str, default='')
+                card = Card.query.filter(Card.name == card_name).first()
                 prev_hand = MageStartingHand.query.filter(MageStartingHand.mage_id == mage.id, MageStartingHand.order == i).first()
 
                 if prev_hand is not None:
                     if card_name == '': # delete hand
                         db.session.delete(prev_hand)
                     elif card_name != prev_hand.card.name: # modify hand
-                        card = Card.query.filter(Card.name == card_name).first()
                         prev_hand.card = card
                 elif card_name != '': # append hand
-                    card = Card.query.filter(Card.name == card_name).first()
                     hand = MageStartingHand(mage=mage, card=card, order=i)
                     db.session.add(hand)
 
             # 시작 덱 수정
             for i in range(5):
                 card_name = request.form.get(f'starting_deck_{i}', type=str, default='')
+                card = Card.query.filter(Card.name == card_name).first()
                 prev_deck = MageStartingDeck.query.filter(MageStartingDeck.mage_id == mage.id, MageStartingDeck.order == i).first()
 
                 if prev_deck is not None:
                     if card_name == '': # delete deck
                         db.session.delete(prev_deck)
                     elif card_name != prev_deck.card.name: # modify deck
-                        card = Card.query.filter(Card.name == card_name).first()
                         prev_deck.card = card
                 elif card_name != '': # append deck
-                    card = Card.query.filter(Card.name == card_name).first()
                     deck = MageStartingDeck(mage=mage, card=card, order=i)
                     db.session.add(deck)
 
@@ -455,6 +481,7 @@ def modify_mage(mage_id):
                     specific = MageSpecificCard.query.filter(MageSpecificCard.mage == mage, MageSpecificCard.card == card).first()
                     db.session.delete(specific)
 
+            update_related_mage(mage)
             db.session.commit()
 
             return redirect(url_for('wiki.mage_detail', mage_id=mage.id))
@@ -674,6 +701,8 @@ def modify_nemesis(nemesis_id):
             nemesis_en.unleash          = form.unleash_en.data
             nemesis_en.increased_diff   = form.increased_diff_en.data
 
+            # TODO: 전용 카드 수정
+
             # 특수 카드 수정
             prev_specific_card_list = [specific.card.name for specific in nemesis.specific_card_list]
             modified_specific_card_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
@@ -684,9 +713,11 @@ def modify_nemesis(nemesis_id):
 
                 if card_name not in prev_specific_card_list:
                     specific = NemesisSpecificCard(nemesis=nemesis, card=card)
+                    card.related_nemesis.append(nemesis)
                     db.session.add(specific)
                 elif card_name not in modified_specific_card_list:
                     specific = NemesisSpecificCard.query.filter(NemesisSpecificCard.nemesis == nemesis, NemesisSpecificCard.card == card).first()
+                    card.related_nemesis.remove(nemesis)
                     db.session.delete(specific)
 
             db.session.commit()
