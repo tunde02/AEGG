@@ -91,9 +91,9 @@
                             <option value="">시작 패</option>
                             {% for card in card_list %}
                             {% if starting_hand_dict and i in starting_hand_dict.keys() and starting_hand_dict[i].name == card.name %}
-                            <option value="{{ card.name }}" selected>{{ card.name }}</option>
+                            <option value="{{ card.name }}" selected>{{ card.name }} ({{ card.card_en[0].name }})</option>
                             {% else %}
-                            <option value="{{ card.name }}">{{ card.name }}</option>
+                            <option value="{{ card.name }}">{{ card.name }} ({{ card.card_en[0].name }})</option>
                             {% endif %}
                             {% endfor %}
                         </select>
@@ -108,9 +108,9 @@
                             <option value="">시작 덱</option>
                             {% for card in card_list %}
                             {% if starting_deck_dict and i in starting_deck_dict.keys() and starting_deck_dict[i].name == card.name %}
-                            <option value="{{ card.name }}" selected>{{ card.name }}</option>
+                            <option value="{{ card.name }}" selected>{{ card.name }} ({{ card.card_en[0].name }})</option>
                             {% else %}
-                            <option value="{{ card.name }}">{{ card.name }}</option>
+                            <option value="{{ card.name }}">{{ card.name }} ({{ card.card_en[0].name }})</option>
                             {% endif %}
                             {% endfor %}
                         </select>
@@ -125,7 +125,7 @@
                     <select class="form-select" id="specific_card_select" onchange="onCardSelect(this)">
                         <option value="NO_CARD" selected>특수 카드</option>
                         {% for card in card_list %}
-                        <option value="{{ card.name }}">{{ card.name }}</option>
+                        <option value="{{ card.name }}">{{ card.name }} ({{ card.card_en[0].name }})</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -158,22 +158,28 @@ function initCardListContainer() {
     var _specificCardList = specificCardInput.value ? specificCardInput.value.split('|').slice(0, -1) : [];
 
     for (var card of _specificCardList) {
-        insertCardBadge(card, 'specific');
+        insertCardBadge(card);
     }
 }
 
 initCardListContainer();
 
 function onCardSelect(cardSelect) {
-    insertCardBadge(cardSelect.value);
-    specificCardInput.value += cardSelect.value + '|';
-
+    selectedValue = cardSelect.value;
     cardSelect.value = 'NO_CARD';
+
+    if (specificCardList.includes(selectedValue)) {
+        alert('이미 추가된 카드입니다.');
+        return;
+    }
+
+    insertCardBadge(selectedValue);
+    specificCardInput.value += selectedValue + '|';
 }
 
 function insertCardBadge(card) {
     /*
-    <div class="badge bg-dark d-flex align-items-center gap-1">
+    <div class="badge d-flex align-items-center gap-1">
         <span style="font-size: 1.2em;">크리스탈</span>
         <a class="btn btn-sm p-0" onclick="deleteBadge()"><i class="bi bi-x-lg" style="color: #ff0000;"></i></a>
     </div>

@@ -139,18 +139,21 @@ function initRelationListBlock() {
 initRelationListBlock();
 
 function onRelationSelect(relationSelect) {
-    if (relationList.includes(relationSelect.value))
-        return;
+    selectedValue = relationSelect.value;
+    relationSelect.value = 'NO_RELATION';
 
-    if (relationSelect.id == 'mage_relation_select') {
-        insertRelationBadge(relationSelect.value, '#6f42c1');
-        mageRelationsInput.value += relationSelect.value + '|';
-    } else {
-        insertRelationBadge(relationSelect.value, '#fd7e14');
-        nemesisRelationsInput.value += relationSelect.value + '|';
+    if (relationList.includes(selectedValue)) {
+        alert('이미 추가된 관련입니다.');
+        return;
     }
 
-    relationSelect.value = 'NO_RELATION';
+    if (relationSelect.id == 'mage_relation_select') {
+        insertRelationBadge(selectedValue, '#6f42c1');
+        mageRelationsInput.value += selectedValue + '|';
+    } else {
+        insertRelationBadge(selectedValue, '#fd7e14');
+        nemesisRelationsInput.value += selectedValue + '|';
+    }
 }
 
 function insertRelationBadge(relation, color) {
