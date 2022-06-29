@@ -342,7 +342,11 @@ def append_nemesis():
             form.back_board_image.data.save(file_path)
             nemesis.back_board_image = f"images/nemesis/board/{file_name}"
 
-        # TODO: 전용 카드
+        # 전용 카드
+        private_card_list = request.form.get('private_card_str', type=str, default='').split('|')[:-1]
+        for card_name in private_card_list:
+            card = Card.query.filter(Card.name == card_name).first()
+            card.related_nemesis.append(nemesis)
 
         # 특수 카드
         specific_card_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
@@ -500,8 +504,11 @@ def modify_mage(mage_id):
             required_charges=mage.required_charges
         )
 
-    card_list = Card.query.order_by(Card.cost, Card.name)
-    specific_card_str = '|'.join([specific.card.name for specific in mage.specific_card_list]) + '|' if len(mage.specific_card_list) > 0 else ''
+    card_list = Card.query.join(CardEN, CardEN.card_id == Card.id) \
+                          .outerjoin(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
+                          .filter(NemesisCardInfo.card_id == None) \
+                          .order_by(Card.cost, CardEN.name)
+    specific_card_str = '|'.join([specific.card.name for specific in mage.specific_card_list]) + ('|' if len(mage.specific_card_list) > 0 else '')
     starting_hand_dict, starting_deck_dict = {}, {}
 
     for hand in mage.starting_hand:
@@ -612,9 +619,9 @@ def modify_card(card_id):
         form.hp.data = card.nemesis_card_info[0].hp
 
     mage_list = Mage.query.order_by(Mage.name)
-    mage_list_str = '|'.join(mage.name for mage in card.related_mage) + '|' if len(card.related_mage) > 0 else ''
+    mage_list_str = '|'.join(mage.name for mage in card.related_mage) + ('|' if len(card.related_mage) > 0 else '')
     nemesis_list = Nemesis.query.order_by(Nemesis.name)
-    nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + '|' if len(card.related_nemesis) > 0 else ''
+    nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + ('|' if len(card.related_nemesis) > 0 else '')
 
     return render_template('wiki/card_form.html',
                            form=form, is_nemesis_card=is_nemesis_card,
@@ -627,6 +634,11 @@ def modify_card(card_id):
 def modify_nemesis(nemesis_id):
     nemesis = Nemesis.query.get_or_404(nemesis_id)
     nemesis_en = NemesisEN.query.filter(NemesisEN.nemesis_id == nemesis.id).first()
+    private_card_list = Card.query.join(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
+                                  .join(related_nemesis, related_nemesis.c.card_id == Card.id) \
+                                  .outerjoin(NemesisSpecificCard, NemesisSpecificCard.card_id == Card.id) \
+                                  .filter(NemesisSpecificCard.nemesis_id == None) \
+                                  .filter(related_nemesis.c.nemesis_id == nemesis.id).all()
 
     if request.method == 'POST':
         form = NemesisForm()
@@ -701,7 +713,18 @@ def modify_nemesis(nemesis_id):
             nemesis_en.unleash          = form.unleash_en.data
             nemesis_en.increased_diff   = form.increased_diff_en.data
 
-            # TODO: 전용 카드 수정
+            # 전용 카드 수정
+            prev_private_card_list = [private_card.name for private_card in private_card_list]
+            modified_private_card_list = request.form.get('private_card_str', type=str, default='').split('|')[:-1]
+            private_card_union = list(set(prev_private_card_list + modified_private_card_list))
+
+            for card_name in private_card_union:
+                card = Card.query.filter(Card.name == card_name).first()
+
+                if card_name not in prev_private_card_list:
+                    card.related_nemesis.append(nemesis)
+                elif card_name not in modified_private_card_list:
+                    card.related_nemesis.remove(nemesis)
 
             # 특수 카드 수정
             prev_specific_card_list = [specific.card.name for specific in nemesis.specific_card_list]
@@ -742,13 +765,16 @@ def modify_nemesis(nemesis_id):
             increased_diff_en=nemesis_en.increased_diff
         )
 
-    card_list = Card.query.join(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
+    card_list = Card.query.join(CardEN, CardEN.card_id == Card.id) \
+                          .join(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
                           .outerjoin(related_nemesis, related_nemesis.c.card_id == Card.id) \
-                          .filter(related_nemesis.c.nemesis_id == None) \
-                          .order_by(NemesisCardInfo.tier.asc(), Card.name.asc()).all()
+                          .filter((related_nemesis.c.nemesis_id == nemesis.id) |
+                                  (related_nemesis.c.nemesis_id == None)) \
+                          .order_by(NemesisCardInfo.tier.asc(), CardEN.name.asc()).all()
 
-    specific_card_str = '|'.join([specific.card.name for specific in nemesis.specific_card_list]) + '|' if len(nemesis.specific_card_list) > 0 else ''
+    private_card_str = '|'.join([private_card.name for private_card in private_card_list]) +('|' if len(private_card_list) > 0 else '')
+    specific_card_str = '|'.join([specific.card.name for specific in nemesis.specific_card_list]) + ('|' if len(nemesis.specific_card_list) > 0 else '')
 
     return render_template('wiki/nemesis_form.html',
-                           form=form,
-                           card_list=card_list, specific_card_str=specific_card_str)
+                           form=form, card_list=card_list,
+                           private_card_str=private_card_str, specific_card_str=specific_card_str)

@@ -104,9 +104,29 @@
             </div>
 
             <div class="row border m-1 pt-1 pb-2 mb-4">
+                <label>네메시스 전용 카드</label>
+                <div class="col-12 mb-3">
+                    <select class="form-select" id="private_card_select" onchange="onCardSelect(this, 'private')">
+                        <option value="NO_CARD" selected>전용 카드</option>
+                        {% for card in card_list %}
+                        <option value="{{ card.name }}">{{ card.name }} ({{ card.card_en[0].name }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-6">
+                    <div class="d-flex flex-wrap gap-2" id="privateCardContainer">
+                        <!-- 전용 카드 목록 -->
+                    </div>
+                </div>
+
+                <input type="hidden" name="private_card_str" id="private_card_str" value="{{ private_card_str or '' }}">
+            </div>
+
+            <div class="row border m-1 pt-1 pb-2 mb-4">
                 <label>네메시스 특수 카드</label>
                 <div class="col-12 mb-3">
-                    <select class="form-select" id="specific_card_select" onchange="onCardSelect(this)">
+                    <select class="form-select" id="specific_card_select" onchange="onCardSelect(this, 'specific')">
                         <option value="NO_CARD" selected>특수 카드</option>
                         {% for card in card_list %}
                         <option value="{{ card.name }}">{{ card.name }} ({{ card.card_en[0].name }})</option>
@@ -134,13 +154,20 @@
 
 {% block script %}
 <script>
+const privateCardContainer = document.getElementById('privateCardContainer');
+const privateCardInput = document.getElementById('private_card_str');
 const specificCardContainer = document.getElementById('specificCardContainer');
 const specificCardInput = document.getElementById('specific_card_str');
+var privateCardList = [];
 var specificCardList = [];
 
 function initCardListContainer() {
+    var _privateCardList = privateCardInput.value ? privateCardInput.value.split('|').slice(0, -1) : [];
     var _specificCardList = specificCardInput.value ? specificCardInput.value.split('|').slice(0, -1) : [];
 
+    for (var card of _privateCardList) {
+        insertCardBadge(card, 'private');
+    }
     for (var card of _specificCardList) {
         insertCardBadge(card, 'specific');
     }
@@ -148,25 +175,36 @@ function initCardListContainer() {
 
 initCardListContainer();
 
-function onCardSelect(cardSelect) {
-    insertCardBadge(cardSelect.value);
-    specificCardInput.value += cardSelect.value + '|';
-
+function onCardSelect(cardSelect, cardType) {
+    selectedValue = cardSelect.value;
     cardSelect.value = 'NO_CARD';
+
+    if (privateCardList.includes(selectedValue) || specificCardList.includes(selectedValue)) {
+        alert('이미 추가된 카드입니다.');
+        return;
+    }
+
+    insertCardBadge(selectedValue, cardType);
+
+    if (cardType == 'private') {
+        privateCardInput.value += selectedValue + '|';
+    } else {
+        specificCardInput.value += selectedValue + '|';
+    }
 }
 
-function insertCardBadge(card) {
+function insertCardBadge(card, cardType) {
     /*
-    <div class="badge bg-dark d-flex align-items-center gap-1">
+    <div class="badge d-flex align-items-center gap-1">
         <span style="font-size: 1.2em;">크리스탈</span>
         <a class="btn btn-sm p-0" onclick="deleteBadge()"><i class="bi bi-x-lg" style="color: #ff0000;"></i></a>
     </div>
     */
 
     var badge = document.createElement('div');
-    badge.id = 'specific_' + card;
+    badge.id = (cardType == 'private' ? 'private_' : 'specific_') + card;
     badge.classList.add('badge', 'd-flex', 'align-items-center', 'gap-1');
-    badge.style.backgroundColor = '#0d6efd';
+    badge.style.backgroundColor = '#dc3545';
 
     var content = document.createElement('span');
     content.style.fontSize = '1.2em';
@@ -174,26 +212,43 @@ function insertCardBadge(card) {
 
     var deleteButton = document.createElement('a');
     deleteButton.classList.add('btn', 'btn-sm', 'p-0');
-    deleteButton.addEventListener('click', function() {
-        specificCardList.splice(specificCardList.indexOf(content.innerText), 1);
-        removeCardInput(content.innerText);
-        document.getElementById('specific_' + content.innerText).remove();
-    });
+    if (cardType == 'private') {
+        deleteButton.addEventListener('click', function() {
+            privateCardList.splice(privateCardList.indexOf(content.innerText), 1);
+            removeCardInput(content.innerText, cardType);
+            document.getElementById('private_' + content.innerText).remove();
+        });
+    } else {
+        deleteButton.addEventListener('click', function() {
+            specificCardList.splice(specificCardList.indexOf(content.innerText), 1);
+            removeCardInput(content.innerText, cardType);
+            document.getElementById('specific_' + content.innerText).remove();
+        });
+    }
 
     var deleteIcon = document.createElement('i');
     deleteIcon.classList.add('bi', 'bi-x-lg');
-    deleteIcon.style.color = '#ff0000';
+    deleteIcon.style.color = '#000000';
 
     deleteButton.appendChild(deleteIcon);
     badge.appendChild(content);
     badge.appendChild(deleteButton);
 
-    specificCardList.push(card);
-    specificCardContainer.appendChild(badge);
+    if (cardType == 'private') {
+        privateCardList.push(card);
+        privateCardContainer.appendChild(badge);
+    } else {
+        specificCardList.push(card);
+        specificCardContainer.appendChild(badge);
+    }
 }
 
-function removeCardInput(card) {
-    specificCardInput.value = specificCardInput.value.replace(card + '|', '');
+function removeCardInput(card, cardType) {
+    if (cardType == 'private') {
+        privateCardInput.value = privateCardInput.value.replace(card + '|', '');
+    } else {
+        specificCardInput.value = specificCardInput.value.replace(card + '|', '');
+    }
 }
 </script>
 {% endblock %}
