@@ -1,11 +1,11 @@
 import os
 
-from flask import Blueprint, render_template, request, url_for, g, flash
+from flask import Blueprint, render_template, request, url_for, g
 from werkzeug.utils import redirect, secure_filename
 
 from app import db
 from app.forms import CardForm, MageForm, NemesisForm
-from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, MageSpecificCard, MageSpecificObject, MageStartingDeck, MageStartingHand, Nemesis, NemesisCardInfo, NemesisEN, NemesisReview, NemesisSpecificCard, related_mage, related_nemesis
+from app.models import *
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER
 
@@ -33,6 +33,25 @@ def update_related_mage(mage):
             card.related_mage.append(mage)
         elif card not in actual_related_cards:
             card.related_mage.remove(mage)
+
+
+def save_image(image_data, file_name, save_folder):
+    file_extension = image_data.filename.rsplit('.', 1)[1].lower()
+    full_file_name = secure_filename(f"{file_name}.{file_extension}")
+    file_path = os.path.join(UPLOAD_FOLDER, save_folder, full_file_name)
+
+    image_data.save(file_path)
+
+    return f"images/{save_folder}/{full_file_name}"
+
+
+def modify_image_name(prev_file_path, file_name, save_folder):
+    prev_file_extension = os.path.basename(prev_file_path).rsplit('.', 1)[1].lower()
+    new_full_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
+
+    os.rename(os.path.join('./app/static', prev_file_path), os.path.join(UPLOAD_FOLDER, save_folder, new_full_file_name))
+
+    return f"images/{save_folder}/{new_full_file_name}"
 
 
 @bp.before_request
@@ -166,54 +185,34 @@ def append_mage():
             activation_time=form.activation_time_en.data
         )
 
-        # 아이콘 이미지 저장
+        # 이미지 파일 저장
+        file_name = f"{form.name_en.data.lower()}_{form.series_en.data.lower()}"
         if form.image.data is not None:
-            file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}_{form.series_en.data.lower()}.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'mage/icon', file_name)
+            mage.image = save_image(form.image.data, file_name, 'mage/icon')
 
-            form.image.data.save(file_path)
-            mage.image = f"images/mage/icon/{file_name}"
-
-        # 보드 이미지 저장
         if form.board_image.data is not None:
-            file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}_{form.series_en.data.lower()}.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', file_name)
+            mage.board_image = save_image(form.board_image.data, file_name, 'mage/board')
 
-            form.board_image.data.save(file_path)
-            mage.board_image = f"images/mage/board/{file_name}"
-
-        # 보드 뒷면 이미지 저장
         if form.back_board_image.data is not None:
-            file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}_{form.series_en.data.lower()}_back.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', file_name)
-
-            form.back_board_image.data.save(file_path)
-            mage.back_board_image = f"images/mage/board/{file_name}"
+            mage.back_board_image = save_image(form.back_board_image.data, f"{file_name}_back", 'mage/board')
 
         # 시작 패
         for i in range(5):
             card_name = request.form.get(f'starting_hand_{i}', type=str, default='')
-            if card_name == '':
-                continue
-
-            card = Card.query.filter(Card.name == card_name).first()
-            card.related_mage.append(mage)
-            hand = MageStartingHand(mage=mage, card=card, order=i)
-            db.session.add(hand)
+            if card_name != '':
+                card = Card.query.filter(Card.name == card_name).first()
+                card.related_mage.append(mage)
+                hand = MageStartingHand(mage=mage, card=card, order=i)
+                db.session.add(hand)
 
         # 시작 덱
         for i in range(5):
             card_name = request.form.get(f'starting_deck_{i}', type=str, default='')
             if card_name == '':
-                continue
-
-            card = Card.query.filter(Card.name == card_name).first()
-            card.related_mage.append(mage)
-            deck = MageStartingDeck(mage=mage, card=card, order=i)
-            db.session.add(deck)
+                card = Card.query.filter(Card.name == card_name).first()
+                card.related_mage.append(mage)
+                deck = MageStartingDeck(mage=mage, card=card, order=i)
+                db.session.add(deck)
 
         # 특수 카드
         specific_card_name_list = request.form.get('specific_card_str', type=str, default='').split('|')[:-1]
@@ -258,13 +257,9 @@ def append_card():
             nemesis_card_info = NemesisCardInfo(card=card, tier=form.tier.data, hp=form.hp.data)
             db.session.add(nemesis_card_info)
 
+        # 이미지 파일 저장
         if form.image.data is not None:
-            file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'card', file_name)
-
-            form.image.data.save(file_path)
-            card.image = f"images/card/{file_name}"
+            card.image = save_image(form.image.data, form.name_en.data.lower(), 'card')
 
         related_mage_name_list = request.form.get('mage_relations', type=str, default='').split('|')[:-1]
         related_nemesis_name_list = request.form.get('nemesis_relations', type=str, default='').split('|')[:-1]
@@ -316,32 +311,16 @@ def append_nemesis():
             increased_diff=form.increased_diff_en.data
         )
 
-        # 아이콘 이미지 저장
+        # 이미지 파일 저장
+        file_name = form.name_en.data.lower()
         if form.image.data is not None:
-            file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/icon', file_name)
+            nemesis.image = save_image(form.image.data, file_name, 'nemesis/icon')
 
-            form.image.data.save(file_path)
-            nemesis.image = f"images/nemesis/icon/{file_name}"
-
-        # 보드 이미지 저장
         if form.board_image.data is not None:
-            file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/board', file_name)
+            nemesis.board_image = save_image(form.board_image.data, file_name, 'nemesis/board')
 
-            form.board_image.data.save(file_path)
-            nemesis.board_image = f"images/nemesis/board/{file_name}"
-
-        # 보드 뒷면 이미지 저장
         if form.back_board_image.data is not None:
-            file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
-            file_name = secure_filename(f"{form.name_en.data.lower()}_back.{file_extension}")
-            file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/board', file_name)
-
-            form.back_board_image.data.save(file_path)
-            nemesis.back_board_image = f"images/nemesis/board/{file_name}"
+            nemesis.back_board_image = save_image(form.back_board_image.data, f"{file_name}_back", 'nemesis/board')
 
         # 전용 카드
         private_card_list = request.form.get('private_card_str', type=str, default='').split('|')[:-1]
@@ -378,55 +357,26 @@ def modify_mage(mage_id):
         if form.validate_on_submit():
             file_name = f"{form.name_en.data.lower()}_{form.series_en.data.lower()}"
 
-            # 균열 마법사 이름 (English)이 바뀌면 이미지 파일 이름들 변경
+            # 균열 마법사 이름 (English)이 바뀌면 이미지 파일 이름들도 수정
             if form.name_en.data != mage_en.name or form.series_en.data != mage_en.series:
-                # 아이콘 이미지 이름 변경
                 if 'defaults' not in mage.image:
-                    prev_file_extension = os.path.basename(mage.image).rsplit('.', 1)[1].lower()
-                    new_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
-                    os.rename(os.path.join('./app/static', mage.image), os.path.join(UPLOAD_FOLDER, 'mage/icon', new_file_name))
+                    mage.image = modify_image_name(mage.image, file_name, 'mage/icon')
 
-                    mage.image = f"images/mage/icon/{new_file_name}"
-
-                # 보드 이미지 이름 변경
                 if 'defaults' not in mage.board_image:
-                    prev_file_extension = os.path.basename(mage.board_image).rsplit('.', 1)[1].lower()
-                    new_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
-                    os.rename(os.path.join('./app/static', mage.board_image), os.path.join(UPLOAD_FOLDER, 'mage/board', new_file_name))
+                    mage.board_image = modify_image_name(mage.board_image, file_name, 'mage/board')
 
-                    mage.board_image = f"images/mage/board/{new_file_name}"
-
-                # 보드 뒷면 이미지 이름 변경
                 if 'defaults' not in mage.back_board_image:
-                    prev_file_extension = os.path.basename(mage.back_board_image).rsplit('.', 1)[1].lower()
-                    new_file_name = secure_filename(f"{file_name}_back.{prev_file_extension}")
-                    os.rename(os.path.join('./app/static', mage.back_board_image), os.path.join(UPLOAD_FOLDER, 'mage/board', new_file_name))
+                    mage.back_board_image = modify_image_name(mage.back_board_image, f"{file_name}_back", 'mage/board')
 
-                    mage.back_board_image = f"images/mage/board/{new_file_name}"
-
+            # 이미지 파일 수정
             if form.image.data is not None:
-                file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
-                _file_name = secure_filename(f"{file_name}.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'mage/icon', _file_name)
-
-                form.image.data.save(file_path)
-                mage.image = f"images/mage/icon/{_file_name}"
+                mage.image = save_image(form.image.data, file_name, 'mage/icon')
 
             if form.board_image.data is not None:
-                file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
-                _file_name = secure_filename(f"{file_name}.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', _file_name)
-
-                form.board_image.data.save(file_path)
-                mage.board_image = f"images/mage/board/{_file_name}"
+                mage.board_image = save_image(form.board_image.data, file_name, 'mage/board')
 
             if form.back_board_image.data is not None:
-                file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
-                _file_name = secure_filename(f"{file_name}_back.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'mage/board', _file_name)
-
-                form.back_board_image.data.save(file_path)
-                mage.back_board_image = f"images/mage/board/{_file_name}"
+                mage.back_board_image = save_image(form.back_board_image.data, f"{file_name}_back", 'mage/board')
 
             mage.name               = form.name.data
             mage.series             = form.series.data
@@ -510,8 +460,8 @@ def modify_mage(mage_id):
                           .filter(NemesisCardInfo.card_id == None) \
                           .order_by(Card.cost, CardEN.name)
     specific_card_str = '|'.join([specific.card.name for specific in mage.specific_card_list]) + ('|' if len(mage.specific_card_list) > 0 else '')
-    starting_hand_dict, starting_deck_dict = {}, {}
 
+    starting_hand_dict, starting_deck_dict = {}, {}
     for hand in mage.starting_hand:
         starting_hand_dict[hand.order] = hand.card
     for deck in mage.starting_deck:
@@ -533,21 +483,13 @@ def modify_card(card_id):
         form = CardForm()
 
         if form.validate_on_submit():
-            # 카드의 영어 이름이 바뀌면 이전 이미지 파일 이름도 변경
+            # 카드 이름 (English)이 바뀌면 이전 이미지 파일 이름도 수정
             if 'defaults' not in card.image and form.name_en.data != card_en.name:
-                prev_file_extension = os.path.basename(card.image).rsplit('.', 1)[1].lower()
-                new_file_name = secure_filename(f"{form.name_en.data.lower()}.{prev_file_extension}")
-                os.rename(os.path.join('./app/static', card.image), os.path.join(UPLOAD_FOLDER, 'card', new_file_name))
+                card.image = modify_image_name(card.image, form.name_en.data.lower(), 'card')
 
-                card.image = f"images/card/{new_file_name}"
-
+            # 이미지 파일 수정
             if form.image.data is not None:
-                file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
-                file_name = secure_filename(f"{form.name_en.data.lower()}.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'card', file_name)
-
-                form.image.data.save(file_path)
-                card.image = f"images/card/{file_name}"
+                card.image = save_image(form.image.data, form.name_en.data.lower(), 'card')
 
             card.name = form.name.data
             card.type = form.type.data
@@ -647,55 +589,26 @@ def modify_nemesis(nemesis_id):
         if form.validate_on_submit():
             file_name = f"{form.name_en.data.lower()}"
 
-            # 네메시스 이름 (English)이 바뀌면 이미지 파일 이름들 변경
+            # 네메시스 이름 (English)이 바뀌면 이미지 파일 이름들도 수정
             if form.name_en.data != nemesis_en.name:
-                # 아이콘 이미지 이름 변경
                 if 'defaults' not in nemesis.image:
-                    prev_file_extension = os.path.basename(nemesis.image).rsplit('.', 1)[1].lower()
-                    new_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
-                    os.rename(os.path.join('./app/static', nemesis.image), os.path.join(UPLOAD_FOLDER, 'nemesis/icon', new_file_name))
+                    nemesis.image = modify_image_name(nemesis.image, file_name, 'nemesis/icon')
 
-                    nemesis.image = f"images/nemesis/icon/{new_file_name}"
-
-                # 보드 이미지 이름 변경
                 if 'defaults' not in nemesis.board_image:
-                    prev_file_extension = os.path.basename(nemesis.board_image).rsplit('.', 1)[1].lower()
-                    new_file_name = secure_filename(f"{file_name}.{prev_file_extension}")
-                    os.rename(os.path.join('./app/static', nemesis.board_image), os.path.join(UPLOAD_FOLDER, 'nemesis/board', new_file_name))
+                    nemesis.board_image = modify_image_name(nemesis.board_image, file_name, 'nemesis/board')
 
-                    nemesis.board_image = f"images/nemesis/board/{new_file_name}"
-
-                # 보드 뒷면 이미지 이름 변경
                 if 'defaults' not in nemesis.back_board_image:
-                    prev_file_extension = os.path.basename(nemesis.back_board_image).rsplit('.', 1)[1].lower()
-                    new_file_name = secure_filename(f"{file_name}_back.{prev_file_extension}")
-                    os.rename(os.path.join('./app/static', nemesis.back_board_image), os.path.join(UPLOAD_FOLDER, 'nemesis/board', new_file_name))
+                    nemesis.board_image = modify_image_name(nemesis.board_image, f"{file_name}_back", 'nemesis/board')
 
-                    nemesis.back_board_image = f"images/nemesis/board/{new_file_name}"
-
+            # 이미지 파일 수정
             if form.image.data is not None:
-                file_extension = form.image.data.filename.rsplit('.', 1)[1].lower()
-                _file_name = secure_filename(f"{file_name}.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/icon', _file_name)
-
-                form.image.data.save(file_path)
-                nemesis.image = f"images/nemesis/icon/{_file_name}"
+                nemesis.image = save_image(form.image.data, file_name, 'nemesis/icon')
 
             if form.board_image.data is not None:
-                file_extension = form.board_image.data.filename.rsplit('.', 1)[1].lower()
-                _file_name = secure_filename(f"{file_name}.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/board', _file_name)
-
-                form.board_image.data.save(file_path)
-                nemesis.board_image = f"images/nemesis/board/{_file_name}"
+                nemesis.board_image =save_image(form.board_image.data, file_name, 'nemesis/board')
 
             if form.back_board_image.data is not None:
-                file_extension = form.back_board_image.data.filename.rsplit('.', 1)[1].lower()
-                _file_name = secure_filename(f"{file_name}_back.{file_extension}")
-                file_path = os.path.join(UPLOAD_FOLDER, 'nemesis/board', _file_name)
-
-                form.back_board_image.data.save(file_path)
-                nemesis.back_board_image = f"images/nemesis/board/{_file_name}"
+                nemesis.back_board_image = save_image(form.back_board_image, f"{file_name}_back", 'nemesis/board')
 
             nemesis.name                = form.name.data
             nemesis.series              = form.series.data
