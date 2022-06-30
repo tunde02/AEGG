@@ -346,10 +346,16 @@ def modify_mage(mage_id):
         form = MageForm()
 
         if form.validate_on_submit():
-            file_name = f"{form.name_en.data.lower()}_{form.series_en.data.lower()}"
+            same_name_mage = MageEN.query.filter((MageEN.name == form.name_en.data) &
+                                                 (MageEN.mage != mage)).first()
+            if same_name_mage and '(' not in form.name_en.data:
+                form.name.data = f"{form.name.data} ({form.series_en.data})"
+                form.name_en.data = f"{form.name_en.data} ({form.series_en.data})"
 
             # 균열 마법사 이름 (English)이 바뀌면 이미지 파일 이름들도 수정
+            file_name = form.name_en.data.lower()
             if form.name_en.data != mage_en.name or form.series_en.data != mage_en.series:
+                mage.board_image = modify_image_name(mage.board_image, file_name, 'mage/board')
                 if 'defaults' not in mage.image:
                     mage.image = modify_image_name(mage.image, file_name, 'mage/icon')
 
