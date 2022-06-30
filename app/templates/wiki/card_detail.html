@@ -88,6 +88,7 @@
                 </div>
 
                 <!-- 카드와 관련된 링크 -->
+                {% if related_mage_list|length > 0 or related_nemesis_list|length > 0 %}
                 <div class="row mt-3 mt-md-3">
                     <div class="col-12">
                         <div class="card border-card shadow p-2 pb-3 h-100">
@@ -107,6 +108,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

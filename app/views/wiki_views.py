@@ -235,8 +235,6 @@ def append_mage():
 @login_required
 def append_card():
     form = CardForm()
-    mage_list = Mage.query.order_by(Mage.name)
-    nemesis_list = Nemesis.query.order_by(Nemesis.name)
 
     if request.method == 'POST' and form.validate_on_submit():
         card = Card(
@@ -261,24 +259,13 @@ def append_card():
         if form.image.data is not None:
             card.image = save_image(form.image.data, form.name_en.data.lower(), 'card')
 
-        related_mage_name_list = request.form.get('mage_relations', type=str, default='').split('|')[:-1]
-        related_nemesis_name_list = request.form.get('nemesis_relations', type=str, default='').split('|')[:-1]
-
-        for mage_name in related_mage_name_list:
-            mage = Mage.query.filter(Mage.name == mage_name).first()
-            card.related_mage.append(mage)
-
-        for nemesis_name in related_nemesis_name_list:
-            nemesis = Nemesis.query.filter(Nemesis.name == nemesis_name).first()
-            card.related_nemesis.append(nemesis)
-
         db.session.add(card)
         db.session.add(card_en)
         db.session.commit()
 
         return redirect(url_for('wiki.wiki_list', wiki_type='card'))
 
-    return render_template('wiki/card_form.html', form=form, mage_list=mage_list, nemesis_list=nemesis_list)
+    return render_template('wiki/card_form.html', form=form)
 
 
 @bp.route('/append/nemesis', methods=['GET', 'POST'])
@@ -513,32 +500,6 @@ def modify_card(card_id):
                 nemesis_card_info = NemesisCardInfo(card=card, tier=form.tier.data, hp=form.hp.data)
                 db.session.add(nemesis_card_info)
 
-            # 관련된 균열 마법사 목록 수정
-            prev_related_mage_name_list = [mage.name for mage in card.related_mage]
-            modified_related_mage_name_list = request.form.get('mage_relations', type=str, default='').split('|')[:-1]
-            related_mage_name_union = prev_related_mage_name_list + modified_related_mage_name_list
-
-            for mage_name in related_mage_name_union:
-                mage = Mage.query.filter(Mage.name == mage_name).first()
-
-                if mage_name not in modified_related_mage_name_list:
-                    card.related_mage.remove(mage)
-                elif mage_name not in prev_related_mage_name_list:
-                    card.related_mage.append(mage)
-
-            # 관련된 네메시스 목록 수정
-            prev_related_nemesis_name_list = [nemesis.name for nemesis in card.related_nemesis]
-            modified_related_nemesis_name_list = request.form.get('nemesis_relations', type=str, default='').split('|')[:-1]
-            related_nemesis_name_union = list(set(prev_related_nemesis_name_list + modified_related_nemesis_name_list))
-
-            for nemesis_name in related_nemesis_name_union:
-                nemesis = Nemesis.query.filter(Nemesis.name == nemesis_name).first()
-
-                if nemesis_name not in modified_related_nemesis_name_list:
-                    card.related_nemesis.remove(nemesis)
-                elif nemesis_name not in prev_related_nemesis_name_list:
-                    card.related_nemesis.append(nemesis)
-
             db.session.commit()
 
             return redirect(url_for('wiki.card_detail', card_id=card_id))
@@ -561,15 +522,7 @@ def modify_card(card_id):
         form.tier.data = card.nemesis_card_info[0].tier
         form.hp.data = card.nemesis_card_info[0].hp
 
-    mage_list = Mage.query.order_by(Mage.name)
-    mage_list_str = '|'.join(mage.name for mage in card.related_mage) + ('|' if len(card.related_mage) > 0 else '')
-    nemesis_list = Nemesis.query.order_by(Nemesis.name)
-    nemesis_list_str = '|'.join(nemesis.name for nemesis in card.related_nemesis) + ('|' if len(card.related_nemesis) > 0 else '')
-
-    return render_template('wiki/card_form.html',
-                           form=form, is_nemesis_card=is_nemesis_card,
-                           mage_list=mage_list, mage_list_str=mage_list_str,
-                           nemesis_list=nemesis_list, nemesis_list_str=nemesis_list_str)
+    return render_template('wiki/card_form.html', form=form, is_nemesis_card=is_nemesis_card)
 
 
 @bp.route('/modify/nemesis/<int:nemesis_id>', methods=['GET', 'POST'])

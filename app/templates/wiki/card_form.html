@@ -59,32 +59,6 @@
                 </div>
             </div>
 
-            <div class="row border m-1 pt-1 pb-2 mb-4">
-                <label for="relations">관련</label>
-                <div class="col-6 mb-3">
-                    <select class="form-select" id="mage_relation_select" onchange="onRelationSelect(this)">
-                        <option value="NO_RELATION" selected>관련된 균열 마법사</option>
-                        {% for mage in mage_list %}
-                        <option value="{{ mage.name }}">{{ mage.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-6 mb-3">
-                    <select class="form-select" id="nemesis_relation_select" onchange="onRelationSelect(this)">
-                        <option value="NO_RELATION" selected>관련된 네메시스</option>
-                        {% for nemesis in nemesis_list %}
-                        <option value="{{ nemesis.name }}">{{ nemesis.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-auto d-flex flex-wrap gap-2" id="relationListBlock">
-                    <!-- 관련 목록 -->
-                </div>
-                <input type="hidden" name="mage_relations" id="mage_relations" value="{{ mage_list_str or '' }}">
-                <input type="hidden" name="nemesis_relations" id="nemesis_relations" value="{{ nemesis_list_str or '' }}">
-            </div>
-
             <div class="d-flex justify-content-between mb-4 gap-2">
                 <a class="btn btn-primary" href="javascript:changeFormType()">네메시스 카드</a>
                 <div>
@@ -105,11 +79,6 @@ const notNemesisBlock = document.getElementsByClassName('not-nemesis');
 const nemesisBlock = document.getElementsByClassName('nemesis')
 var isNemesisCard = document.getElementById('is_nemesis_card').value == 'false' ? !false : !true;
 
-const relationListBlock = document.getElementById('relationListBlock');
-const mageRelationsInput = document.getElementById('mage_relations');
-const nemesisRelationsInput = document.getElementById('nemesis_relations');
-var relationList = [];
-
 function changeFormType() {
     isNemesisCard = !isNemesisCard
     document.getElementById('is_nemesis_card').value = isNemesisCard ? 'true' : 'false';
@@ -123,84 +92,5 @@ function changeFormType() {
 }
 
 changeFormType();
-
-function initRelationListBlock() {
-    var mage_list = mageRelationsInput.value ? mageRelationsInput.value.split('|').slice(0, -1) : [];
-    var nemesis_list = nemesisRelationsInput.value ? nemesisRelationsInput.value.split('|').slice(0, -1) : [];
-
-    for (var mage of mage_list) {
-        insertRelationBadge(mage, '#6f42c1');
-    }
-    for (var nemesis of nemesis_list) {
-        insertRelationBadge(nemesis, '#fd7e14');
-    }
-}
-
-initRelationListBlock();
-
-function onRelationSelect(relationSelect) {
-    selectedValue = relationSelect.value;
-    relationSelect.value = 'NO_RELATION';
-
-    if (relationList.includes(selectedValue)) {
-        alert('이미 추가된 관련입니다.');
-        return;
-    }
-
-    if (relationSelect.id == 'mage_relation_select') {
-        insertRelationBadge(selectedValue, '#6f42c1');
-        mageRelationsInput.value += selectedValue + '|';
-    } else {
-        insertRelationBadge(selectedValue, '#fd7e14');
-        nemesisRelationsInput.value += selectedValue + '|';
-    }
-}
-
-function insertRelationBadge(relation, color) {
-    /*
-    <div class="badge bg-dark d-flex align-items-center gap-1">
-        <span style="font-size: 1.2em;">크리스탈</span>
-        <a class="btn btn-sm p-0" onclick="deleteBadge()"><i class="bi bi-x-lg" style="color: #ff0000;"></i></a>
-    </div>
-    */
-
-    var badge = document.createElement('div');
-    badge.id = 'relation_' + relation;
-    badge.classList.add('badge', 'd-flex', 'align-items-center', 'gap-1');
-    badge.style.backgroundColor = color;
-
-    var content = document.createElement('span');
-    content.style.fontSize = '1.2em';
-    content.appendChild(document.createTextNode(relation));
-
-    var deleteButton = document.createElement('a');
-    deleteButton.classList.add('btn', 'btn-sm', 'p-0');
-    deleteButton.addEventListener('click', function() {
-        if (relationList.includes(content.innerText)) {
-            relationList.splice(relationList.indexOf(content.innerText), 1);
-            removeRelationsInput(color == '#6f42c1' ? true : false, content.innerText);
-            document.getElementById('relation_' + content.innerText).remove();
-        }
-    });
-
-    var deleteIcon = document.createElement('i');
-    deleteIcon.classList.add('bi', 'bi-x-lg');
-    deleteIcon.style.color = '#ff0000';
-
-    deleteButton.appendChild(deleteIcon);
-    badge.appendChild(content);
-    badge.appendChild(deleteButton);
-
-    relationList.push(relation);
-    relationListBlock.appendChild(badge);
-}
-
-function removeRelationsInput(isMageRelation, relation) {
-    if (isMageRelation) {
-        mageRelationsInput.value = mageRelationsInput.value.replace(relation + '|', '');
-    } else {
-        nemesisRelationsInput.value = nemesisRelationsInput.value.replace(relation + '|', '');
-    }
-}
 </script>
 {% endblock %}
