@@ -213,3 +213,15 @@ class NemesisSpecificObject(db.Model):
     nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
     label = db.Column(db.String(100), nullable=False, default='')
     image = db.Column(db.String(200), nullable=False, default='images/defaults/specific.png')
+
+
+class NemesisReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref=db.backref('nemesis_review_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    nemesis = db.relationship('Nemesis', backref=db.backref('review_list', passive_deletes=True))
+    nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
+    content = db.Column(db.Text(), nullable=False, default='')
+    score = db.Column(db.Integer, nullable=False, default=0)
+    create_date = db.Column(db.DateTime(), nullable=False)
+    modify_date = db.Column(db.DateTime())

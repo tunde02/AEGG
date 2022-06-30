@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 
 from app import db
 from app.forms import ReviewForm
-from app.models import Card, CardReview, Mage, MageReview, Nemesis
+from app.models import Card, CardReview, Mage, MageReview, Nemesis, NemesisReview
 from app.views.auth_views import login_required
 
 
@@ -78,9 +78,27 @@ def create_card_review(card_id):
 @bp.route('/create/nemesis/<int:nemesis_id>', methods=['GET', 'POST'])
 @login_required
 def create_nemesis_review(nemesis_id):
-    # TODO
-    print('CREATE NEMESIS REVIEW')
-    return redirect(url_for('wiki.wiki_list', wiki_type='mage'))
+    form = ReviewForm()
+    nemesis = Nemesis.query.get_or_404(nemesis_id)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        review = NemesisReview(
+            user=g.user,
+            nemesis=nemesis,
+            content=form.content.data,
+            score=int(form.score.data),
+            create_date=datetime.now()
+        )
+
+        nemesis.avg_score = calc_avg_score(score_column=NemesisReview.score,
+                                           filter=(NemesisReview.nemesis_id == nemesis.id))
+
+        db.session.add(review)
+        db.session.commit()
+
+        return redirect(url_for('wiki.nemesis_detail', nemesis_id=nemesis.id))
+
+    return render_template('review/review_form.html', form=form, wiki_info=nemesis)
 
 
 def get_review_info(wiki_type, review_id):
@@ -99,8 +117,11 @@ def get_review_info(wiki_type, review_id):
         review_info['filter'] = (CardReview.card_id == review_info['wiki_info'].id)
         review_info['next_url'] = url_for('wiki.card_detail', card_id=review_info['wiki_info'].id)
     elif wiki_type == 'nemesis':
-        # TODO
-        pass
+        review_info['review'] = NemesisReview.query.get_or_404(review_id)
+        review_info['wiki_info'] = review_info['review'].nemesis
+        review_info['score_column'] = NemesisReview.score
+        review_info['filter'] = (NemesisReview.nemesis_id == review_info['wiki_info'].id)
+        review_info['next_url'] = url_for('wiki.nemesis_detail', nemesis_id=review_info['wiki_info'].id)
 
     return review_info
 

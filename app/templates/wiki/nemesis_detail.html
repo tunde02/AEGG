@@ -26,7 +26,7 @@
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
                                     <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_nemesis', nemesis_id=nemesis.id) }}">수정</a>
-                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="{{ url_for('review.create_nemesis_review', nemesis_id=nemesis.id) }}">리뷰</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -45,7 +45,7 @@
                                     <button class="btn btn-outline-primary py-0" onclick="changeLanguageMode()">EN</button>
                                     {% if g.user %}
                                     <a class="btn btn-outline-success py-0" href="{{ url_for('wiki.modify_nemesis', nemesis_id=nemesis.id) }}">수정</a>
-                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="#">리뷰</a>
+                                    <a class="btn btn-primary py-0 {{ 'disabled' if already_reviewed else '' }}" href="{{ url_for('review.create_nemesis_review', nemesis_id=nemesis.id) }}">리뷰</a>
                                     {% endif %}
                                 </div>
                             </div>

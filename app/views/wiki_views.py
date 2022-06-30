@@ -5,7 +5,7 @@ from werkzeug.utils import redirect, secure_filename
 
 from app import db
 from app.forms import CardForm, MageForm, NemesisForm
-from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, MageSpecificCard, MageSpecificObject, MageStartingDeck, MageStartingHand, Nemesis, NemesisCardInfo, NemesisEN, NemesisSpecificCard, related_mage, related_nemesis
+from app.models import Card, CardEN, CardReview, Mage, MageEN, MageReview, MageSpecificCard, MageSpecificObject, MageStartingDeck, MageStartingHand, Nemesis, NemesisCardInfo, NemesisEN, NemesisReview, NemesisSpecificCard, related_mage, related_nemesis
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER
 
@@ -84,7 +84,7 @@ def mage_detail(mage_id):
     specific_card_list = MageSpecificCard.query.filter(MageSpecificCard.mage_id == mage.id).order_by(MageSpecificCard.label.asc()).all()
     specific_obj_list = MageSpecificObject.query.filter(MageSpecificObject.mage_id == mage.id).order_by(MageSpecificObject.label.asc()).all()
 
-    return render_template('wiki/mage_detail.html',
+    return render_template('wiki/mage_detail.html', wiki_type='mage',
                            mage=mage, mage_en=mage_en,
                            starting_hand=starting_hand, starting_deck=starting_deck,
                            specific_card_list=specific_card_list, specific_obj_list=specific_obj_list,
@@ -106,7 +106,7 @@ def card_detail(card_id):
     related_mage_list = Mage.query.join(related_mage, related_mage.c.mage_id == Mage.id).filter(related_mage.c.card_id == card.id).all()
     related_nemesis_list = Nemesis.query.join(related_nemesis, related_nemesis.c.nemesis_id == Nemesis.id).filter(related_nemesis.c.card_id == card.id).all()
 
-    return render_template('wiki/card_detail.html',
+    return render_template('wiki/card_detail.html', wiki_type='card',
                            card=card, card_en=card_en, is_nemesis_card=is_nemesis_card,
                            review_list=card_review_list, already_reviewed=already_reviewed,
                            related_mage_list=related_mage_list, related_nemesis_list=related_nemesis_list)
@@ -116,9 +116,10 @@ def card_detail(card_id):
 def nemesis_detail(nemesis_id):
     nemesis = Nemesis.query.get_or_404(nemesis_id)
     nemesis_en = NemesisEN.query.filter(NemesisEN.nemesis_id == nemesis.id).first()
+    nemesis_review_list = NemesisReview.query.filter(NemesisReview.nemesis_id == nemesis.id).order_by(NemesisReview.create_date.asc()).all()
 
     # 각 네메시스에 대한 리뷰는 계정당 한 번씩만 가능하도록 제한
-    already_reviewed = True
+    already_reviewed = True if g.user and NemesisReview.query.filter(NemesisReview.nemesis_id == nemesis.id, NemesisReview.user == g.user).first() else False
 
     # 네메시스 전용 카드 목록
     nemesis_private_card_list = Card.query.join(CardEN, CardEN.card_id == Card.id) \
@@ -136,10 +137,10 @@ def nemesis_detail(nemesis_id):
                                            .filter(NemesisSpecificCard.nemesis_id == nemesis.id) \
                                            .order_by(NemesisCardInfo.tier.asc(), CardEN.name.asc()).all()
 
-    return render_template('wiki/nemesis_detail.html',
+    return render_template('wiki/nemesis_detail.html', wiki_type='nemesis',
                            nemesis=nemesis, nemesis_en=nemesis_en,
                            nemesis_private_card_list=nemesis_private_card_list, nemesis_specific_card_list=nemesis_specific_card_list,
-                           already_reviewed=already_reviewed)
+                           review_list=nemesis_review_list, already_reviewed=already_reviewed)
 
 
 @bp.route('/append/mage', methods=['GET', 'POST'])
