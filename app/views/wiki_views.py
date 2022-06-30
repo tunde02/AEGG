@@ -165,7 +165,6 @@ def nemesis_detail(nemesis_id):
 @bp.route('/append/mage', methods=['GET', 'POST'])
 def append_mage():
     form = MageForm()
-    card_list = Card.query.order_by(Card.cost, Card.name)
 
     if request.method == 'POST' and form.validate_on_submit():
         mage = Mage(
@@ -227,6 +226,11 @@ def append_mage():
         db.session.commit()
 
         return redirect(url_for('wiki.wiki_list', wiki_type='mage'))
+
+    card_list = Card.query.join(CardEN, CardEN.card_id == Card.id) \
+                          .outerjoin(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
+                          .filter(NemesisCardInfo.card_id == None) \
+                          .order_by(Card.cost, CardEN.name).all()
 
     return render_template('wiki/mage_form.html', form=form, card_list=card_list)
 
@@ -445,7 +449,7 @@ def modify_mage(mage_id):
     card_list = Card.query.join(CardEN, CardEN.card_id == Card.id) \
                           .outerjoin(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
                           .filter(NemesisCardInfo.card_id == None) \
-                          .order_by(Card.cost, CardEN.name)
+                          .order_by(Card.cost, CardEN.name).all()
     specific_card_str = '|'.join([specific.card.name for specific in mage.specific_card_list]) + ('|' if len(mage.specific_card_list) > 0 else '')
 
     starting_hand_dict, starting_deck_dict = {}, {}
