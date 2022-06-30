@@ -19,13 +19,36 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-6">
-                    <label for="series">시리즈</label>
-                    <input type="text" class="form-control" name="series" value="{{ form.series.data or '에이언즈 엔드' }}">
+                <div class="col-4">
+                    <label>시리즈</label>
+                    <select class="form-select" id="seriesSelect" onchange="selectSeries(this)">
+                        <option value="|">직접 입력</option>
+                        <option value="에이언즈 엔드|Aeon's End">에이언즈 엔드 (Aeon's End)</option>
+                        <option value="심연|The Depths">심연 (The Depths)</option>
+                        <option value="무명|The Nameless">무명 (The Nameless)</option>
+                        <option value="영원한 전쟁|War Eternal">영원한 전쟁 (War Eternal)</option>
+                        <option value="공허|The Void">공허 (The Void)</option>
+                        <option value="밖의 어둠|The Outer Dark">밖의 어둠 (The Outer Dark)</option>
+                        <option value="레거시|Aeon's End Legacy">레거시 (Aeon's End Legacy)</option>
+                        <option value="새로운 시대|The New Age">새로운 시대 (The New Age)</option>
+                        <option value="부서진 꿈|Shattered Dreams">부서진 꿈 (Shattered Dreams)</option>
+                        <option value="고대인들|The Ancients">고대인들 (The Ancients)</option>
+                        <option value="야생 속으로|Into The Wild">야생 속으로 (Into The Wild)</option>
+                        <option value="추방자들|Outcasts">추방자들 (Outcasts)</option>
+                        <option value="무덤 요새로의 귀환|Return To Gravehold">무덤 요새로의 귀환 (Return To Gravehold)</option>
+                        <option value="남쪽 마을|Southern Village">남쪽 마을 (Southern Village)</option>
+                        <option value="무덤 요새의 유산|Legacy of Gravehold">무덤 요새의 유산 (Legacy of Gravehold)</option>
+                    </select>
                 </div>
-                <div class="col-6">
+
+                <div class="col-4">
+                    <label for="series">시리즈</label>
+                    <input type="text" class="form-control" name="series" id="series" value="{{ form.series.data or '' }}">
+                </div>
+
+                <div class="col-4">
                     <label for="series_en">시리즈 (English)</label>
-                    <input type="text" class="form-control" name="series_en" value="{{ form.series_en.data or 'Aeon\'s End' }}">
+                    <input type="text" class="form-control" name="series_en" id="series_en" value="{{ form.series_en.data or '' }}">
                 </div>
             </div>
 
@@ -153,6 +176,14 @@
 const specificCardContainer = document.getElementById('specificCardContainer');
 const specificCardInput = document.getElementById('specific_card_str');
 var specificCardList = [];
+
+function selectSeries(seriesSelect) {
+    let series = seriesSelect.value.split('|')[0];
+    let series_en = seriesSelect.value.split('|')[1];
+
+    document.getElementById('series').value = series;
+    document.getElementById('series_en').value = series_en;
+}
 
 function initCardListContainer() {
     var _specificCardList = specificCardInput.value ? specificCardInput.value.split('|').slice(0, -1) : [];

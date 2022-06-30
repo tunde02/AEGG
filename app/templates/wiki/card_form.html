@@ -19,13 +19,24 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-6">
-                    <label for="type">타입</label>
-                    <input type="text" class="form-control" name="type" value="{{ form.type.data or '' }}">
+                <div class="col-4">
+                    <label>타입</label>
+                    <select class="form-select" id="cardTypeSelect" onchange="selectCardType(this)">
+                        <option value="|">직접 입력</option>
+                        <option value="보석|Gem">보석 (Gem)</option>
+                        <option value="유물|Relic">유물 (Relic)</option>
+                        <option value="주문|Spell">주문 (Spell)</option>
+                    </select>
                 </div>
-                <div class="col-6">
+
+                <div class="col-4">
+                    <label for="type">타입</label>
+                    <input type="text" class="form-control" name="type" id="type" value="{{ form.type.data or '' }}">
+                </div>
+
+                <div class="col-4">
                     <label for="type_en">타입 (English)</label>
-                    <input type="text" class="form-control" name="type_en" value="{{ form.type_en.data or '' }}">
+                    <input type="text" class="form-control" name="type_en" id="type_en" value="{{ form.type_en.data or '' }}">
                 </div>
             </div>
 
@@ -78,6 +89,14 @@
 const notNemesisBlock = document.getElementsByClassName('not-nemesis');
 const nemesisBlock = document.getElementsByClassName('nemesis')
 var isNemesisCard = document.getElementById('is_nemesis_card').value == 'false' ? !false : !true;
+
+function selectCardType(cardTypeSelect) {
+    let type = cardTypeSelect.value.split('|')[0];
+    let type_en = cardTypeSelect.value.split('|')[1];
+
+    document.getElementById('type').value = type;
+    document.getElementById('type_en').value = type_en;
+}
 
 function changeFormType() {
     isNemesisCard = !isNemesisCard
