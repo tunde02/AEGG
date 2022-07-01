@@ -83,8 +83,7 @@ def wiki_list():
     wiki_info_list = wiki.query.join(wiki_en, join_condition).order_by(order_condition[0], order_condition[1]).all()
     wiki_info_en_list = wiki_en.query.join(wiki, join_condition).order_by(order_condition[0], order_condition[1]).all()
 
-    return render_template('wiki/wiki_list.html',
-                           wiki_type=wiki_type,
+    return render_template('wiki/wiki_list.html', wiki_type=wiki_type,
                            wiki_list=wiki_info_list, wiki_en_list=wiki_info_en_list)
 
 

@@ -12,11 +12,30 @@
             <div class="card box-shadow">
                 <!-- 검색창 -->
                 <div class="d-flex border-bottom gap-2 px-2 py-3 mx-2 mb-3">
-                    <input class="form-control align-self-center"
-                           type="text"
-                           id="search_kw"
-                           placeholder="Search..."
-                           oninput="updateWikiList()">
+                    <div class="d-flex flex-fill">
+                        <input class="form-control align-self-center"
+                               type="text"
+                               id="search_kw"
+                               placeholder="Search..."
+                               oninput="updateWikiList()">
+                    </div>
+
+                    {% if wiki_type == 'card' %}
+                    <div class="d-md-flex flex-md-row col-auto gap-md-2">
+                        <div class="form-check align-self-center">
+                            <input class="form-check-input" type="checkbox" id="mageCheckbox" onclick="checkCardCategory('mage')">
+                            <label for="mageCheckbox">균열 마법사</label>
+                        </div>
+                        <div class="form-check align-self-center">
+                            <input class="form-check-input" type="checkbox" id="supplyCheckbox" onclick="checkCardCategory('supply')" checked>
+                            <label for="supplyCheckbox">공급처</label>
+                        </div>
+                        <div class="form-check align-self-center">
+                            <input class="form-check-input" type="checkbox" id="nemesisCheckbox" onclick="checkCardCategory('nemesis')">
+                            <label for="nemesisCheckbox">네메시스</label>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- 위키 목록 -->
@@ -24,54 +43,62 @@
                     <h4 id="no_result" style="display: none;">검색 결과가 없습니다.</h4>
                     <ul class="text-center w-100 px-2">
                         {% for i in range(wiki_list|length) %}
-                        <li class="wiki-list-item box-shadow mx-1 mx-md-2 mb-2 mb-md-3" style="display: inline-block;">
+                        <li class="wiki-list-item box-shadow mx-1 mx-md-2 mb-2 mb-md-3" name="wikiItem" style="display: inline-block;">
                             {% if wiki_type == 'mage' %}
                             <a href="{{ url_for('wiki.mage_detail', mage_id=wiki_list[i].id) }}">
                                 <img src="{{ url_for('static', filename=wiki_list[i].image) }}" alt="균열 마법사 이미지" class="rounded img-thumbnail" width="150">
                             </a>
+                            <div class="wiki-info"
+                                 data-name="{{ wiki_list[i].name }}"
+                                 data-name-en="{{ wiki_en_list[i].name }}"
+                                 data-series="{{ wiki_list[i].series }}"
+                                 data-series-en="{{ wiki_en_list[i].series }}"
+                                 data-ability-name="{{ wiki_list[i].ability_name }}"
+                                 data-ability-name-en="{{ wiki_en_list[i].ability_name }}"
+                                 data-ability="{{ wiki_list[i].ability }}"
+                                 data-ability-en="{{ wiki_en_list[i].ability }}"
+                                 data-activation-time="{{ wiki_list[i].activation_time }}"
+                                 data-activation-time-en="{{ wiki_en_list[i].activation_time }}"
+                                 data-required-charges="{{ wiki_list[i].required_charges }}"></div>
+                            <div class="category-info" data-category=""></div>
+
                             {% elif wiki_type == 'card' %}
                             <a href="{{ url_for('wiki.card_detail', card_id=wiki_list[i].id) }}">
                                 <img src="{{ url_for('static', filename=wiki_list[i].image) }}" alt="카드 이미지" class="rounded img-thumbnail" width="150">
                             </a>
+                            <div class="wiki-info"
+                                 data-name="{{ wiki_list[i].name }}"
+                                 data-name-en="{{ wiki_en_list[i].name }}"
+                                 data-cost="{{ wiki_list[i].cost }}"
+                                 data-type="{{ wiki_list[i].type }}"
+                                 data-type-en="{{ wiki_en_list[i].type }}"
+                                 data-effect="{{ wiki_list[i].effect }}"
+                                 data-effect-en="{{ wiki_en_list[i].effect }}"></div>
+                            <div class="category-info"
+                                 data-category=""
+                                 data-related-mage="{{ wiki_list[i].related_mage }}"
+                                 data-nemesis-card-info="{{ wiki_list[i].nemesis_card_info }}"></div>
+
                             {% else %}
                             <a href="{{ url_for('wiki.nemesis_detail', nemesis_id=wiki_list[i].id) }}">
                                 <img src="{{ url_for('static', filename=wiki_list[i].image) }}" alt="네메시스 이미지" class="rounded img-thumbnail" width="150">
                             </a>
+                            <div class="wiki-info"
+                                 data-name="{{ wiki_list[i].name }}"
+                                 data-name-en="{{ wiki_en_list[i].name }}"
+                                 data-series="{{ wiki_list[i].series }}"
+                                 data-series-en="{{ wiki_en_list[i].series }}"
+                                 data-tier="{{ wiki_list[i].tier }}"
+                                 data-setup="{{ wiki_list[i].setup }}"
+                                 data-setup-en="{{ wiki_en_list[i].setup }}"
+                                 data-additional-rules="{{ wiki_list[i].additional_rules }}"
+                                 data-additional-rules-en="{{ wiki_en_list[i].additional_rules }}"
+                                 data-unleash="{{ wiki_list[i].unleash }}"
+                                 data-unleash-en="{{ wiki_en_list[i].unleash }}"
+                                 data-increased-diff="{{ wiki_list[i].increased_diff }}"
+                                 data-increased-diff-en="{{ wiki_en_list[i].increased_diff }}"></div>
+                            <div class="category-info" data-category=""></div>
                             {% endif %}
-
-                            <div name="wiki-info">
-                                <input type="hidden" value="{{ wiki_list[i].name }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].name }}">
-                                {% if wiki_type == 'mage' %}
-                                <input type="hidden" value="{{ wiki_list[i].series }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].series }}">
-                                <input type="hidden" value="{{ wiki_list[i].ability_name }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].ability_name }}">
-                                <input type="hidden" value="{{ wiki_list[i].ability }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].ability }}">
-                                <input type="hidden" value="{{ wiki_list[i].activation_time }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].activation_time }}">
-                                <input type="hidden" value="{{ wiki_list[i].required_charges }}">
-                                {% elif wiki_type == 'card' %}
-                                <input type="hidden" value="{{ wiki_list[i].cost }}">
-                                <input type="hidden" value="{{ wiki_list[i].type }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].type }}">
-                                <input type="hidden" value="{{ wiki_list[i].effect }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].effect }}">
-                                {% else %}
-                                <input type="hidden" value="{{ wiki_list[i].series }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].series }}">
-                                <input type="hidden" value="{{ wiki_list[i].tier }}">
-                                <input type="hidden" value="{{ wiki_list[i].setup }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].setup }}">
-                                <input type="hidden" value="{{ wiki_list[i].additional_rules }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].additional_rules }}">
-                                <input type="hidden" value="{{ wiki_list[i].unleash }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].unleash }}">
-                                <input type="hidden" value="{{ wiki_list[i].increased_diff }}">
-                                <input type="hidden" value="{{ wiki_en_list[i].increased_diff }}">
-                                {% endif %}
-                            </div>
                         </li>
                         {% endfor %}
 
@@ -106,32 +133,66 @@
 <script>
 const searchBar = document.getElementById('search_kw');
 const placeholderList = [...document.getElementsByClassName('wiki-list-placeholder')];
-var wikiInfoList = [...document.getElementsByName('wiki-info')];
+var includingCategory = 'supply|';
 
+initCategory();
 updateWikiList();
 
-function updateWikiList() {
-    let wikiCount = 0;
-    for (let wikiInfo of wikiInfoList) {
-        let hasKeyword = false;
-        for (let info of wikiInfo.children) {
-            hasKeyword = hasKeyword || (info.value.includes(searchBar.value) || info.value.toLowerCase().includes(searchBar.value));
+function initCategory() {
+    let categoryInfoList = document.getElementsByClassName('category-info');
+    for (let info of categoryInfoList) {
+        if (!info.dataset['relatedMage'] || !info.dataset['nemesisCardInfo'])
+            continue;
+
+        if (info.dataset['relatedMage'] !== '[]') {
+            info.dataset['category'] = 'mage';
+        } else if (info.dataset['nemesisCardInfo'] !== '[]') {
+            info.dataset['category'] = 'nemesis';
+        } else {
+            info.dataset['category'] = 'supply';
         }
-
-        wikiInfo.parentElement.style.display = hasKeyword ? 'inline-block' : 'none';
-        wikiCount += hasKeyword ? 1 : 0;
     }
-
-    updatePlaceHolders(6 - (wikiCount + 1) % 6);
 }
 
-function updatePlaceHolders(count) {
+function updateWikiList() {
+    let wikiItemList = document.getElementsByName('wikiItem');
+    let wikiCount = 0;
+
+    for (let wikiItem of wikiItemList) {
+        let info = wikiItem.getElementsByTagName('div')[0].dataset;
+        let category = wikiItem.getElementsByTagName('div')[1].dataset['category'];
+        let hasKeyword = false;
+
+        for (let key in info) {
+            hasKeyword = hasKeyword || (info[key].includes(searchBar.value) || info[key].toLowerCase().includes(searchBar.value));
+        }
+
+        let isIncluded = includingCategory.includes(category) && hasKeyword;
+        wikiItem.style.display = isIncluded ? 'inline-block' : 'none';
+        wikiCount += isIncluded ? 1 : 0;
+    }
+
+    let placeholderCount = (wikiCount + 1) % 6 == 0 ? 0 : 6 - (wikiCount + 1) % 6;
+    updatePlaceholders(placeholderCount);
+}
+
+function updatePlaceholders(count) {
     for (let i = 0; i < count; i++) {
-        placeholderList[i].style.display = 'inline-block'
+        placeholderList[i].style.display = 'inline-block';
     }
     for (let i = count; i < placeholderList.length; i++) {
         placeholderList[i].style.display = 'none';
     }
+}
+
+function checkCardCategory(category) {
+    if (includingCategory.includes(category)) {
+        includingCategory = includingCategory.replace(category + '|', '');
+    } else {
+        includingCategory += category + '|';
+    }
+
+    updateWikiList();
 }
 </script>
 {% endblock %}
