@@ -23,9 +23,12 @@
                     <label>타입</label>
                     <select class="form-select" id="cardTypeSelect" onchange="selectCardType(this)">
                         <option value="|">직접 입력</option>
-                        <option value="보석|Gem">보석 (Gem)</option>
-                        <option value="유물|Relic">유물 (Relic)</option>
-                        <option value="주문|Spell">주문 (Spell)</option>
+                        <option class="not-nemesis" value="보석|Gem">보석 (Gem)</option>
+                        <option class="not-nemesis" value="유물|Relic">유물 (Relic)</option>
+                        <option class="not-nemesis" value="주문|Spell">주문 (Spell)</option>
+                        <option class="nemesis" value="어택|Attack">어택 (Attack)</option>
+                        <option class="nemesis" value="파워|Power">파워 (Power)</option>
+                        <option class="nemesis" value="미니언|Minion">미니언 (Minion)</option>
                     </select>
                 </div>
 
@@ -71,7 +74,10 @@
             </div>
 
             <div class="d-flex justify-content-between mb-4 gap-2">
-                <a class="btn btn-primary" href="javascript:changeFormType()">네메시스 카드</a>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="changeFormTypeButton" onclick="changeFormType()">
+                    <label class="form-check-label" for="changeFormTypeButton">네메시스 카드</label>
+                </div>
                 <div>
                     <a class="btn btn-danger" href="javascript:history.go(-1)">취소</a>
                     <button type="submit" class="btn btn-success">저장</button>
@@ -87,7 +93,7 @@
 {% block script %}
 <script>
 const notNemesisBlock = document.getElementsByClassName('not-nemesis');
-const nemesisBlock = document.getElementsByClassName('nemesis')
+const nemesisBlock = document.getElementsByClassName('nemesis');
 var isNemesisCard = document.getElementById('is_nemesis_card').value == 'false' ? !false : !true;
 
 function selectCardType(cardTypeSelect) {
@@ -99,7 +105,7 @@ function selectCardType(cardTypeSelect) {
 }
 
 function changeFormType() {
-    isNemesisCard = !isNemesisCard
+    isNemesisCard = !isNemesisCard;
     document.getElementById('is_nemesis_card').value = isNemesisCard ? 'true' : 'false';
 
     for (let content of notNemesisBlock) {
