@@ -225,3 +225,40 @@ class NemesisReview(db.Model):
     score = db.Column(db.Integer, nullable=False, default=0)
     create_date = db.Column(db.DateTime(), nullable=False)
     modify_date = db.Column(db.DateTime())
+
+
+supply_pile = db.Table(
+    'supply_pile',
+    db.Column('record_id', db.Integer, db.ForeignKey('record.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('card_id', db.Integer, db.ForeignKey('card.id', ondelete='CASCADE'), primary_key=True)
+)
+
+
+class Record(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    result = db.Column(db.String(100), nullable=False, default='WIN')
+    nemesis = db.relationship('Nemesis', backref=db.backref('record_list', passive_deletes=True))
+    nemesis_id = db.Column(db.Integer, db.ForeignKey('nemesis.id', ondelete='CASCADE'), nullable=False)
+    date = db.Column(db.DateTime(), nullable=False)
+    supply_pile = db.relationship('Card', secondary=supply_pile, backref=db.backref('selected_record_list', passive_deletes=True))
+
+
+class RecordUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    record = db.relationship('Record', backref=db.backref('user_list', passive_deletes=True))
+    record_id = db.Column(db.Integer, db.ForeignKey('record.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship('User', backref=db.backref('record_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    mage = db.relationship('Mage', backref=db.backref('record_list', passive_deletes=True))
+    mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
+
+
+class RecordReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref=db.backref('record_review_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    record = db.relationship('Record', backref=db.backref('review_list', passive_deletes=True))
+    record_id = db.Column(db.Integer, db.ForeignKey('record.id', ondelete='CASCADE'), nullable=False)
+    content = db.Column(db.Text(), nullable=False, default='')
+    create_date = db.Column(db.DateTime(), nullable=False)
+    modify_date = db.Column(db.DateTime())

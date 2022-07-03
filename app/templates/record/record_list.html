@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-2">
+    <!-- 전적 추가 버튼 -->
+    <div class="d-flex justify-content-center rounded border border-dark border-4 p-2 mb-2">
+        <a href="{{ url_for('record.append_record') }}" class="fs-2 text-dark text-center flex-fill">
+            <i class="bi bi-plus-lg"></i>
+        </a>
+    </div>
+
+    {% for record in record_list %}
+    <div class="d-flex flex-column flex-lg-row justify-content-between rounded border border-{{ 'primary' if record['result'] == 'WIN' else 'danger' }} border-4 p-2 mb-2">
+        <div class="row">
+            <!-- 전적 결과 -->
+            <div class="col-6 col-lg-auto d-flex flex-column text-center align-self-center px-0 px-lg-2">
+                <span class="text-dark" style="font: 2em '빛의 계승자 Bold';">{{ record['result'] }}</span>
+                <span class="text-dark" style="font-family:'빛의 계승자 Bold';">({{ record['date'].strftime('%Y-%m-%d') }})</span>
+            </div>
+
+            <!-- 네메시스 -->
+            <div class="col-auto col-lg-auto d-flex flex-column align-self-center ps-0 ps-lg-2">
+                <a href="{{ url_for('wiki.nemesis_detail', nemesis_id=record['nemesis'].id) }}">
+                    <img src="{{ url_for('static', filename=record['nemesis'].image) }}" alt="{{ record['nemesis'].name }}" class="rounded" style="width: 150px; height: 100px; object-fit: cover; object-position: 0 0;">
+                </a>
+                <a class="badge bg-danger a-none-deco mt-1" href="{{ url_for('wiki.nemesis_detail', nemesis_id=record['nemesis'].id) }}">{{ record['nemesis'].name }}</a>
+            </div>
+
+            <!-- 유저 목록 -->
+            <div class="col-10 col-lg-auto col-lg-auto d-flex flex-wrap mx-lg-2 mt-2 mt-lg-0 gap-2">
+                {% for user in record['user_list'] %}
+                <div class="col-auto d-flex flex-column align-self-center mx-lg-2">
+                    <a class="align-self-center" href="{{ url_for('wiki.mage_detail', mage_id=user['mage'].id) }}">
+                        <img src="{{ url_for('static', filename=user['mage'].image) }}" alt="{{ user['mage'].name }}" class="d-none d-lg-block rounded" style="width: 120px; height: 100px; object-fit: none; object-position: 50% 7%;">
+                    </a>
+                    <a class="badge bg-primary a-none-deco mt-1" href="{{ url_for('profile.info', username=user['user'].username) }}">{{ user['user'].nickname }}</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 전적 상세 정보 버튼 -->
+            <div class="col-auto d-flex d-lg-none justify-content-end">
+                <a class="col-auto a-none-deco align-self-end" href="{{ url_for('record.record_detail', record_id=record['record'].id) }}">
+                    <i class="bi bi-arrow-bar-right" style="font-size: 2em;"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 전적 상세 정보 버튼 -->
+        <div class="d-none d-lg-flex justify-content-end">
+            <a class="col-auto a-none-deco" href="{{ url_for('record.record_detail', record_id=record['record'].id) }}">
+                <i class="bi bi-arrow-bar-right" style="font-size: 2em;"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

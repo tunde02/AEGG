@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{{ record.result }}
+{{ record.date }}
+{{ record.nemesis.name }}
+
+{% for card in record.supply_pile %}
+{{ card.name }} ({{ card.id }})
+{% endfor %}
+
+{% for user in record_user_list %}
+{{ user.username }}
+{{ user.nickname }}
+{% endfor %}
+
+{% endblock %}

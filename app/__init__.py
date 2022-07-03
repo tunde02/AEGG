@@ -21,7 +21,7 @@ def create_app():
     from app import models
 
     # Blueprints
-    from app.views import main_views, auth_views, profile_views, post_views, comment_views, wiki_views, review_views
+    from app.views import main_views, auth_views, profile_views, post_views, comment_views, wiki_views, review_views, record_views
     app.register_blueprint(main_views.bp)
     app.register_blueprint(auth_views.bp)
     app.register_blueprint(profile_views.bp)
@@ -29,6 +29,7 @@ def create_app():
     app.register_blueprint(comment_views.bp)
     app.register_blueprint(wiki_views.bp)
     app.register_blueprint(review_views.bp)
+    app.register_blueprint(record_views.bp)
 
     # Filters
     from app.filter import datetime_format, datetime_detail_format, replace_keywords_format

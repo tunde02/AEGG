@@ -162,6 +162,7 @@ def nemesis_detail(nemesis_id):
 
 
 @bp.route('/append/mage', methods=['GET', 'POST'])
+@login_required
 def append_mage():
     form = MageForm()
 
@@ -272,6 +273,7 @@ def append_card():
 
 
 @bp.route('/append/nemesis', methods=['GET', 'POST'])
+@login_required
 def append_nemesis():
     form = NemesisForm()
     card_list = Card.query.join(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \

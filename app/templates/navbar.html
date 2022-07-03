@@ -14,7 +14,7 @@
                     <a class="nav-link {{ 'active' if g.navbar_tab == 'home' else '' }}" href="{{ url_for('main.index') }}" style="font: 1.2em '빛의 계승자 Bold';">홈</a>
                 </li>
                 <li class="nav-item mx-4">
-                    <a class="nav-link {{ 'active' if g.navbar_tab == 'stats' else '' }}" href="#" style="font: 1.2em '빛의 계승자 Bold';">전적</a>
+                    <a class="nav-link {{ 'active' if g.navbar_tab == 'record' else '' }}" href="{{ url_for('record.record_list') }}" style="font: 1.2em '빛의 계승자 Bold';">전적</a>
                 </li>
                 <li class="nav-item mx-4">
                     <a class="nav-link {{ 'active' if g.navbar_tab == 'wiki' else '' }}" href="{{ url_for('wiki.wiki_list') }}" style="font: 1.2em '빛의 계승자 Bold';">Wiki</a>
