@@ -243,9 +243,9 @@ class Record(db.Model):
     supply_pile = db.relationship('Card', secondary=supply_pile, backref=db.backref('selected_record_list', passive_deletes=True))
 
 
-class RecordUser(db.Model):
+class RecordPlayer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    record = db.relationship('Record', backref=db.backref('user_list', passive_deletes=True))
+    record = db.relationship('Record', backref=db.backref('player_list', passive_deletes=True))
     record_id = db.Column(db.Integer, db.ForeignKey('record.id', ondelete='CASCADE'), nullable=False)
     user = db.relationship('User', backref=db.backref('record_list', passive_deletes=True))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)

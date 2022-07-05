@@ -83,3 +83,9 @@ class NemesisForm(FlaskForm):
 class ReviewForm(FlaskForm):
     content = TextAreaField('내용', validators=[DataRequired('리뷰 내용은 필수입력 항목입니다.')])
     score = StringField('리뷰 점수', validators=[DataRequired('리뷰 점수는 필수입력 항목입니다.')])
+
+
+class RecordForm(FlaskForm):
+    result = StringField('전적 결과', validators=[DataRequired('전적 결과는 필수입력 항목입니다.')])
+    date = StringField('날짜', validators=[DataRequired('날짜는 필수입력 항목입니다.')])
+    nemesis = StringField('네메시스', validators=[DataRequired('네메시스는 필수입력 항목입니다.')])

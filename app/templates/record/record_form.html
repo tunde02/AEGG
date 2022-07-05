@@ -1,4 +1,143 @@
 {% extends 'base.html' %}
 {% block content %}
-RECORD FORM
+<div class="row justify-content-lg-center m-2">
+    <div class="card box-shadow col-lg-6">
+        <h4 class="my-3 border-bottom pb-2" style="font: 2em '빛의 계승자 Bold';">전적</h4>
+        <form method="post">
+            {{ form.csrf_token }}
+            {% include 'form_errors.html' %}
+
+            <div class="row px-1 mb-4">
+                <!-- 날짜 -->
+                <div class="col-6">
+                    <label for="ability">날짜</label>
+                    <input class="form-control" type="date" name="date" value="{{ form.date.data }}">
+                </div>
+
+                <!-- 결과 -->
+                <div class="col-6">
+                    <label for="ability">결과</label>
+                    <select class="form-select" name="result">
+                        {% if form.result.data == 'LOSE' %}
+                        <option value="WIN">승리</option>
+                        <option value="LOSE" selected>패배</option>
+                        {% else %}
+                        <option value="WIN" selected>승리</option>
+                        <option value="LOSE">패배</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- 네메시스 -->
+            <div class="row border m-1 pt-1 mb-4">
+                <label>네메시스</label>
+                <div class="col-12 mb-3">
+                    <div class="d-flex mt-2">
+                        <select class="form-select" name="nemesis">
+                            <option value="">네메시스</option>
+                            {% for nemesis in nemesis_list %}
+                            <option value="{{ nemesis.name }}">{{ nemesis.name }} ({{ nemesis.nemesis_en[0].name }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 공급처 -->
+            <div class="row border m-1 pt-1 mb-4">
+                <label>공급처</label>
+                <div class="col-12 mb-3">
+                    {% for i in range(9) %}
+                    <div class="d-flex mt-2">
+                        <select class="form-select" name="supply_card_{{ i }}">
+                            <option value="">공급처 카드 {{ i + 1 }}</option>
+                            {% for card in supply_card_list %}
+                            <option value="{{ card.name }}">{{ card.name }} ({{ card.card_en[0].name }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 플레이어 -->
+            <div class="row border m-1 pt-1 mb-4">
+                <label>플레이어</label>
+                <div class="d-flex flex-row justify-content-center gap-2" id="player_0">
+                    <div class="col-6">
+                        <div class="d-flex mt-2">
+                            <select class="form-select" name="player_0_user">
+                                <option value="">유저</option>
+                                {% for user in user_list %}
+                                <option value="{{ user.username }}">{{ user.nickname }} ({{ user.username }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex mt-2">
+                            <select class="form-select" name="player_0_mage">
+                                <option value="">균열 마법사</option>
+                                {% for mage in mage_list %}
+                                <option value="{{ mage.name }}">{{ mage.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {% for i in range(1, 5) %}
+                <div class="d-none flex-row justify-content-center gap-2" id="player_{{ i }}">
+                    <div class="col-6">
+                        <div class="d-flex mt-2">
+                            <select class="form-select" name="player_{{ i }}_user">
+                                <option value="">유저</option>
+                                {% for user in user_list %}
+                                <option value="{{ user.username }}">{{ user.nickname }} ({{ user.username }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex mt-2">
+                            <select class="form-select" name="player_{{ i }}_mage">
+                                <option value="">균열 마법사</option>
+                                {% for mage in mage_list %}
+                                <option value="{{ mage.name }}">{{ mage.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="d-flex p-2" id="playerAppendBtnContainer">
+                    <button class="btn btn-primary w-100" type="button" onclick="appendPlayer()">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mb-4 gap-2">
+                <a class="btn btn-danger" href="javascript:history.go(-1)">취소</a>
+                <button type="submit" class="btn btn-success">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+var playerCount = 1;
+
+function appendPlayer() {
+    document.getElementById('player_' + playerCount++).classList.replace('d-none', 'd-flex');
+
+    if (playerCount >= 5) {
+        document.getElementById('playerAppendBtnContainer').classList.replace('d-flex', 'd-none');
+    }
+}
+</script>
 {% endblock %}
