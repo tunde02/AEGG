@@ -20,7 +20,7 @@
             <!-- 네메시스 -->
             <div class="col-auto col-lg-auto d-flex flex-column align-self-center ps-0 ps-lg-2">
                 <a href="{{ url_for('wiki.nemesis_detail', nemesis_id=record['nemesis'].id) }}">
-                    <img src="{{ url_for('static', filename=record['nemesis'].image) }}" alt="{{ record['nemesis'].name }}" class="record-nemesis-icon rounded">
+                    <img src="{{ url_for('static', filename=record['nemesis'].image) }}" alt="{{ record['nemesis'].name }}" class="rounded" width="150">
                 </a>
                 <a class="badge bg-danger a-none-deco mt-1" href="{{ url_for('wiki.nemesis_detail', nemesis_id=record['nemesis'].id) }}">{{ record['nemesis'].name }}</a>
             </div>
@@ -30,7 +30,7 @@
                 {% for user in record['player_list'] %}
                 <div class="col-auto d-flex flex-column align-self-center mx-lg-2">
                     <a class="align-self-center" href="{{ url_for('wiki.mage_detail', mage_id=user['mage'].id) }}">
-                        <img src="{{ url_for('static', filename=user['mage'].image) }}" alt="{{ user['mage'].name }}" class="d-none d-lg-block record-user-icon rounded">
+                        <img src="{{ url_for('static', filename=user['mage'].image) }}" alt="{{ user['mage'].name }}" class="d-none d-lg-block rounded" width="150">
                     </a>
                     <a class="badge bg-primary a-none-deco mt-1" href="{{ url_for('profile.info', username=user['user'].username) }}">{{ user['user'].nickname }}</a>
                 </div>
@@ -46,7 +46,7 @@
         </div>
 
         <!-- 전적 상세 정보 버튼 -->
-        <div class="d-none d-lg-flex justify-content-end">
+        <div class="d-none d-lg-flex align-self-start">
             <a class="col-auto a-none-deco" href="{{ url_for('record.record_detail', record_id=record['record'].id) }}">
                 <i class="bi bi-arrow-bar-right" style="font-size: 2em;"></i>
             </a>

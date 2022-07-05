@@ -104,20 +104,6 @@ p {
     overflow-x: auto;
 }
 
-.record-nemesis-icon {
-    width: 150px;
-    height: 100px;
-    object-fit: cover;
-    object-position: 0 0;
-}
-
-.record-user-icon {
-    width: 120px;
-    height: 100px;
-    object-fit: none;
-    object-position: 50% 7%;
-}
-
 .record-mage-icon {
     width: 150px;
 }
