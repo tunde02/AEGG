@@ -26,12 +26,12 @@ def record_list():
             'result': record.result,
             'nemesis': record.nemesis,
             'date': record.date,
-            'user_list': []
+            'player_list': []
         }
 
         record_user_list = RecordUser.query.filter(RecordUser.record_id == record.id).all()
         for record_user in record_user_list:
-            record_info['user_list'].append({
+            record_info['player_list'].append({
                 'user': User.query.get_or_404(record_user.user_id),
                 'mage': Mage.query.get_or_404(record_user.mage_id)
             })
@@ -44,12 +44,22 @@ def record_list():
 @bp.route('/detail/<int:record_id>')
 def record_detail(record_id):
     record = Record.query.get_or_404(record_id)
-    record_user_list = User.query.join(RecordUser, RecordUser.user_id == User.id) \
-                                 .filter(RecordUser.record_id == record.id).all()
+    record_supply_pile = Card.query.join(supply_pile, supply_pile.c.card_id == Card.id) \
+                                   .filter(supply_pile.c.record_id == record.id) \
+                                   .order_by(Card.type, Card.cost).all()
+    player_list = []
+    user_list = RecordUser.query.filter(RecordUser.record_id == record.id).all()
+    for user in user_list:
+        player_list.append({
+            'user': User.query.get_or_404(user.user_id),
+            'mage': Mage.query.get_or_404(user.mage_id)
+        })
 
-    return render_template('record/record_detail.html', record=record, record_user_list=record_user_list)
+    return render_template('record/record_detail.html', record=record,
+                           record_supply_pile=record_supply_pile, player_list=player_list)
 
 
 @bp.route('/append', methods=['GET', 'POST'])
+@login_required
 def append_record():
     return render_template('record/record_form.html')

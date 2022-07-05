@@ -1,17 +1,71 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container">
+    <div class="row rounded border border-2 box-shadow pb-2 pb-lg-3 mb-2 mt-lg-2">
+        <!-- 전적 결과 -->
+        <div class="col-12 px-1 px-lg-3 my-2 my-lg-3">
+            <div class="d-flex flex-column rounded justify-content-center bg-{{ 'primary' if record.result == 'WIN' else 'danger' }} pb-2">
+                <span class="fs-1 align-self-center" style="font-family: '빛의 계승자 Bold'; margin-bottom: -10px;">{{ record.result }}</span>
+                <span class="fs-5 align-self-center" style="font-family: '빛의 계승자 Bold';">({{ record.date.strftime('%Y-%m-%d') }})</span>
+            </div>
+        </div>
 
-{{ record.result }}
-{{ record.date }}
-{{ record.nemesis.name }}
+        <!-- 네메시스 -->
+        <div class="col-12 col-lg-6 mb-2 px-1 px-lg-3 pe-lg-2">
+            <div class="rounded border border-2 border-danger box-shadow px-2 py-1">
+                <span class="fs-5">네메시스</span>
+                <div class="d-flex flex-column p-2 mt-2">
+                    <a href="{{ url_for('wiki.nemesis_detail', nemesis_id=record.nemesis.id) }}" class="a-none-deco text-center">
+                        <img src="{{ url_for('static', filename=record.nemesis.board_image) }}" class="d-none d-lg-block rounded w-100">
+                        <img src="{{ url_for('static', filename=record.nemesis.image) }}" class="d-block d-lg-none rounded w-100">
+                        <span class="d-none d-lg-block fs-1" style="font-family: '빛의 계승자 Bold';">{{ record.nemesis.name }}</span>
+                        <span class="d-block d-lg-none fs-3" style="font-family: '빛의 계승자 Bold';">{{ record.nemesis.name }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-{% for card in record.supply_pile %}
-{{ card.name }} ({{ card.id }})
-{% endfor %}
+        <!-- 공급처 -->
+        <div class="col-12 col-lg-6 mb-2 px-1 px-lg-3 ps-lg-2">
+            <div class="d-flex flex-column rounded border border-2 border-primary box-shadow px-2 py-1 h-100">
+                <span class="fs-5">공급처</span>
+                <div class="row h-100 p-lg-2 mt-2">
+                    {% for card in record_supply_pile %}
+                    <div class="col-4 d-none d-lg-block">
+                        <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}">
+                            <img src="{{ url_for('static', filename=card.image) }}" alt="{{ card.name }}" class="rounded w-100">
+                        </a>
+                    </div>
+                    <div class="col-12 d-block d-lg-none">
+                        <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}" class="a-none-deco">
+                            <span class="fs-5" style="font-family: '빛의 계승자 Bold';">
+                                ({{ card.cost }} {{ card.card_en[0].type[0] }}) {{ card.name }}
+                            </span>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-{% for user in record_user_list %}
-{{ user.username }}
-{{ user.nickname }}
-{% endfor %}
-
+        <!-- 플레이어 -->
+        <div class="col-12 px-1 px-lg-3 mt-lg-2">
+            <div class="rounded border border-2 box-shadow px-2 py-1" style="border-color: #6f42c1!important;">
+                <span class="fs-5">플레이어</span>
+                <div class="row justify-content-center p-lg-2 mt-2 mt-lg-0">
+                    {% for player in player_list %}
+                    <div class="col-auto d-flex flex-column mb-2">
+                        <a href="{{ url_for('wiki.mage_detail', mage_id=player['mage'].id) }}">
+                            <img src="{{ url_for('static', filename=player['mage'].image) }}" alt="{{ player['mage'].name }}" class="record-mage-icon rounded">
+                        </a>
+                        <a href="{{ url_for('profile.info', username=player['user'].username) }}" class="fs-3 a-none-deco text-center">
+                            {{ player['user'].nickname }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
