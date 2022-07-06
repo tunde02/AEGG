@@ -3,10 +3,22 @@
 <div class="container">
     <div class="row rounded border border-2 box-shadow pb-2 pb-lg-3 mb-2 mt-lg-2">
         <!-- 전적 결과 -->
-        <div class="col-12 px-1 px-lg-3 my-2 my-lg-3">
+        <div class="col-12 px-1 px-lg-3 my-2 mt-lg-3">
             <div class="d-flex flex-column rounded justify-content-center bg-{{ 'primary' if record.result == 'WIN' else 'danger' }} pb-2">
                 <span class="fs-1 align-self-center" style="font-family: '빛의 계승자 Bold'; margin-bottom: -10px;">{{ record.result }}</span>
                 <span class="fs-5 align-self-center" style="font-family: '빛의 계승자 Bold';">({{ record.date.strftime('%Y-%m-%d') }})</span>
+
+            </div>
+        </div>
+
+        <!-- 버튼들 -->
+        <div class="col-12 px-1 px-lg-3 mb-2">
+            <div class="d-flex justify-content-end gap-2">
+                <a class="btn btn-outline-danger py-0" href="{{ url_for('record.record_list') }}"><i class="bi bi-arrow-left"></i></a>
+                <a class="btn btn-outline-success py-0" href="#">수정</a>
+                {% if g.user %}
+                <a class="btn btn-primary py-0" href="#">댓글</a>
+                {% endif %}
             </div>
         </div>
 
@@ -37,10 +49,16 @@
                         </a>
                     </div>
                     <div class="col-12 d-block d-lg-none">
-                        <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}" class="a-none-deco">
-                            <span class="fs-5" style="font-family: '빛의 계승자 Bold';">
-                                ({{ card.cost }} {{ card.card_en[0].type[0] }}) {{ card.name }}
-                            </span>
+                        <a href="{{ url_for('wiki.card_detail', card_id=card.id) }}" class="a-none-deco d-flex gap-2">
+                            {% if card.type == '보석' %}
+                            <span class="badge bg-primary align-self-center">{{ card.card_en[0].type[0] }}</span>
+                            {% elif card.type == '유물' %}
+                            <span class="badge bg-info align-self-center">{{ card.card_en[0].type[0] }}</span>
+                            {% else %}
+                            <span class="badge bg-danger align-self-center">{{ card.card_en[0].type[0] }}</span>
+                            {% endif %}
+                            <span class="fs-6 badge rounded-pill bg-warning text-dark align-self-center p-1">{{ card.cost }}</span>
+                            <span class="fs-5" style="font-family: '빛의 계승자 Bold';">{{ card.name }}</span>
                         </a>
                     </div>
                     {% endfor %}
