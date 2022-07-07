@@ -15,7 +15,7 @@
         <div class="col-12 px-1 px-lg-3 mb-2">
             <div class="d-flex justify-content-end gap-2">
                 <a class="btn btn-outline-danger py-0" href="{{ url_for('record.record_list') }}"><i class="bi bi-arrow-left"></i></a>
-                <a class="btn btn-outline-success py-0" href="#">수정</a>
+                <a class="btn btn-outline-success py-0" href="{{ url_for('record.modify_record', record_id=record.id) }}">수정</a>
                 {% if g.user %}
                 <a class="btn btn-primary py-0" href="#">댓글</a>
                 {% endif %}
