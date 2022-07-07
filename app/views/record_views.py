@@ -2,14 +2,34 @@ from datetime import datetime, date
 
 from flask import Blueprint, flash, render_template, request, url_for, g
 from werkzeug.utils import redirect
+from sqlalchemy.sql import text
 
 from app import db
-from app.forms import RecordForm, ReviewForm
+from app.forms import CommentForm, RecordForm
 from app.models import *
 from app.views.auth_views import login_required
 
 
 bp = Blueprint('record', __name__, url_prefix='/record')
+
+
+def get_record_info(record):
+    record_info = {}
+
+    record_info['comment_list'] = RecordComment.query.filter(RecordComment.record_id == record.id) \
+                                               .order_by(text('if(isnull(parent_id), id, parent_id)')).all()
+    record_info['supply_pile'] = Card.query.join(supply_pile, supply_pile.c.card_id == Card.id) \
+                                           .filter(supply_pile.c.record_id == record.id) \
+                                           .order_by(Card.type.asc(), Card.cost.asc()).all()
+    record_info['player_list'] = []
+    user_list = RecordPlayer.query.filter(RecordPlayer.record_id == record.id).all()
+    for user in user_list:
+        record_info['player_list'].append({
+            'user': User.query.get_or_404(user.user_id),
+            'mage': Mage.query.get_or_404(user.mage_id)
+        })
+
+    return record_info
 
 
 @bp.before_request
@@ -43,20 +63,13 @@ def record_list():
 
 @bp.route('/detail/<int:record_id>')
 def record_detail(record_id):
+    form = CommentForm()
     record = Record.query.get_or_404(record_id)
-    record_supply_pile = Card.query.join(supply_pile, supply_pile.c.card_id == Card.id) \
-                                   .filter(supply_pile.c.record_id == record.id) \
-                                   .order_by(Card.type.asc(), Card.cost.asc()).all()
-    player_list = []
-    user_list = RecordPlayer.query.filter(RecordPlayer.record_id == record.id).all()
-    for user in user_list:
-        player_list.append({
-            'user': User.query.get_or_404(user.user_id),
-            'mage': Mage.query.get_or_404(user.mage_id)
-        })
+    record_info = get_record_info(record)
 
-    return render_template('record/record_detail.html', record=record,
-                           record_supply_pile=record_supply_pile, player_list=player_list)
+    return render_template('record/record_detail.html', form=form,
+                           record=record, record_comment_list=record_info['comment_list'],
+                           record_supply_pile=record_info['supply_pile'], player_list=record_info['player_list'])
 
 
 @bp.route('/append', methods=['GET', 'POST'])
@@ -172,8 +185,8 @@ def modify_record(record_id):
             nemesis=record.nemesis.name
         )
 
+    record_info = get_record_info(record)
     nemesis_list = Nemesis.query.order_by(Nemesis.tier.asc(), Nemesis.difficulty.asc()).all()
-
     supply_card_list = Card.query.join(CardEN, CardEN.card_id == Card.id) \
                                  .outerjoin(NemesisCardInfo, NemesisCardInfo.card_id == Card.id) \
                                  .filter(NemesisCardInfo.card_id == None) \
@@ -181,21 +194,105 @@ def modify_record(record_id):
                                  .filter(related_mage.c.card_id == None) \
                                  .filter((Card.name != '크리스탈') & (Card.name != '스파크')) \
                                  .order_by(Card.cost.asc(), CardEN.name.asc()).all()
-    record_supply_pile = Card.query.join(supply_pile, supply_pile.c.card_id == Card.id) \
-                                   .filter(supply_pile.c.record_id == record.id) \
-                                   .order_by(Card.type.asc(), Card.cost.asc()).all()
-
     user_list = User.query.order_by(User.nickname.asc()).all()
     mage_list = Mage.query.join(MageEN, MageEN.mage_id == Mage.id) \
                           .order_by(MageEN.name.asc()).all()
-    player_list = []
-    record_player_list = RecordPlayer.query.filter(RecordPlayer.record_id == record.id).all()
-    for user in record_player_list:
-        player_list.append({
-            'user': User.query.get_or_404(user.user_id),
-            'mage': Mage.query.get_or_404(user.mage_id)
-        })
 
     return render_template('record/record_form.html', form=form, nemesis_list=nemesis_list,
-                           supply_card_list=supply_card_list, record_supply_pile=record_supply_pile,
-                           user_list=user_list, mage_list=mage_list, player_list=player_list)
+                           supply_card_list=supply_card_list, record_supply_pile=record_info['supply_pile'],
+                           user_list=user_list, mage_list=mage_list, player_list=record_info['player_list'])
+
+
+@bp.route('/comment/create/<int:record_id>', methods=['POST'])
+@login_required
+def create_record_comment(record_id):
+    form = CommentForm()
+    record = Record.query.get_or_404(record_id)
+
+    if form.validate_on_submit():
+        record_comment = RecordComment(
+            content=form.content.data,
+            user=g.user,
+            record=record,
+            create_date=datetime.now()
+        )
+
+        db.session.add(record_comment)
+        db.session.commit()
+
+        return redirect(url_for('record.record_detail', record_id=record_id))
+
+    record_info = get_record_info(record)
+
+    return render_template('record/record_detail.html', form=form,
+                           record=record, record_comment_list=record_info['comment_list'],
+                           record_supply_pile=record_info['supply_pile'], player_list=record_info['player_list'])
+
+
+@bp.route('/comment/modify/<int:record_comment_id>', methods=['POST'])
+@login_required
+def modify_record_comment(record_comment_id):
+    form = CommentForm()
+    record_comment = RecordComment.query.get_or_404(record_comment_id)
+    record = Record.query.get_or_404(record_comment.record_id)
+
+    if g.user != record_comment.user:
+        flash('수정 권한이 없습니다.')
+        return redirect(url_for('record.record_detail', record_id=record.id))
+
+    if form.validate_on_submit():
+        form.populate_obj(record_comment)
+        record_comment.modify_date = datetime.now()
+
+        db.session.commit()
+
+        return redirect(url_for('record.record_detail', record_id=record.id))
+
+    record_info = get_record_info(record)
+
+    return render_template('record/record_detail.html', form=form,
+                           record=record, record_comment_list=record_info['comment_list'],
+                           record_supply_pile=record_info['supply_pile'], player_list=record_info['player_list'])
+
+
+@bp.route('/comment/delete/<int:record_comment_id>')
+@login_required
+def delete_record_comment(record_comment_id):
+    record_comment = RecordComment.query.get_or_404(record_comment_id)
+    record_id = record_comment.record_id
+
+    if g.user != record_comment.user:
+        flash('삭제 권한이 없습니다.')
+    else:
+        db.session.delete(record_comment)
+        db.session.commit()
+
+    return redirect(url_for('record.record_detail', record_id=record_id))
+
+
+@bp.route('/comment/reply/<int:record_comment_id>', methods=['POST'])
+@login_required
+def reply_record_comment(record_comment_id):
+    form = CommentForm()
+    parent_comment = RecordComment.query.get_or_404(record_comment_id)
+    record = Record.query.get_or_404(parent_comment.record_id)
+
+    if form.validate_on_submit():
+        reply = RecordComment(
+            content=form.content.data,
+            user=g.user,
+            record=record,
+            parent_id=parent_comment.id,
+            create_date=datetime.now()
+        )
+
+        db.session.add(reply)
+        db.session.commit()
+
+        return redirect(url_for('record.record_detail', record_id=record.id))
+
+    record_info = get_record_info(record)
+
+    return render_template('record/record_detail.html', form=form,
+                           record=record, record_comment_list=record_info['comment_list'],
+                           record_supply_pile=record_info['supply_pile'], player_list=record_info['player_list'])

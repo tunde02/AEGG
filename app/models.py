@@ -253,12 +253,13 @@ class RecordPlayer(db.Model):
     mage_id = db.Column(db.Integer, db.ForeignKey('mage.id', ondelete='CASCADE'), nullable=False)
 
 
-class RecordReview(db.Model):
+class RecordComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user = db.relationship('User', backref=db.backref('record_review_list', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('record_comment_list', passive_deletes=True))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    record = db.relationship('Record', backref=db.backref('review_list', passive_deletes=True))
+    record = db.relationship('Record', backref=db.backref('comment_list', passive_deletes=True))
     record_id = db.Column(db.Integer, db.ForeignKey('record.id', ondelete='CASCADE'), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('record_comment.id', ondelete='CASCADE'))
     content = db.Column(db.Text(), nullable=False, default='')
     create_date = db.Column(db.DateTime(), nullable=False)
     modify_date = db.Column(db.DateTime())

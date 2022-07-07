@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <div class="row rounded border border-2 box-shadow pb-2 pb-lg-3 mb-2 mt-lg-2">
+    <div class="row rounded border border-2 box-shadow pb-2 pb-lg-3 mb-3 mt-lg-2">
         <!-- 전적 결과 -->
         <div class="col-12 px-1 px-lg-3 my-2 mt-lg-3">
             <div class="d-flex flex-column rounded justify-content-center bg-{{ 'primary' if record.result == 'WIN' else 'danger' }} pb-2">
@@ -55,7 +55,7 @@
                             {% elif card.type == '유물' %}
                             <span class="badge bg-info align-self-center">{{ card.card_en[0].type[0] }}</span>
                             {% else %}
-                            <span class="badge bg-danger align-self-center">{{ card.card_en[0].type[0] }}</span>
+                            <span class="badge align-self-center" style="background-color: #6f42c1;">{{ card.card_en[0].type[0] }}</span>
                             {% endif %}
                             <span class="fs-6 badge rounded-pill bg-warning text-dark align-self-center p-1">{{ card.cost }}</span>
                             <span class="fs-5" style="font-family: '빛의 계승자 Bold';">{{ card.name }}</span>
@@ -85,5 +85,53 @@
             </div>
         </div>
     </div>
+
+    {% include 'record/record_comment_list.html' %}
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if (confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        }
+    });
+});
+
+function replyComment(comment_id) {
+    const replyBlock = document.getElementById("reply_block_" + comment_id)
+    const modifyBlock = document.getElementById("modify_block_" + comment_id)
+
+    if (replyBlock.style.display == "none") {
+        replyBlock.style.display = "";
+        replyBlock.getElementsByTagName("textarea")[0].focus();
+    } else {
+        replyBlock.style.display = "none";
+    }
+
+    if (modifyBlock.style.display != "none") {
+        modifyBlock.style.display = "none";
+    }
+}
+
+function modifyComment(comment_id) {
+    const replyBlock = document.getElementById("reply_block_" + comment_id)
+    const modifyBlock = document.getElementById("modify_block_" + comment_id)
+
+    if (modifyBlock.style.display == "none") {
+        modifyBlock.style.display = "";
+        modifyBlock.getElementsByTagName("textarea")[0].setSelectionRange(modifyBlock.getElementsByTagName("textarea")[0].value.length, modifyBlock.getElementsByTagName("textarea")[0].value.length); // 커서 맨 뒤로
+        modifyBlock.getElementsByTagName("textarea")[0].focus();
+    } else {
+        modifyBlock.style.display = "none";
+    }
+
+    if (replyBlock.style.display != "none") {
+        replyBlock.style.display = "none";
+    }
+}
+</script>
 {% endblock %}
