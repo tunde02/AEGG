@@ -40,8 +40,10 @@ def load_navbar_tab():
 @bp.route('/list')
 def record_list():
     record_list = []
+    index = 0
     for record in Record.query.order_by(Record.date.desc()):
         record_info = {
+            'index': index,
             'record': record,
             'result': record.result,
             'nemesis': record.nemesis,
@@ -57,6 +59,7 @@ def record_list():
             })
 
         record_list.append(record_info)
+        index += 1
 
     return render_template('record/record_list.html', record_list=record_list)
 

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container my-2">
+<div class="container mt-2 mb-3">
     <!-- 전적 추가 버튼 -->
     <div class="d-flex justify-content-center rounded border border-dark border-4 p-2 mb-2">
         <a href="{{ url_for('record.append_record') }}" class="fs-2 text-dark text-center flex-fill">
@@ -9,7 +9,7 @@
     </div>
 
     {% for record in record_list %}
-    <div class="d-flex flex-column flex-lg-row justify-content-between rounded border border-{{ 'primary' if record['result'] == 'WIN' else 'danger' }} border-4 p-2 mb-2">
+    <div class="{{ 'd-none' if record['index'] > 4 else 'd-flex' }} flex-column flex-lg-row justify-content-between rounded border border-{{ 'primary' if record['result'] == 'WIN' else 'danger' }} border-4 p-2 mb-2" id="record_{{ record['index'] }}">
         <div class="row">
             <!-- 전적 결과 -->
             <div class="col-6 col-lg-auto d-flex flex-column text-center align-self-center px-0 px-lg-2">
@@ -53,5 +53,38 @@
         </div>
     </div>
     {% endfor %}
+
+    <!-- 전적 불러오기 버튼 -->
+    <div class="d-flex justify-content-center rounded border border-dark border-4 p-2 mb-2" id="recordLoadBtnContainer">
+        <a href="javascript:void(0)" class="fs-2 text-dark text-center flex-fill" onclick="loadRecord()">
+            <i class="bi bi-caret-down-fill"></i>
+        </a>
+    </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+var recordCount = 5;
+var isAllRecordLoaded = false;
+
+function loadRecord() {
+    if (isAllRecordLoaded) {
+        return;
+    }
+
+    let prevRecordCount = recordCount;
+    recordCount += 5;
+
+    for (let i = prevRecordCount; i < recordCount; i++) {
+        if (document.getElementById('record_' + i)) {
+            document.getElementById('record_' + i).classList.replace('d-none', 'd-flex');
+        } else {
+            document.getElementById('recordLoadBtnContainer').classList.replace('d-flex', 'd-none');
+            isAllRecordLoaded = true;
+            return;
+        }
+    }
+}
+</script>
 {% endblock %}
