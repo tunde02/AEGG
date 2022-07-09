@@ -1,6 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-2 mb-3">
+    <div class="row mb-2">
+        <!-- 검색창 -->
+        <div class="col-12 col-lg-10 d-flex justify-content-end gap-2 mb-2 mb-lg-0">
+            <input type="text" id="searchKeyword" class="form-control" value="{{ keyword or '' }}">
+            <button class="btn btn-primary col-auto" type="button" onclick="search()">검색</button>
+        </div>
+
+        <div class="col-12 col-lg-2 d-flex justify-content-end gap-2">
+            {% if sort_type == 'newest' %}
+            <a href="javascript:void(0)" class="col-auto btn btn-primary" style="pointer-events: none;">최신순</a>
+            <a href="{{ url_for('record.record_list', sort_type='oldest', keyword=keyword) }}" class="col-auto btn btn-outline-primary">오래된순</a>
+            {% else %}
+            <a href="{{ url_for('record.record_list', sort_type='newest', keyword=keyword) }}" class="col-auto btn btn-outline-primary">최신순</a>
+            <a href="javascript:void(0)" class="col-auto btn btn-primary" style="pointer-events: none;">오래된순</a>
+            {% endif %}
+        </div>
+    </div>
+
     <!-- 전적 추가 버튼 -->
     <div class="d-flex justify-content-center rounded border border-dark border-4 p-2 mb-2">
         <a href="{{ url_for('record.append_record') }}" class="fs-2 text-dark text-center flex-fill">
@@ -61,6 +79,11 @@
         </a>
     </div>
 </div>
+
+<form action="{{ url_for('record.record_list', sort_type=sort_type) }}" method="get" id="searchForm">
+    <input type="hidden" id="sort_type" name="sort_type" value="{{ sort_type or '' }}">
+    <input type="hidden" id="keyword" name="keyword" value="{{ keyword or '' }}">
+</form>
 {% endblock %}
 
 {% block script %}
@@ -85,6 +108,11 @@ function loadRecord() {
             return;
         }
     }
+}
+
+function search() {
+    document.getElementById('keyword').value = document.getElementById('searchKeyword').value;
+    document.getElementById('searchForm').submit();
 }
 </script>
 {% endblock %}

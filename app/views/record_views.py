@@ -32,6 +32,41 @@ def get_record_info(record):
     return record_info
 
 
+def has_keyword(record, keyword):
+    check = False
+    record_info = {}
+
+    record_info['nemesis_name'] = record.nemesis.name
+    record_info['nemesis_name_en'] = record.nemesis.nemesis_en[0].name
+    record_info['date'] = record.date
+    record_info['user_name_list'] = [user.nickname for user in User.query.join(RecordPlayer, RecordPlayer.user_id == User.id).filter(RecordPlayer.record == record).all()]
+    record_info['mage_name_list'] = [mage.name for mage in Mage.query.join(RecordPlayer, RecordPlayer.mage_id == Mage.id).filter(RecordPlayer.record == record).all()]
+    record_info['mage_name_en_list'] = [mage.name for mage in MageEN.query.join(RecordPlayer, RecordPlayer.mage_id == MageEN.mage_id).filter(RecordPlayer.record == record).all()]
+    record_info['supply_pile_name_list'] = [card.name for card in record.supply_pile]
+    record_info['supply_pile_name_en_list'] = [card.card_en[0].name for card in record.supply_pile]
+
+    check = check or keyword in record_info['nemesis_name']
+    check = check or keyword in record_info['nemesis_name_en'] or keyword in record_info['nemesis_name_en'].lower()
+    check = check or keyword in record_info['date'].strftime('%Y%m%d')
+
+    for user_name in record_info['user_name_list']:
+        check = check or keyword in user_name or keyword in user_name.lower()
+
+    for mage_name in record_info['mage_name_list']:
+        check = check or keyword in mage_name
+
+    for mage_name_en in record_info['mage_name_en_list']:
+        check = check or keyword in mage_name_en or keyword in mage_name_en.lower()
+
+    for card_name in record_info['supply_pile_name_list']:
+        check = check or keyword in card_name
+
+    for card_name_en in record_info['supply_pile_name_en_list']:
+        check = check or keyword in card_name_en or keyword in card_name_en.lower()
+
+    return check
+
+
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'record'
@@ -39,9 +74,16 @@ def load_navbar_tab():
 
 @bp.route('/list')
 def record_list():
+    sort_type = request.args.get('sort_type', type=str, default='newest')
+    keyword = request.args.get('keyword', type=str, default='')
+    target_records = Record.query.order_by(Record.date.desc() if sort_type == 'newest' else Record.date.asc()).all()
+
     record_list = []
     index = 0
-    for record in Record.query.order_by(Record.date.desc()):
+    for record in target_records:
+        if not has_keyword(record, keyword):
+            continue
+
         record_info = {
             'index': index,
             'record': record,
@@ -61,7 +103,7 @@ def record_list():
         record_list.append(record_info)
         index += 1
 
-    return render_template('record/record_list.html', record_list=record_list)
+    return render_template('record/record_list.html', record_list=record_list, sort_type=sort_type, keyword=keyword)
 
 
 @bp.route('/detail/<int:record_id>')
@@ -126,7 +168,7 @@ def append_record():
                                  .outerjoin(related_mage, related_mage.c.card_id == Card.id) \
                                  .filter(related_mage.c.card_id == None) \
                                  .filter((Card.name != '크리스탈') & (Card.name != '스파크')) \
-                                 .order_by(Card.cost.asc(), CardEN.name.asc()).all()
+                                 .order_by(CardEN.name.asc()).all()
 
     return render_template('record/record_form.html', form=form,
                            nemesis_list=nemesis_list, supply_card_list=supply_card_list,
@@ -196,7 +238,7 @@ def modify_record(record_id):
                                  .outerjoin(related_mage, related_mage.c.card_id == Card.id) \
                                  .filter(related_mage.c.card_id == None) \
                                  .filter((Card.name != '크리스탈') & (Card.name != '스파크')) \
-                                 .order_by(Card.cost.asc(), CardEN.name.asc()).all()
+                                 .order_by(CardEN.name.asc()).all()
     user_list = User.query.order_by(User.nickname.asc()).all()
     mage_list = Mage.query.join(MageEN, MageEN.mage_id == Mage.id) \
                           .order_by(MageEN.name.asc()).all()
