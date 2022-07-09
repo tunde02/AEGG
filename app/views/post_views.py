@@ -7,7 +7,7 @@ from sqlalchemy.sql import text
 
 from app import db
 from app.forms import CommentForm, PostForm
-from app.models import Post, Comment
+from app.models import Post, Comment, User
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 
@@ -60,10 +60,26 @@ def post_list():
     page = request.args.get('page', type=int, default=1)
     per_page = request.args.get('per_page', type=int, default=10)
     category = request.args.get('category', type=str, default='')
+    keyword = request.args.get('keyword', type=str, default='')
 
-    post_list = Post.query.filter(Post.category.ilike(f'%%{category}%%')).order_by(Post.create_date.desc()).paginate(page, per_page=per_page)
+    post_list = Post.query.filter(Post.category.ilike(f'%%{category}%%'))
 
-    return render_template('post/post_list.html', post_list=post_list, page=page, per_page=per_page, category=category)
+    if keyword:
+        search = '%%{}%%'.format(keyword)
+        subquery = db.session.query(Comment.post_id, Comment.content, User.nickname) \
+                             .join(User, Comment.user_id == User.id).subquery()
+        post_list = post_list.join(User) \
+                             .outerjoin(subquery, subquery.c.post_id == Post.id) \
+                             .filter(Post.subject.ilike(search) | # 게시글 제목
+                                     Post.content.ilike(search) | # 게시글 내용
+                                     User.nickname.ilike(search) | # 작성자 닉네임
+                                     subquery.c.content.ilike(search) | # 댓글 내용
+                                     subquery.c.nickname.ilike(search) # 댓글 작성자 닉네임
+                                    ).distinct()
+
+    post_list = post_list.order_by(Post.create_date.desc()).paginate(page, per_page=per_page)
+
+    return render_template('post/post_list.html', post_list=post_list, page=page, per_page=per_page, category=category, keyword=keyword)
 
 
 @bp.route('/create', methods=['GET', 'POST'])
