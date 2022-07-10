@@ -44,15 +44,13 @@
             <td class="d-none d-md-table-cell">{{ post.category }}</td>
             <td class="text-start text-ellipsis">
                 <a class="a-none-deco" href="{{ url_for('post.detail', post_id=post.id) }}">
-                    <div>
-                        <span>{{ post.subject }}</span>
-                        {% if post.comment_list|length > 0 %}
-                        <span class="text-primary">[{{ post.comment_list|length }}]</span>
-                        {% endif %}
-                        {% if '/static/images/posts/' in post.content %}
-                        <i class="bi bi-image"></i>
-                        {% endif %}
-                    </div>
+                    <span>{{ post.subject }}</span>
+                    {% if post.comment_list|length > 0 %}
+                    <span class="text-primary">[{{ post.comment_list|length }}]</span>
+                    {% endif %}
+                    {% if '/static/images/posts/' in post.content %}
+                    <i class="bi bi-image"></i>
+                    {% endif %}
                 </a>
             </td>
             <td class="col-sm-2">
