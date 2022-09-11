@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, g
+from flask import Blueprint, render_template, g, current_app, request
 
 from app.models import Mage, MageEN, Card, CardEN, Nemesis, NemesisEN, Post
 
@@ -12,6 +12,8 @@ def load_navbar_tab():
 
 @bp.route('/')
 def index():
+    current_app.logger.info(f"User ({request.environ.get('HTTP_X_REAL_IP', request.remote_addr)}) entered.")
+
     mage_list = Mage.query.join(MageEN).order_by(Mage.avg_score.desc(), MageEN.name.asc()).paginate(1, per_page=5)
     card_list = Card.query.join(CardEN).order_by(Card.avg_score.desc(), CardEN.name.asc()).paginate(1, per_page=5)
     nemesis_list = Nemesis.query.join(NemesisEN).order_by(Nemesis.avg_score.desc(), NemesisEN.name.asc()).paginate(1, per_page=5)
