@@ -112,7 +112,9 @@ $(document).ready(function() {
         maximumImageFileSize: 1024 * 1024 * 100,
         callbacks: {
             onImageUpload: function(files, editor, welEditable) {
-                uploadImage(files[0], editor, welEditable);
+                for (let file of files) {
+                    uploadImage(file, editor, welEditable);
+                }
             }
         }
     });
