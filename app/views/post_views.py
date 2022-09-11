@@ -116,10 +116,7 @@ def image_upload():
     if request.method == "POST":
         file = request.files["image"]
 
-        if file.filename == '':
-            return "error.png"
-
-        if file and allowed_file(file.filename):
+        if file and file.filename != '' and allowed_file(file.filename):
             file_extension = file.filename.rsplit('.', 1)[1].lower()
             filename = secure_filename(f"{str(uuid.uuid4())}.{file_extension}")
 
@@ -133,7 +130,7 @@ def image_upload():
 
             return filename
 
-    return "error.png"
+    return "IMAGE_UPLOAD_ERROR"
 
 
 @bp.route('/<int:post_id>')
@@ -173,10 +170,10 @@ def modify(post_id):
             form.populate_obj(post)
             post.modify_date = datetime.now()
 
+            db.session.commit()
+
             save_uploaded_images(request, post)
             remove_temp_uploaded_images(form.content.data, post)
-
-            db.session.commit()
 
             return redirect(url_for('post.detail', post_id=post_id))
     else:

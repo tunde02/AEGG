@@ -47,6 +47,11 @@ function uploadImage(file, editor, welEditable) {
         data: data,
         type: "POST",
         success: function(filename) {
+            if (filename == "IMAGE_UPLOAD_ERROR") {
+                alert("이미지 업로드를 실패했습니다");
+                return;
+            }
+
             var image = $('<img>').attr('src', "{{ url_for('static', filename='images/temp/') }}" + filename).addClass("img-fluid");
             $('#summernote').summernote("insertNode", image[0]);
             document.getElementById('upload_images').value += filename + "|";
