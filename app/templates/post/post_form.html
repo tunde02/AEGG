@@ -52,8 +52,17 @@ function uploadImage(file, editor, welEditable) {
                 return;
             }
 
-            var image = $('<img>').attr('src', "{{ url_for('static', filename='images/temp/') }}" + filename).addClass("img-fluid");
+            var image = $('<img>')
+                .attr('src', "{{ url_for('static', filename='images/temp/') }}" + filename)
+                .addClass("img-fluid d-block")
+                .on("load", function() {
+                    if (this.width > 800 || this.height > 800) {
+                        this.style = "width: 50%;";
+                    }
+                });
+
             $('#summernote').summernote("insertNode", image[0]);
+
             document.getElementById('upload_images').value += filename + "|";
         },
         error: function(data) {
