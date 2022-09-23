@@ -79,7 +79,7 @@ def post_list():
 
     post_list = post_list.order_by(Post.create_date.desc()).paginate(page, per_page=per_page)
 
-    return render_template('post/post_list.html', post_list=post_list, page=page, per_page=per_page, category=category, keyword=keyword)
+    return render_template('post/post_list.html', title='게시판', post_list=post_list, page=page, per_page=per_page, category=category, keyword=keyword)
 
 
 @bp.route('/create', methods=['GET', 'POST'])
@@ -108,7 +108,7 @@ def create():
 
         return redirect(url_for('post.post_list'))
 
-    return render_template('post/post_form.html', form=form)
+    return render_template('post/post_form.html', title='게시글 작성', form=form)
 
 
 @bp.route('/upload', methods=['GET', 'POST'])
@@ -145,7 +145,7 @@ def detail(post_id):
     post.num_views += 1
     db.session.commit()
 
-    return render_template('post/post_detail.html', form=form, post=post, comment_list=comment_list)
+    return render_template('post/post_detail.html', title=post.subject, form=form, post=post, comment_list=comment_list)
 
 
 @bp.route('/modify/<int:post_id>', methods=['GET', 'POST'])
@@ -179,7 +179,7 @@ def modify(post_id):
     else:
         form = PostForm(obj=post)
 
-    return render_template('post/post_form.html', form=form)
+    return render_template('post/post_form.html', title="게시글 수정", form=form)
 
 
 @bp.route('/delete/<int:post_id>')

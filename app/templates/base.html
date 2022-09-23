@@ -24,7 +24,11 @@
     <script src="/static/js/summernote-ko-KR.js"></script>
     <link rel="stylesheet" href="/static/css/summernote-lite.css">
 
+    {% if title %}
+    <title>{{ title + " - AEON'S END GG" }}</title>
+    {% else %}
     <title>AEON'S END GG</title>
+    {% endif %}
 </head>
 <body>
     <div class="d-flex justify-content-center">
