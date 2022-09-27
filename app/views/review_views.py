@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 
 from app import db
 from app.forms import ReviewForm
-from app.models import Card, CardReview, Mage, MageReview, Nemesis, NemesisReview
+from app.models import Card, CardReview, Mage, MageReview, Nemesis, NemesisReview, PostNotification, CommentNotification
 from app.views.auth_views import login_required
 
 
@@ -21,6 +21,8 @@ def calc_avg_score(score_column, filter):
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'wiki'
+    if g.user:
+        g.num_notifications = len(PostNotification.query.filter_by(user=g.user, is_checked=False).all()) + len(CommentNotification.query.filter_by(user=g.user, is_checked=False).all())
 
 
 @bp.route('/create/mage/<int:mage_id>', methods=['GET', 'POST'])

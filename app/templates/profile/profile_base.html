@@ -9,21 +9,24 @@
             <div class="list-group-item d-flex justify-content-center">
                 <span class="font-weight-bold" style="font-size: 1.2em;">{{ user.nickname }} ({{ user.username }})</span>
             </div>
-            <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#info">내정보</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#record">전적</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#stats">통계</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#recent">최근 알림</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#modify">내정보 수정</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#withdrawl">회원 탈퇴</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'info' else '' }}" data-bs-toggle="list" href="#info">내정보</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'record' else '' }}" data-bs-toggle="list" href="#record">전적</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'stats' else '' }}" data-bs-toggle="list" href="#stats">통계</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'notifications' else '' }}" data-bs-toggle="list" href="#notifications">
+                최근 알림
+                <span class="position-absolute top-50 end-0 translate-middle badge rounded-pill {{ 'bg-secondary' if g.num_notifications == 0 else 'bg-primary' }}" style="font-size: 1em;">{{ g.num_notifications }}</span>
+            </a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'modify' else '' }}" data-bs-toggle="list" href="#modify">내정보 수정</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'withdrawl' else '' }}" data-bs-toggle="list" href="#withdrawl">회원 탈퇴</a>
         </div>
 
         <div class="tab-content col-lg-10">
-            <div class="tab-pane active" id="info">{% include 'profile/profile_info.html' %}</div>
-            <div class="tab-pane" id="record">{% include 'profile/profile_record.html' %}</div>
-            <div class="tab-pane" id="stats">{% include 'profile/profile_stats.html' %}</div>
-            <div class="tab-pane" id="recent">{% include 'profile/profile_recent.html' %}</div>
-            <div class="tab-pane" id="modify">{% include 'profile/profile_modify.html' %}</div>
-            <div class="tab-pane" id="withdrawl">{% include 'profile/profile_withdrawl.html' %}</div>
+            <div class="tab-pane {{ 'active' if g.profile_tab == 'info' else '' }}" id="info">{% include 'profile/profile_info.html' %}</div>
+            <div class="tab-pane {{ 'active' if g.profile_tab == 'record' else '' }}" id="record">{% include 'profile/profile_record.html' %}</div>
+            <div class="tab-pane {{ 'active' if g.profile_tab == 'stats' else '' }}" id="stats">{% include 'profile/profile_stats.html' %}</div>
+            <div class="tab-pane {{ 'active' if g.profile_tab == 'notifications' else '' }}" id="notifications">{% include 'profile/profile_notifications.html' %}</div>
+            <div class="tab-pane {{ 'active' if g.profile_tab == 'modify' else '' }}" id="modify">{% include 'profile/profile_modify.html' %}</div>
+            <div class="tab-pane {{ 'active' if g.profile_tab == 'withdrawl' else '' }}" id="withdrawl">{% include 'profile/profile_withdrawl.html' %}</div>
         </div>
     </div>
 </div>

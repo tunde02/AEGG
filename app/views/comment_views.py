@@ -5,7 +5,7 @@ from sqlalchemy.sql import text
 
 from app import db
 from app.forms import CommentForm
-from app.models import Post, Comment
+from app.models import Post, Comment, PostNotification, CommentNotification
 from app.views.auth_views import login_required
 
 
@@ -15,6 +15,8 @@ bp = Blueprint('comment', __name__, url_prefix='/comment')
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'board'
+    if g.user:
+        g.num_notifications = len(PostNotification.query.filter_by(user=g.user, is_checked=False).all()) + len(CommentNotification.query.filter_by(user=g.user, is_checked=False).all())
 
 
 @bp.route('/create/<int:post_id>', methods=['POST'])
@@ -24,14 +26,24 @@ def create(post_id):
     post = Post.query.get_or_404(post_id)
 
     if form.validate_on_submit():
+        create_date = datetime.now()
         comment = Comment(
             content=form.content.data,
             user=g.user,
             post=post,
-            create_date=datetime.now()
+            create_date=create_date
         )
-
         db.session.add(comment)
+
+        if g.user != post.user:
+            post_notification = PostNotification(
+                user=post.user,
+                post=post,
+                comment=comment,
+                create_date=create_date
+            )
+            db.session.add(post_notification)
+
         db.session.commit()
 
         return redirect(url_for('post.detail', post_id=post_id, _anchor=f'comment_{comment.id}'))
@@ -51,15 +63,32 @@ def reply(comment_id):
     post = Post.query.get_or_404(parent_comment.post_id)
 
     if form.validate_on_submit():
+        create_date = datetime.now()
         reply = Comment(
             content=form.content.data,
             user=g.user,
             post=post,
             parent_id=parent_comment.id,
-            create_date=datetime.now()
+            create_date=create_date
         )
-
         db.session.add(reply)
+
+        if g.user != post.user:
+            post_notification = PostNotification(
+                user=post.user,
+                post=post,
+                comment=reply,
+                create_date=create_date
+            )
+            db.session.add(post_notification)
+        if g.user != parent_comment.user:
+            comment_notification = CommentNotification(
+                user=parent_comment.user,
+                comment=parent_comment,
+                create_date=create_date
+            )
+            db.session.add(comment_notification)
+
         db.session.commit()
 
         return redirect(url_for('post.detail', post_id=post.id, _anchor=f'comment_{parent_comment.id}'))

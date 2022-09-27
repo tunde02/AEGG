@@ -7,7 +7,7 @@ from sqlalchemy.sql import text
 
 from app import db
 from app.forms import CommentForm, PostForm
-from app.models import Post, Comment, User
+from app.models import Post, Comment, User, PostNotification, CommentNotification
 from app.views.auth_views import login_required
 from config.default import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 
@@ -53,6 +53,8 @@ def remove_temp_uploaded_images(content, post):
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'board'
+    if g.user:
+        g.num_notifications = len(PostNotification.query.filter_by(user=g.user, is_checked=False).all()) + len(CommentNotification.query.filter_by(user=g.user, is_checked=False).all())
 
 
 @bp.route('/')

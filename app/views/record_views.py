@@ -70,6 +70,8 @@ def has_keyword(record, keyword):
 @bp.before_request
 def load_navbar_tab():
     g.navbar_tab = 'record'
+    if g.user:
+        g.num_notifications = len(PostNotification.query.filter_by(user=g.user, is_checked=False).all()) + len(CommentNotification.query.filter_by(user=g.user, is_checked=False).all())
 
 
 @bp.route('/list')

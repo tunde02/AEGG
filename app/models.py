@@ -31,6 +31,18 @@ class Post(db.Model):
     modify_date = db.Column(db.DateTime())
 
 
+class PostNotification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref=db.backref('post_notification_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    post = db.relationship('Post', backref=db.backref('post_notification_list', passive_deletes=True))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), nullable=False)
+    comment = db.relationship('Comment', backref=db.backref('post_notified_list', passive_deletes=True))
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id', ondelete='CASCADE'), nullable=False)
+    create_date = db.Column(db.DateTime(), nullable=False)
+    is_checked = db.Column(db.Boolean, nullable=False, default=False)
+
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text(), nullable=True)
@@ -42,6 +54,16 @@ class Comment(db.Model):
     create_date = db.Column(db.DateTime(), nullable=False)
     modify_date = db.Column(db.DateTime())
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
+
+
+class CommentNotification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref=db.backref('comment_notification_list', passive_deletes=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    comment = db.relationship('Comment', backref=db.backref('comment_notified_list', passive_deletes=True))
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id', ondelete='CASCADE'), nullable=False)
+    create_date = db.Column(db.DateTime(), nullable=False)
+    is_checked = db.Column(db.Boolean, nullable=False, default=False)
 
 
 related_mage = db.Table(

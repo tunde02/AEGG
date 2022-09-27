@@ -1,0 +1,184 @@
+<div class="card">
+    <h2 class="p-3 mb-2" style="font-family: '빛의 계승자 Bold';">최근 알림</h2>
+
+    <div class="px-4">
+        <!-- 댓글 알림 -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between p-2">
+                <h5 style="font-family: '빛의 계승자 Bold';">댓글 알림</h5>
+                <a class="btn btn-lg" href="javascript:submitSelectedPostNotifications()" style="padding: 0px;">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+            <table class="table">
+                <thead>
+                <tr class="text-center table-dark">
+                    <th class="col-lg-1">선택<input id="selectAllPostNotifications" class="form-check-input mx-2" type="checkbox" style="width: 20px; height: 20px;"></th>
+                    <th class="col-lg-1">번호</th>
+                    <th class="col-lg-4">내 게시글</th>
+                    <th class="col-lg-4">달린 댓글</th>
+                    <th class="d-none d-md-table-cell col-lg-2">작성시간</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if post_notification_list and (post_notification_list.items|length > 0) %}
+                {% for notification in post_notification_list.items %}
+                <tr class="text-center">
+                    <td class="col-lg-1">
+                        <input class="form-check-input select-post-notification" type="checkbox" data-selected="{{ notification.id }}" style="width: 20px; height: 20px;"></input>
+                    </td>
+                    <td class="col-lg-1">{{ post_notification_list.total - ((post_notification_list.page - 1) * post_notification_list.per_page) - loop.index0 }}</td>
+                    <td class="col-lg-4 text-start text-ellipsis">
+                        {% if notification.is_checked %}
+                        <a href="{{ url_for('profile.check_post_notification', notification_id=notification.id) }}" style="color: darkgray; text-decoration: none;">
+                            {{ notification.post.subject }}
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('profile.check_post_notification', notification_id=notification.id) }}">
+                            {{ notification.post.subject }}
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="col-lg-4 text-start text-ellipsis">
+                        {% if notification.is_checked %}
+                        <a href="{{ url_for('profile.check_post_notification', notification_id=notification.id, _anchor='comment_' + notification.comment.id|string) }}" style="color: darkgray; text-decoration: none;">
+                            {{ notification.comment.content }}
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('profile.check_post_notification', notification_id=notification.id, _anchor='comment_' + notification.comment.id|string) }}">
+                            {{ notification.comment.content }}
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="d-none d-md-table-cell col-lg-2">{{ notification.create_date|datetime }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr class="text-center">
+                    <td colspan="12">최근 알림이 없습니다.</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 대댓글 알림 -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between p-2">
+                <h5 style="font-family: '빛의 계승자 Bold';">대댓글 알림</h5>
+                <a class="btn btn-lg" href="javascript:submitSelectedCommentNotifications()" style="padding: 0px;">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+            <table class="table">
+                <thead>
+                <tr class="text-center table-dark">
+                    <th class="col-lg-1">선택<input id="selectAllCommentNotifications" class="form-check-input mx-2" type="checkbox" style="width: 20px; height: 20px;"></th>
+                    <th class="col-lg-1">번호</th>
+                    <th class="col-lg-8">내 댓글</th>
+                    <th class="d-none d-md-table-cell col-lg-2">작성시간</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if comment_notification_list and (comment_notification_list.items|length > 0) %}
+                {% for notification in comment_notification_list.items %}
+                <tr class="text-center">
+                    <td class="col-lg-1">
+                        <input class="form-check-input select-comment-notification" type="checkbox" data-selected="{{ notification.id }}" style="width: 20px; height: 20px;"></input>
+                    </td>
+                    <td class="col-lg-1">{{ comment_notification_list.total - ((comment_notification_list.page - 1) * comment_notification_list.per_page) - loop.index0 }}</td>
+                    <td class="col-lg-8 text-start text-ellipsis">
+                        {% if notification.is_checked %}
+                        <a href="{{ url_for('profile.check_comment_notification', notification_id=notification.id, _anchor='comment_' + notification.comment.id|string) }}" style="color: darkgray; text-decoration: none;">
+                            {{ notification.comment.content }}
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('profile.check_comment_notification', notification_id=notification.id, _anchor='comment_' + notification.comment.id|string) }}">
+                            {{ notification.comment.content }}
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="d-none d-md-table-cell col-lg-2">{{ notification.create_date|datetime }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr class="text-center">
+                    <td colspan="12">최근 알림이 없습니다.</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<form id="profileNotificationsForm" method="post" action="{{ url_for('profile.notifications', username=user.username) }}">
+    <input type="hidden" name="selectedPostNotifications" id="selectedPostNotifications">
+    <input type="hidden" name="selectedCommentNotifications" id="selectedCommentNotifications">
+</form>
+
+<script>
+function submitSelectedPostNotifications() {
+    if (document.getElementById("selectedPostNotifications").value != '') {
+        document.getElementById("profileNotificationsForm").submit();
+    } else {
+        alert("삭제할 댓글 알림을 선택해주세요.");
+    }
+}
+
+function submitSelectedCommentNotifications() {
+    if (document.getElementById("selectedCommentNotifications").value != '') {
+        document.getElementById("profileNotificationsForm").submit();
+    } else {
+        alert("삭제할 대댓글 알림을 선택해주세요.");
+    }
+}
+
+const postNotificationsCheckboxes = document.getElementsByClassName("select-post-notification");
+Array.from(postNotificationsCheckboxes).forEach(function(element) {
+    element.addEventListener('change', function() {
+        let selectedInput = document.getElementById("selectedPostNotifications");
+
+        if (selectedInput.value.includes(this.dataset.selected)) {
+            selectedInput.value = selectedInput.value.replace(this.dataset.selected + '|', '');
+        } else {
+            selectedInput.value += this.dataset.selected + '|';
+        }
+    });
+});
+
+const commentNotificationsCheckboxes = document.getElementsByClassName("select-comment-notification");
+Array.from(commentNotificationsCheckboxes).forEach(function(element) {
+    element.addEventListener('change', function() {
+        let selectedInput = document.getElementById("selectedCommentNotifications");
+
+        if (selectedInput.value.includes(this.dataset.selected)) {
+            selectedInput.value = selectedInput.value.replace(this.dataset.selected + '|', '');
+        } else {
+            selectedInput.value += this.dataset.selected + '|';
+        }
+    });
+});
+
+let postNotificationSelectFlag = false;
+document.getElementById("selectAllPostNotifications").addEventListener('change', function() {
+    for (let checkbox of postNotificationsCheckboxes) {
+        if (!(postNotificationSelectFlag ^ checkbox.checked)) {
+            checkbox.click();
+        }
+    }
+
+    postNotificationSelectFlag = !postNotificationSelectFlag;
+});
+
+let commentNotificationSelectFlag = false;
+document.getElementById("selectAllCommentNotifications").addEventListener('change', function() {
+    for (let checkbox of commentNotificationsCheckboxes) {
+        if (!(commentNotificationSelectFlag ^ checkbox.checked)) {
+            checkbox.click();
+        }
+    }
+
+    commentNotificationSelectFlag = !commentNotificationSelectFlag;
+});
+</script>
