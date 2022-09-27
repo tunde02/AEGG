@@ -16,7 +16,7 @@
                 최근 알림
                 <span class="position-absolute top-50 end-0 translate-middle badge rounded-pill {{ 'bg-secondary' if g.num_notifications == 0 else 'bg-primary' }}" style="font-size: 1em;">{{ g.num_notifications }}</span>
             </a>
-            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'modify' else '' }}" data-bs-toggle="list" href="#modify">내정보 수정</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'modify' else '' }}" href="{{ url_for('profile.modify', user_id=user.id) }}">내정보 수정</a>
             <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'withdrawl' else '' }}" data-bs-toggle="list" href="#withdrawl">회원 탈퇴</a>
         </div>
 
@@ -25,7 +25,6 @@
             <div class="tab-pane {{ 'active' if g.profile_tab == 'record' else '' }}" id="record">{% include 'profile/profile_record.html' %}</div>
             <div class="tab-pane {{ 'active' if g.profile_tab == 'stats' else '' }}" id="stats">{% include 'profile/profile_stats.html' %}</div>
             <div class="tab-pane {{ 'active' if g.profile_tab == 'notifications' else '' }}" id="notifications">{% include 'profile/profile_notifications.html' %}</div>
-            <div class="tab-pane {{ 'active' if g.profile_tab == 'modify' else '' }}" id="modify">{% include 'profile/profile_modify.html' %}</div>
             <div class="tab-pane {{ 'active' if g.profile_tab == 'withdrawl' else '' }}" id="withdrawl">{% include 'profile/profile_withdrawl.html' %}</div>
         </div>
     </div>
