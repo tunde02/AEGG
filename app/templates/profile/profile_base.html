@@ -14,10 +14,10 @@
             <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'stats' else '' }}" data-bs-toggle="list" href="#stats">통계</a>
             <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'notifications' else '' }}" data-bs-toggle="list" href="#notifications">
                 최근 알림
-                <span class="position-absolute top-50 end-0 translate-middle badge rounded-pill {{ 'bg-secondary' if g.num_notifications == 0 else 'bg-primary' }}" style="font-size: 1em;">{{ g.num_notifications }}</span>
+                <span class="position-absolute top-50 end-0 translate-middle badge rounded-pill {{ 'bg-secondary' if num_notifications == 0 else 'bg-primary' }}" style="font-size: 1em;">{{ num_notifications }}</span>
             </a>
-            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'modify' else '' }}" href="{{ url_for('profile.modify', user_id=user.id) }}">내정보 수정</a>
-            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'withdrawl' else '' }}" data-bs-toggle="list" href="#withdrawl">회원 탈퇴</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'modify' else '' }} {{ 'disabled' if g.user != user else '' }}" href="{{ url_for('profile.modify', user_id=user.id) }}">내정보 수정</a>
+            <a class="list-group-item list-group-item-action {{ 'active' if g.profile_tab == 'withdrawl' else '' }} {{ 'disabled' if g.user != user else '' }}" data-bs-toggle="list" href="#withdrawl">회원 탈퇴</a>
         </div>
 
         <div class="tab-content col-lg-10">

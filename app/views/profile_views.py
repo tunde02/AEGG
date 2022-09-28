@@ -77,6 +77,9 @@ def check_comment_notification(notification_id):
 def modify(user_id):
     user = User.query.get_or_404(user_id)
 
+    if user != g.user:
+        return redirect(url_for('profile.info', username=user.username))
+
     if request.method == "POST":
         form = ProfileModifyForm()
 
