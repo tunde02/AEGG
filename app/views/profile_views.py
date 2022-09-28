@@ -28,8 +28,9 @@ def info(username):
 
     post_notification_list = PostNotification.query.filter_by(user=user).order_by(PostNotification.create_date.desc()).paginate(1, per_page=20)
     comment_notification_list = CommentNotification.query.filter_by(user=user).order_by(CommentNotification.create_date.desc()).paginate(1, per_page=20)
+    num_notifications = len(PostNotification.query.filter_by(user=user, is_checked=False).all()) + len(CommentNotification.query.filter_by(user=user, is_checked=False).all())
 
-    return render_template('profile/profile_base.html', user=user, post_notification_list=post_notification_list, comment_notification_list=comment_notification_list)
+    return render_template('profile/profile_base.html', user=user, post_notification_list=post_notification_list, comment_notification_list=comment_notification_list, num_notifications=num_notifications)
 
 
 @bp.route('/notifications/<string:username>', methods=['POST'])
@@ -53,7 +54,8 @@ def notifications(username):
 @bp.route('/check/postnotification/<int:notification_id>')
 def check_post_notification(notification_id):
     notification = PostNotification.query.get_or_404(notification_id)
-    notification.is_checked = True
+    if notification == g.user:
+        notification.is_checked = True
 
     db.session.commit()
 
@@ -63,7 +65,8 @@ def check_post_notification(notification_id):
 @bp.route('/check/commentnotification/<int:notification_id>')
 def check_comment_notification(notification_id):
     notification = CommentNotification.query.get_or_404(notification_id)
-    notification.is_checked = True
+    if notification == g.user:
+        notification.is_checked = True
 
     db.session.commit()
 

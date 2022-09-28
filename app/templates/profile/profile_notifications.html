@@ -6,9 +6,11 @@
         <div class="mb-5">
             <div class="d-flex justify-content-between p-2">
                 <h5 style="font-family: '빛의 계승자 Bold';">댓글 알림</h5>
+                {% if g.user == user %}
                 <a class="btn btn-lg" href="javascript:submitSelectedPostNotifications()" style="padding: 0px;">
                     <i class="bi bi-trash"></i>
                 </a>
+                {% endif %}
             </div>
             <table class="table">
                 <thead>
@@ -66,9 +68,11 @@
         <div class="mb-5">
             <div class="d-flex justify-content-between p-2">
                 <h5 style="font-family: '빛의 계승자 Bold';">대댓글 알림</h5>
+                {% if g.user == user %}
                 <a class="btn btn-lg" href="javascript:submitSelectedCommentNotifications()" style="padding: 0px;">
                     <i class="bi bi-trash"></i>
                 </a>
+                {% endif %}
             </div>
             <table class="table">
                 <thead>
