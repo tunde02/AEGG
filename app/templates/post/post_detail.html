@@ -53,6 +53,42 @@
     <!-- 게시글 End -->
 
     {% include 'comment/comment_list.html' %}
+
+    <!-- 이전, 다음 게시글 Start -->
+    <div class="card d-flex flex-lg-row mt-3" style="box-shadow: 0 4px 16px 0 rgba(104, 104, 104, 0.6);">
+        <div class="col-12 col-lg-10 card-body d-flex flex-column">
+            <div class="d-flex gap-2 mb-2">
+                {% if prev_post %}
+                <label>이전글 : </label>
+                <div class="text-ellipsis" style="max-width: 300px;">
+                    <a class="a-none-deco" href="{{ url_for('post.detail', post_id=prev_post.id) }}">{{ prev_post.subject }}</a>
+                </div>
+                {% if prev_post.comment_list|length > 0 %}
+                <span class="text-primary">[{{ prev_post.comment_list|length }}]</span>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+                {% if next_post %}
+                <label>다음글 : </label>
+                <div class="text-ellipsis" style="max-width: 300px;">
+                    <a class="a-none-deco" href="{{ url_for('post.detail', post_id=next_post.id) }}">
+                        <span>{{ next_post.subject }}</span>
+                    </a>
+                </div>
+                {% if next_post.comment_list|length > 0 %}
+                <span class="text-primary">[{{ next_post.comment_list|length }}]</span>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-auto d-flex align-items-center justify-content-end gap-2 px-2 pb-2 p-lg-3">
+            <a class="btn btn-primary" href="{{ url_for('post.post_list') }}">목록</a>
+            <a class="btn btn-primary" href="javascript:window.scrollTo(0, 0)">맨위로</a>
+        </div>
+    </div>
+    <!-- 이전, 다음 게시글 End -->
 </div>
 {% endblock %}
 

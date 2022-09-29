@@ -139,15 +139,19 @@ def image_upload():
 def detail(post_id):
     post = Post.query.get_or_404(post_id)
     form = CommentForm()
+
     comment_list = Comment.query.filter(Comment.post_id == post_id) \
         .order_by(text('if(isnull(parent_id), id, parent_id)')) \
         .paginate(page=1, per_page=20)
+
+    prev_post = Post.query.filter(Post.id > post_id).first()
+    next_post = Post.query.filter(Post.id < post_id).order_by(Post.id.desc()).first()
 
     # 조회수 증가
     post.num_views += 1
     db.session.commit()
 
-    return render_template('post/post_detail.html', title=post.subject, form=form, post=post, comment_list=comment_list)
+    return render_template('post/post_detail.html', title=post.subject, form=form, post=post, comment_list=comment_list, prev_post=prev_post, next_post=next_post)
 
 
 @bp.route('/modify/<int:post_id>', methods=['GET', 'POST'])
