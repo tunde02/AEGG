@@ -54,7 +54,7 @@ def notifications(username):
 @bp.route('/check/postnotification/<int:notification_id>')
 def check_post_notification(notification_id):
     notification = PostNotification.query.get_or_404(notification_id)
-    if notification == g.user:
+    if notification.user == g.user:
         notification.is_checked = True
 
     db.session.commit()
@@ -65,7 +65,7 @@ def check_post_notification(notification_id):
 @bp.route('/check/commentnotification/<int:notification_id>')
 def check_comment_notification(notification_id):
     notification = CommentNotification.query.get_or_404(notification_id)
-    if notification == g.user:
+    if notification.user == g.user:
         notification.is_checked = True
 
     db.session.commit()
